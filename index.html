@@ -638,31 +638,40 @@
     };
   }
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhEP1UAVo3gyUwJIlhGAPBWa9IHhjwlHRKYm4LpIl3OfQfbHGso2nITBYv24z06nB60Q/exec"; // Put your Google URL here
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyc6C3bbco7lKlIy3gZTOgXlEYs2EuAx_pjEIApCw6aqix24_dh9_M2gtZH7VsD8RKg0w/exec"; // Put your Google URL here
 
 async function saveOrder() {
   const data = getFormData();
-  if (!data.nombre.trim()) { alert('Por favor ingresa el nombre.'); return; }
-  
-  // 1. Save to Local Storage (Keep your current logic)
+  const WEB_APP_URL = "TU_NUEVA_URL_AQUÍ"; // <--- Pega la URL de la nueva implementación
+
+  if (!data.nombre.trim()) { alert('Ingresa el nombre.'); return; }
+
+  // 1. Guardar localmente (para que no pierdas la info si falla el internet)
   const orders = getOrders();
   orders.push(data);
   saveOrders(orders);
+  renderHistory();
 
-  // 2. SEND TO GOOGLE SHEETS
+  // 2. Enviar a Google Sheets
   try {
-    showToast('🚀 Sincronizando con Google...');
-    const response = await fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors", // Required for Google Scripts
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
+    showToast('⏳ Sincronizando...');
+    
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Esto evita el error de CORS
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(data)
     });
-    showToast('✅ Guardado en Google Sheets');
+
+    // Como usamos 'no-cors', no podemos leer la respuesta, 
+    // pero si no salta al 'catch', asumimos que se envió.
+    showToast('✅ Guardado en la Nube');
+    
   } catch (error) {
-    console.error("Error:", error);
-    showToast('❌ Error de conexión');
+    console.error("Error detallado:", error);
+    showToast('⚠️ Error de Red');
   }
 }
 
