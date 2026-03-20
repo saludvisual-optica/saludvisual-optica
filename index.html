@@ -715,45 +715,29 @@ function buildExcelRow(d) {
 }
 
 async function saveOrder() {
-  const data = getFormData();
-  if (!data.nombre.trim()) { showToast('Ingresa el nombre del paciente','error'); return; }
-  if (!data.folio)          { showToast('Ingresa el folio','error'); return; }
-
-  // Save locally
-  const orders = getOrders();
-  const idx = orders.findIndex(o => o.folio == data.folio);
-  if (idx >= 0) {
-    if (!confirm(`El folio ${data.folio} ya existe. ¿Sobreescribir?`)) return;
-    orders[idx] = data;
-  } else {
-    orders.push(data);
-  }
-  saveOrders(orders);
-
-  // Save to OneDrive
-  const cfg = getCfg();
-  if (!cfg.fileId) {
-    showToast('Guardado localmente. Selecciona un archivo Excel primero.','info');
-    return;
-  }
-
-  setSyncState('syncing', 'Guardando en OneDrive...');
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loader"></span> Guardando...';
+  const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhEP1UAVo3gyUwJIlhGAPBWa9IHhjwlHRKYm4LpIl3OfQfbHGso2nITBYv24z06nB60Q/exec";
+  
+  const orderData = {
+    folio: document.getElementById('f-folio').value,
+    nombre: document.getElementById('f-nombre').value,
+    telefono: document.getElementById('f-tel').value,
+    costo: document.getElementById('f-costo').value,
+    deuda: document.getElementById('f-anticipo').value // or your calc function
+  };
 
   try {
-    const row = await writeRowToExcel(cfg.fileId, buildExcelRow(data));
-    setSyncState('ok', 'OneDrive listo');
-    showToast(`✓ Guardado en fila ${row} de Excel`, 'success');
-    clearForm();
-  } catch(e) {
-    setSyncState('error', 'Error al sincronizar');
-    showToast('Error OneDrive: ' + e.message, 'error');
-    setStatusBar('⚠ La orden se guardó localmente pero falló la sincronización con OneDrive: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>☁</span> Guardar en OneDrive';
+    const response = await fetch(G_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(orderData)
+    });
+    
+    if (response.ok) {
+      showToast("¡Guardado en Google Sheets!", "success");
+      clearForm();
+    }
+  } catch (error) {
+    showToast("Error al sincronizar", "error");
+    console.error(error);
   }
 }
 
