@@ -798,216 +798,356 @@ function fv(val) { return val || ''; }
 function fmt(val) { return val ? `<strong>${val}</strong>` : ''; }
 
 function renderFormulario(o) {
-  const medidas = parseMedidas(o.medidas);
+  // Helper: one row of the form table
+  const fr = (lbl, val, full=false) => `
+    <tr>
+      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
+        letter-spacing:.3px;white-space:nowrap;width:90px;vertical-align:middle;
+        border:1px solid #d1d5db;">${lbl}</td>
+      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
+        border:1px solid #d1d5db;${full?'':''}vertical-align:middle;">${val||''}</td>
+    </tr>`;
+  const fr2 = (lbl1,val1,lbl2,val2) => `
+    <tr>
+      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
+        letter-spacing:.3px;white-space:nowrap;width:90px;border:1px solid #d1d5db;vertical-align:middle;">${lbl1}</td>
+      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
+        border:1px solid #d1d5db;vertical-align:middle;">${val1||''}</td>
+      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
+        letter-spacing:.3px;white-space:nowrap;width:90px;border:1px solid #d1d5db;vertical-align:middle;">${lbl2}</td>
+      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
+        border:1px solid #d1d5db;vertical-align:middle;">${val2||''}</td>
+    </tr>`;
+
+  const chkBox = (val) => {
+    const on = val && val !== 'NO' && val !== '' && String(val) !== '0';
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;
+      width:14px;height:14px;border:1.5px solid ${on?'#1a7a4a':'#888'};border-radius:2px;
+      background:${on?'#1a7a4a':'transparent'};color:#fff;font-size:10px;font-weight:800;
+      margin-right:3px;flex-shrink:0">${on?'✓':''}</span>`;
+  };
+  const chkItem = (val, lbl) => `
+    <span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;
+      color:#374151;white-space:nowrap;margin-right:10px">${chkBox(val)}${lbl}</span>`;
+
+  const rxCell = (v) => `<td style="padding:4px 8px;text-align:center;font-family:'DM Mono',monospace;
+    font-size:11px;font-weight:600;border:1px solid #d1d5db;min-width:45px;">${v||''}</td>`;
+  const rxHdr  = (v) => `<th style="padding:5px 8px;text-align:center;background:#1e3a5f;color:#fff;
+    font-size:9px;letter-spacing:.5px;border:1px solid #2a4a6f;min-width:45px;">${v}</th>`;
+
+  const prow = (lbl, val, bold=false) => `
+    <div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #f0f0f0;">
+      <span style="font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
+        letter-spacing:.3px;min-width:80px;flex-shrink:0">${lbl}</span>
+      <span style="font-size:${bold?'13':'11'}px;font-weight:700;font-family:'DM Mono',monospace;
+        color:${bold?'#1a7a4a':'#111827'}">${val}</span>
+    </div>`;
+
   const html = `
-  <div class="of-wrap">
-    <div class="of-header">
-      <div class="of-title">ORDEN DE PEDIDO</div>
-      <div class="of-folio-block">
-        <div class="of-folio-lbl">FOLIO</div>
-        <div class="of-folio-num">${fv(o.folio)||'—'}</div>
-        <div class="of-brand-tag">SALUD VISUAL</div>
+  <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);font-family:'DM Sans',sans-serif;">
+
+    <!-- ── HEADER ── -->
+    <div style="display:flex;background:#1e3a5f;color:#fff;">
+      <div style="flex:1;padding:12px 16px;">
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px">ORDEN DE PEDIDO</div>
+      </div>
+      <div style="background:#15293f;padding:12px 16px;text-align:right;min-width:120px;">
+        <div style="font-size:10px;opacity:.7;letter-spacing:1px">FOLIO</div>
+        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;line-height:1">${o.folio||'—'}</div>
+        <div style="font-size:9px;opacity:.7;margin-top:2px">SALUD VISUAL</div>
       </div>
     </div>
-    <div class="of-lab-row">
-      <span>LAB: ${fv(o.lab)||'—'}</span>
-      <span>FOLIO LAB: ${fv(o.fol)||'—'}</span>
+    <div style="background:#1a7a4a;color:#fff;padding:4px 16px;display:flex;flex-wrap:wrap;gap:12px;font-size:10px;font-weight:600;letter-spacing:.4px;">
+      <span>LAB: ${o.lab||'—'}</span>
+      <span>FOLIO LAB: ${o.fol||'—'}</span>
       <span>SERVICIOS DE SALUD · 8136443744</span>
     </div>
 
-    <!-- PATIENT FIELDS -->
-    <div class="of-fields">
-      <div class="of-field"><span class="of-fl">NOMBRE:</span><span class="of-fv">${fmt(o.nombre)}</span></div>
-      <div class="of-field"><span class="of-fl">FECHA:</span><span class="of-fv">${fmt(o.fecha)}</span></div>
-      <div class="of-field full" style="grid-column:span 2"><span class="of-fl">DIRECCIÓN:</span><span class="of-fv">${fmt(o.calle)}</span></div>
-      <div class="of-field"><span class="of-fl">MUNICIPIO:</span><span class="of-fv">${fmt(o.municipio)}</span></div>
-      <div class="of-field"><span class="of-fl">COLONIA:</span><span class="of-fv">${fmt(o.colonia)}</span></div>
-      <div class="of-field"><span class="of-fl">ENTRE CALLES:</span><span class="of-fv">${fmt(o.entre||o.entre_calles)}</span></div>
-      <div class="of-field"><span class="of-fl">TELÉFONO:</span><span class="of-fv">${fmt(o.tel)}</span></div>
-      <div class="of-field"><span class="of-fl">REFERENCIA:</span><span class="of-fv">${fmt(o.ref||o.referencia)}</span></div>
-      <div class="of-field"><span class="of-fl">EDAD:</span><span class="of-fv">${fmt(o.edad)}</span></div>
-      <div class="of-field"><span class="of-fl">OPTOMETRISTA:</span><span class="of-fv">${fmt(o.optom||o.optometrista)}</span></div>
+    <!-- ── DATOS PACIENTE ── -->
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;min-width:320px;">
+        <tbody>
+          ${fr2('NOMBRE', o.nombre, 'FECHA', o.fecha)}
+          ${fr('DIRECCIÓN', o.calle, true)}
+          ${fr2('MUNICIPIO', o.municipio, 'COLONIA', o.colonia)}
+          ${fr2('ENTRE CALLES', o.entre||o.entre_calles, 'TELÉFONO', o.tel)}
+          ${fr2('REFERENCIA', o.ref||o.referencia, 'EDAD', o.edad)}
+          ${fr2('OPTOMETRISTA', o.optom||o.optometrista, 'PACIENTE', o.nombre)}
+        </tbody>
+      </table>
     </div>
 
-    <!-- LENS OPTIONS CHECKBOXES -->
-    <div class="of-checks-band">
-      <div class="of-chk">${box(o.blanco)} BLANCO</div>
-      <div class="of-chk">${box(o.foto)} FOTOCROMÁTICO</div>
-      <div class="of-chk">${box(o.ar_lens && o.ar_lens!=='NO' ? o.ar_lens : '')} ANTIREFLEJANTE</div>
-      <div class="of-chk">${box(o.invisible)} INVISIBLE</div>
-      <div class="of-chk">${box(o.prog || o.progresivo)} PROGRESIVO</div>
-      <div class="of-chk">${box(o.hi || o.hi_index)} HI INDEX</div>
-      <div class="of-chk">${box(o.poli || o.policarbonato)} POLICARBONATO</div>
+    <!-- ── CHECKBOX BAND ── -->
+    <div style="background:#f8fafc;border-top:1px solid #d1d5db;border-bottom:1px solid #d1d5db;
+      padding:7px 12px;display:flex;flex-wrap:wrap;gap:4px 0;align-items:center;">
+      ${chkItem(o.blanco,'BLANCO')}
+      ${chkItem(o.foto,'FOTOCROMÁTICO')}
+      ${chkItem(o.ar_lens&&o.ar_lens!=='NO'?'SI':'','ANTIREFLEJANTE')}
+      ${chkItem(o.invisible,'INVISIBLE')}
+      ${chkItem(o.prog||o.progresivo,'PROGRESIVO')}
+      ${chkItem(o.hi||o.hi_index,'HI INDEX')}
+      ${chkItem(o.poli||o.policarbonato,'POLICARBONATO')}
     </div>
 
-    <!-- RX + ARMAZON -->
-    <div class="of-rx-section">
-      <div class="of-rx-table-wrap">
-        <table class="of-rx-tbl">
-          <thead>
-            <tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="eye-cell">OD</td>
-              <td>${fv(o.od_esf)}</td><td>${fv(o.od_cyl)}</td>
-              <td>${fv(o.od_eje)}</td><td>${fv(o.od_add)}</td>
-            </tr>
-            <tr>
-              <td class="eye-cell">OI</td>
-              <td>${fv(o.oi_esf)}</td><td>${fv(o.oi_cyl)}</td>
-              <td>${fv(o.oi_eje)}</td><td>${fv(o.oi_add)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="margin-top:6px;font-size:9px;color:var(--mu)">
-          DIP: <strong>${fv(o.dip)}</strong> &nbsp; ALT: <strong>${fv(o.alt)}</strong>
-        </div>
-      </div>
-      <div class="of-extras">
-        <div class="of-extra-row"><span class="of-extra-lbl">ARMAZÓN:</span><span class="of-extra-val">${fv(o.armazon)}</span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">COLOR:</span><span class="of-extra-val">${fv(o.color||o.color_armazon)}</span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">MEDIDAS:</span><span class="of-extra-val">${fv(o.medidas)}</span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">TPO VISIÓN:</span><span class="of-extra-val"><strong>${fv(o.vision)}</strong></span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">DISTANCIA:</span><span class="of-extra-val">${fv(o.dist||o.distancia)}</span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">FILTRO:</span><span class="of-extra-val">${fv(o.filtro)}</span></div>
-        <div class="of-extra-row"><span class="of-extra-lbl">AR:</span><span class="of-extra-val">${fv(o.ar_lens||o.ar)}</span></div>
+    <!-- ── RX TABLE ── -->
+    <div style="overflow-x:auto;border-bottom:1px solid #d1d5db;">
+      <table style="border-collapse:collapse;margin:8px 12px;">
+        <thead>
+          <tr>
+            <th style="width:34px;background:#1e3a5f;border:1px solid #2a4a6f;"></th>
+            ${rxHdr('ESF')}${rxHdr('CYL')}${rxHdr('EJE')}${rxHdr('ADD')}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="background:#1a7a4a;color:#fff;font-weight:700;font-size:11px;
+              text-align:center;padding:4px 6px;border:1px solid #1a7a4a;">OD</td>
+            ${rxCell(o.od_esf)}${rxCell(o.od_cyl)}${rxCell(o.od_eje)}${rxCell(o.od_add)}
+          </tr>
+          <tr>
+            <td style="background:#1a7a4a;color:#fff;font-weight:700;font-size:11px;
+              text-align:center;padding:4px 6px;border:1px solid #1a7a4a;">OI</td>
+            ${rxCell(o.oi_esf)}${rxCell(o.oi_cyl)}${rxCell(o.oi_eje)}${rxCell(o.oi_add)}
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:#6b7280;padding:0 12px 8px;">
+        DIP: <strong>${o.dip||'—'}</strong> &nbsp;&nbsp; ALT: <strong>${o.alt||'—'}</strong>
       </div>
     </div>
 
-    <!-- ANTERIOR / ACTUAL / MEDICAL -->
-    <div class="of-vision-section">
-      <div class="of-vision-block">
-        <div class="of-cond-title" style="font-size:9px;margin-bottom:4px">GRADUACIÓN ANTERIOR</div>
-        <div style="display:flex;gap:16px;font-size:10px">
-          <div><span style="color:var(--mu);font-weight:700">OD: </span>${fv(o.ant_od)||'—'}</div>
-          <div><span style="color:var(--mu);font-weight:700">OI: </span>${fv(o.ant_oi)||'—'}</div>
+    <!-- ── ARMAZÓN + EXTRAS ── -->
+    <div style="overflow-x:auto;border-bottom:1px solid #d1d5db;">
+      <table style="width:100%;border-collapse:collapse;min-width:300px;">
+        <tbody>
+          ${fr2('ARMAZÓN', o.armazon, 'COLOR', o.color||o.color_armazon)}
+          ${fr2('MEDIDAS', o.medidas, 'TPO VISIÓN', o.vision)}
+          ${fr2('DISTANCIA', o.dist||o.distancia, 'FILTRO / AR', (o.filtro||'')+(o.ar_lens&&o.ar_lens!=='NO'?' · '+o.ar_lens:''))}
+          ${fr2('COLOR ARMAZÓN', o.color||o.color_armazon, 'TAMAÑO', o.medidas)}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── ANTERIOR / ACTUAL + DIABETES/PRESIÓN ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #d1d5db;">
+      <div style="padding:8px 12px;border-right:1px solid #d1d5db;">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">ANTERIOR</div>
+        <div style="font-size:10px;display:flex;gap:14px;margin-bottom:6px;">
+          <span style="color:#6b7280;font-weight:700">OD:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.ant_od||'—'}</span>
+          <span style="color:#6b7280;font-weight:700">OI:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.ant_oi||'—'}</span>
         </div>
-        <div class="of-cond-title" style="font-size:9px;margin:6px 0 4px">GRADUACIÓN ACTUAL</div>
-        <div style="display:flex;gap:16px;font-size:10px">
-          <div><span style="color:var(--mu);font-weight:700">OD: </span>${fv(o.act_od)||'—'}</div>
-          <div><span style="color:var(--mu);font-weight:700">OI: </span>${fv(o.act_oi)||'—'}</div>
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">ACTUAL</div>
+        <div style="font-size:10px;display:flex;gap:14px;">
+          <span style="color:#6b7280;font-weight:700">OD:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.act_od||'—'}</span>
+          <span style="color:#6b7280;font-weight:700">OI:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.act_oi||'—'}</span>
         </div>
       </div>
-      <div class="of-vision-block">
-        <div class="of-cond-title" style="font-size:9px;margin-bottom:6px">CONDICIONES MÉDICAS</div>
-        <div style="display:flex;gap:10px;font-size:10px">
-          <div class="of-chk">${box(o.diab||o.diabetes)} DIABETES</div>
-          <div class="of-chk">${box(o.pres||o.presion)} PRESIÓN</div>
+      <div style="padding:8px 12px;">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:8px;">CONDICIONES MÉDICAS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${chkItem(o.diab||o.diabetes,'DIABETES')}
+          ${chkItem(o.pres||o.presion,'PRESIÓN')}
         </div>
+        <div style="margin-top:8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">TIPO DE VISIÓN</div>
+        <div style="font-size:11px;font-weight:700;color:#1a7a4a">${o.vision||'—'}</div>
       </div>
     </div>
 
-    <!-- PAYMENT -->
-    <div class="of-payment">
-      <div class="of-pay-row">
-        <span class="of-pay-lbl">DÍA PAGO:</span>
-        <span class="of-pay-line" style="padding:0 4px;font-size:10px;font-weight:600">${fv(o.diapago)}</span>
+    <!-- ── PAYMENT ── -->
+    <div style="background:#f8fafc;padding:10px 14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;">
+        <div>
+          ${prow('DÍA DE PAGO', o.diapago||'—')}
+          ${prow('DÍA ENTREGA', o.entrega||o.dia_entrega||'—')}
+          ${prow('COSTO LENTE', '$'+Number(o.costo||0).toLocaleString('es-MX'), true)}
+        </div>
+        <div>
+          ${prow('DEUDA', '$'+Number(o.deuda||0).toLocaleString('es-MX'), true)}
+          ${prow('ENGANCHE', '$'+Number(o.anticipo||0).toLocaleString('es-MX'))}
+          ${prow('PAGO SEMANAL', '$'+Number(o.semanal||o.pago_semanal||0).toLocaleString('es-MX'))}
+        </div>
       </div>
-      <div class="of-pay-row">
-        <span class="of-pay-lbl">DÍA ENTREGA:</span>
-        <span class="of-pay-line" style="padding:0 4px;font-size:10px;font-weight:600">${fv(o.entrega||o.dia_entrega)}</span>
-      </div>
-      <div class="of-pay-row">
-        <span class="of-pay-lbl">COSTO LENTE:</span>
-        <span style="font-size:11px;font-weight:700;color:var(--g1);font-family:'DM Mono',monospace">$${Number(o.costo||0).toLocaleString('es-MX')}</span>
-      </div>
-      <div class="of-pay-row">
-        <span class="of-pay-lbl">DEUDA:</span>
-        <span style="font-size:11px;font-weight:700;color:var(--rd);font-family:'DM Mono',monospace">$${Number(o.deuda||0).toLocaleString('es-MX')}</span>
-      </div>
-      <div class="of-pay-row full">
-        <div class="of-chk">${box(o.fpago==='CONTADO'?'SI':'')} CONTADO</div>
-        <div class="of-chk" style="margin-left:16px">${box(o.fpago==='CREDITO'?'SI':'')} CRÉDITO</div>
-        <span class="of-pay-lbl" style="margin-left:16px">ENGANCHE:</span>
-        <span style="font-size:11px;font-weight:700;font-family:'DM Mono',monospace">$${Number(o.anticipo||0).toLocaleString('es-MX')}</span>
-        <span class="of-pay-lbl" style="margin-left:16px">PAGO SEMANAL:</span>
-        <span style="font-size:11px;font-weight:700;font-family:'DM Mono',monospace">$${Number(o.semanal||o.pago_semanal||0).toLocaleString('es-MX')}</span>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid #d1d5db;">
+        ${chkItem(o.fpago==='CONTADO'?'SI':'','CONTADO')}
+        ${chkItem(o.fpago==='CREDITO'?'SI':'','CRÉDITO')}
+        ${chkItem(o.fpago==='ENGANCHE'||o.anticipo>0?'SI':'','ENGANCHE')}
       </div>
     </div>
+
   </div>`;
   document.getElementById('of-container').innerHTML = html;
 }
 
 // ─── RENDER REPORTE CLIENTE ───────────────────────────────────────
-function analyzeRx(o) {
-  const odE = parseFloat(o.od_esf)||0, odC = parseFloat(o.od_cyl)||0;
-  const oiE = parseFloat(o.oi_esf)||0, oiC = parseFloat(o.oi_cyl)||0;
-  const add  = parseFloat(o.od_add)||parseFloat(o.oi_add)||0;
-  const maxE = Math.max(Math.abs(odE), Math.abs(oiE));
-  const maxC = Math.max(Math.abs(odC), Math.abs(oiC));
-  return {
-    miopia:        odE < -0.25 || oiE < -0.25,
-    hipermetropia: odE > 0.25  || oiE > 0.25,
-    astigmatismo:  maxC > 0.25,
-    presbicia:     add  > 0,
-    anisometropia: Math.abs(odE - oiE) > 1.0,
-    necesitaLentes: maxE > 0.5 || maxC > 0.25 || add > 0,
-    tipoLente:     o.vision || (add > 0 ? 'PROGRESIVO' : 'MONO'),
-    severidadE:    maxE <= 1 ? 20 : maxE <= 3 ? 55 : 85,
-    severidadC:    maxC <= 0.5 ? 15 : maxC <= 1.5 ? 50 : 80,
-    add, maxE, maxC
-  };
+// ─── REPORT HELPERS ──────────────────────────────────────────────
+// Returns an inline editable input when value is missing,
+// or a styled static display when value exists.
+function rptField(val, opts = {}) {
+  const { id='', type='text', placeholder='—', list='', width='100%', mono=false } = opts;
+  const style = `font-size:13px;font-weight:600;border:none;background:transparent;
+    color:var(--dk);width:${width};font-family:${mono?"'DM Mono',monospace":"'DM Sans',sans-serif"};padding:0;`;
+  if (val && String(val).trim()) {
+    return `<span style="${style}${mono?'':''}color:var(--dk)">${val}</span>`;
+  }
+  const inputStyle = `font-size:13px;font-weight:500;border-bottom:1.5px dashed #d97706;
+    background:#fffbeb;color:#92400e;border-radius:0;padding:1px 4px;width:${width};
+    font-family:${mono?"'DM Mono',monospace":"'DM Sans',sans-serif"};`;
+  const listAttr = list ? `list="${list}"` : '';
+  const idAttr   = id ? `id="${id}"` : '';
+  return `<input type="${type}" ${idAttr} ${listAttr} placeholder="${placeholder}"
+    style="${inputStyle}" oninput="rptSync(this,'${id}')">`;
 }
 
+function rptSelect(val, options, id='') {
+  const idAttr = id ? `id="${id}"` : '';
+  const base = `font-size:13px;font-weight:600;border:none;padding:1px 4px;border-radius:4px;cursor:pointer;`;
+  if (val && String(val).trim()) {
+    return `<select ${idAttr} style="${base}background:var(--g3);color:var(--g1);"
+      oninput="rptSync(this,'${id}')">
+      ${options.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}
+    </select>`;
+  }
+  return `<select ${idAttr} style="${base}background:#fffbeb;color:#92400e;border-bottom:1.5px dashed #d97706;"
+    oninput="rptSync(this,'${id}')">
+    <option value="">— seleccionar —</option>
+    ${options.map(o=>`<option>${o}</option>`).join('')}
+  </select>`;
+}
+
+// rptCheck: source='manual'=green, 'calc'=yellow+badge, else gray
+function rptCheck(val, label, id, source) {
+  const checked = val === 'SI' || val === true || val === 1;
+  const isCalc  = source === 'calc';
+  const bg      = isCalc ? '#fffbeb' : 'transparent';
+  const bd      = isCalc ? '1px solid #fcd34d' : 'none';
+  const accent  = isCalc ? '#d97706' : '#1a7a4a';
+  const badge   = isCalc
+    ? '<span style="font-size:9px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 4px;margin-left:4px;font-weight:700;letter-spacing:.3px;">calculado · validar</span>'
+    : '';
+  return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;'
+    + 'background:'+bg+';border:'+bd+';border-radius:5px;padding:'+(isCalc?'4px 7px':'0')+';flex-wrap:wrap;">'
+    + '<input type="checkbox" id="'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:'+accent+';" onchange="rptSync(this,\''+id+'\')"> '
+    + '<span style="color:'+(checked?(isCalc?'#92400e':'#1a7a4a'):'#6b7280')+'">'+label+'</span>'
+    + badge
+    + '</label>';
+}
+
+// Stores live edits to the current report order object
+let rptEdits = {};
+function rptSync(el, key) {
+  rptEdits[key] = el.type==='checkbox' ? (el.checked?'SI':'') : el.value;
+}
+
+// Parse medidas string "52-18-145" into parts
 function parseMedidas(m) {
-  if (!m) return { aro:'—', puente:'—', varilla:'—' };
-  const p = m.split('-');
-  if (p.length >= 3) return { aro:p[0], puente:p[1], varilla:p[2] };
-  return { aro:m, puente:'—', varilla:'—' };
-}
-
-function getTratamiento(o) {
-  const parts = [];
-  if (o.ar_lens && o.ar_lens !== 'NO') parts.push('Antireflejante '+o.ar_lens);
-  if (o.foto === 'SI' || o.filtro === 'FOTO') parts.push('Fotocromático');
-  if (o.filtro === 'BLUE') parts.push('Blue Filter');
-  if (o.invisible === 'SI') parts.push('Invisible');
-  return parts.join(', ') || 'Estándar';
-}
-
-function getLensDesign(rx) {
-  if (rx.tipoLente === 'PROGRESIVO') return 'Progresivo Digital Avanzado';
-  if (rx.tipoLente === 'BIFOCAL') return 'Bifocal';
-  return 'Monofocal';
-}
-
-function getSeveridadLabel(pct) {
-  if (pct < 30) return {lbl:'Leve', cls:'low'};
-  if (pct < 65) return {lbl:'Moderado', cls:'med'};
-  return {lbl:'Alto', cls:'high'};
+  if (!m) return { aro:'', puente:'', varilla:'' };
+  const p = String(m).split('-');
+  if (p.length >= 3) return { aro:p[0].trim(), puente:p[1].trim(), varilla:p[2].trim() };
+  return { aro:m, puente:'', varilla:'' };
 }
 
 function renderReporte(o) {
-  const rx  = analyzeRx(o);
+  rptEdits = {}; // reset edits for new order
+
+  const fecha = o.fecha
+    ? (String(o.fecha).includes('-')
+        ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'})
+        : o.fecha)
+    : '';
+
   const med = parseMedidas(o.medidas);
-  const fecha = o.fecha ? (String(o.fecha).includes('-') ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'}) : o.fecha) : '—';
 
-  const conds = [
-    {key:'miopia',     lbl:'Miopía'},
-    {key:'hipermetropia', lbl:'Hipermetropía'},
-    {key:'anisometropia', lbl:'Anisometropía'},
-    {key:'astigmatismo',  lbl:'Astigmatismo'},
-    {key:'presbicia',     lbl:'Presbicia'},
-  ];
+  // ── OPTOMETRIC CALCULATIONS FROM Rx ───────────────────────────────
+  // All derived values are flagged source='calc' → yellow + "validar"
+  const odE = parseFloat(o.od_esf) || 0;
+  const odC = parseFloat(o.od_cyl) || 0;
+  const oiE = parseFloat(o.oi_esf) || 0;
+  const oiC = parseFloat(o.oi_cyl) || 0;
+  const odA = parseFloat(o.od_add) || 0;
+  const oiA = parseFloat(o.oi_add) || 0;
+  const add = Math.max(odA, oiA);
 
-  const svE = getSeveridadLabel(rx.severidadE);
-  const svC = getSeveridadLabel(rx.severidadC);
+  // Spherical Equivalent = ESF + (CYL / 2)
+  const seOD = odE + odC / 2;
+  const seOI = oiE + oiC / 2;
+  const seMax = Math.max(Math.abs(seOD), Math.abs(seOI));
+  const hasRx = odE !== 0 || oiE !== 0 || odC !== 0 || oiC !== 0;
 
-  const lensType = rx.tipoLente;
-  const isProg   = lensType === 'PROGRESIVO';
-  const isBif    = lensType === 'BIFOCAL';
-  const isMono   = !isProg && !isBif;
+  // Conditions derived from Rx
+  const rxMiopia        = odE < -0.25 || oiE < -0.25;
+  const rxHiper         = odE > +0.25 || oiE > +0.25;
+  const rxAstig         = Math.abs(odC) > 0.25 || Math.abs(oiC) > 0.25;
+  const rxPresbicia     = add > 0;
+  const rxAniso         = Math.abs(odE - oiE) > 1.0;
 
-  const usages = [
-    {lbl:'No requiere lentes',           active:!rx.necesitaLentes},
-    {lbl:'Requiere lentes todo el día',  active:rx.necesitaLentes && (rx.miopia || rx.hipermetropia)},
-    {lbl:'Solo lectura',                 active:rx.presbicia && !rx.miopia && !rx.hipermetropia},
-    {lbl:'Uso en computadora',           active:rx.astigmatismo && !rx.necesitaLentes},
-  ];
+  // Severity levels  (WHO / clinical optometry ranges)
+  // Myopia: mild ≤3D, moderate ≤6D, high >6D
+  const miopiaMax = Math.max(Math.abs(Math.min(seOD, 0)), Math.abs(Math.min(seOI, 0)));
+  const miopiaSev = miopiaMax <= 0.25 ? null : miopiaMax <= 3 ? 'Leve' : miopiaMax <= 6 ? 'Moderada' : 'Alta';
+  // Hyperopia: mild ≤2D, moderate ≤5D, high >5D
+  const hiperMax = Math.max(Math.max(seOD, 0), Math.max(seOI, 0));
+  const hiperSev = hiperMax <= 0.25 ? null : hiperMax <= 2 ? 'Leve' : hiperMax <= 5 ? 'Moderada' : 'Alta';
+  // Astigmatism: mild ≤1D, moderate ≤2D, high >2D
+  const astigMax = Math.max(Math.abs(odC), Math.abs(oiC));
+  const astigSev = astigMax <= 0.25 ? null : astigMax <= 1 ? 'Leve' : astigMax <= 2 ? 'Moderado' : 'Alto';
+  // Presbyopia: add ≤1=inicial, ≤2=moderada, >2=avanzada
+  const presSev  = add <= 0 ? null : add <= 1 ? 'Inicial' : add <= 2 ? 'Moderada' : 'Avanzada';
+
+  // Usage recommendations from Rx
+  // "No requiere lentes": SE within ±0.25 and CYL < 0.25
+  const rxNoLentes    = !rxMiopia && !rxHiper && !rxAstig && !rxPresbicia && hasRx;
+  // "Todo el día": significant myopia or hyperopia
+  const rxTodoDia     = (miopiaMax > 1.0 || hiperMax > 2.0) && !rxPresbicia;
+  // "Lectura": mild hyperopia or presbyopia without significant distance Rx
+  const rxLectura     = rxPresbicia || (rxHiper && !rxMiopia && hiperMax <= 2.0);
+  // "Computadora": mild astigmatism OR mild sphere with occupational need
+  const rxComputadora = rxAstig && astigMax <= 2.0;
+  // "Conducir": significant myopia (safety threshold >-0.8 uncorrected)
+  const rxConducir    = miopiaMax >= 0.75;
+
+  // Severity gauge bar helper
+  const gauge = (pct, label, note) => {
+    const cls = pct < 35 ? '#22c55e' : pct < 65 ? '#f59e0b' : '#ef4444';
+    return '<div style="background:#f9fafb;border-radius:8px;padding:10px 12px;flex:1;min-width:140px;">'
+      + '<div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">' + label + '</div>'
+      + '<div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:5px;">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + cls + ';border-radius:3px;"></div></div>'
+      + '<div style="font-size:10px;color:#6b7280;">' + note + '</div>'
+      + '</div>';
+  };
+
+  const sevPct = (max, scale) => Math.min(100, Math.round((max / scale) * 100));
+
+  // ── LENS TYPE from order field (not inferred) ─────────────────────
+  const visionVal = o.vision || o.tpo_vision || '';
+  const isProg = visionVal === 'PROGRESIVO';
+  const isBif  = visionVal === 'BIFOCAL';
+  const isMono = visionVal === 'MONO';
+
+  // Material from checkbox only
+  const matVal = (o.poli==='SI'||o.policarbonato==='SI') ? 'Policarbonato'
+               : (o.hi==='SI'||o.hi_index==='SI') ? 'Hi Index'
+               : '';
+
+  // Treatment from real checkboxes/selects only — no inference from Rx
+  const tratParts = [];
+  if (o.ar_lens && o.ar_lens !== 'NO' && o.ar_lens !== '') tratParts.push('AR '+o.ar_lens);
+  else if (o.ar && o.ar !== 'NO' && o.ar !== '') tratParts.push('AR '+o.ar);
+  if (o.filtro && o.filtro !== 'NINGUNO' && o.filtro !== '') tratParts.push(o.filtro);
+  if (o.foto==='SI') tratParts.push('Fotocromático');
+  if (o.invisible==='SI') tratParts.push('Invisible');
+  const tratVal = tratParts.join(', ');
 
   const html = `
-  <div class="rpt-wrap">
+  <div class="rpt-wrap" id="rpt-live">
+
+    <!-- AMBER NOTE (screen only) -->
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px 8px 0 0;padding:8px 14px;font-size:11px;color:#92400e;display:flex;align-items:center;gap:6px;" class="no-print">
+      <span style="font-size:14px">✏️</span>
+      Campos <span style="background:#fef3c7;border-bottom:1.5px dashed #d97706;padding:1px 4px;border-radius:2px;font-weight:700">en amarillo</span>
+      no tienen dato en la orden — completa antes de imprimir.
+    </div>
+
     <!-- HEADER -->
     <div class="rpt-header">
       <div>
@@ -1016,65 +1156,97 @@ function renderReporte(o) {
         <div class="rpt-brand-phone">📞 8136443744</div>
       </div>
       <div class="rpt-patient-box">
-        <div class="rpt-patient-name">${o.nombre||'Paciente'}</div>
-        <div class="rpt-patient-meta">
-          Folio: #${o.folio||'—'}<br>
-          Fecha: ${fecha}<br>
-          ${o.optom||o.optometrista ? 'Optometrista: '+(o.optom||o.optometrista) : ''}
+        <div class="rpt-patient-name">${o.nombre || '<span style="opacity:.6;font-weight:400;font-size:13px">Sin nombre</span>'}</div>
+        <div class="rpt-patient-meta" style="line-height:1.7">
+          <span>Folio: <strong>#${o.folio||'—'}</strong></span><br>
+          <span>Fecha: <strong>${fecha||'—'}</strong></span><br>
+          <span>Optometrista: ${rptField(o.optom||o.optometrista,{id:'rpt-optom',placeholder:'Nombre optometrista',width:'140px'})}</span>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 1: REFRACCIÓN -->
+    <!-- SECTION 1: REFRACCIÓN — only from Rx fields, all real data -->
     <div class="rpt-section">
       <div class="rpt-section-hdr">
         <div class="rpt-section-num">1</div>
         <div class="rpt-section-title">Refracción (Condición Visual)</div>
       </div>
+
       <table class="rpt-rx-table">
         <thead>
-          <tr>
-            <th>OJO</th><th>ESFERA</th><th>CILINDRO</th><th>EJE</th><th>ADICIÓN</th><th>DIST. NP</th>
-          </tr>
+          <tr><th>OJO</th><th>ESFERA</th><th>CILINDRO</th><th>EJE</th><th>ADICIÓN</th><th>DIST. NP</th></tr>
         </thead>
         <tbody>
           <tr class="eye-row">
             <td>OD</td>
-            <td>${o.od_esf||'—'}</td><td>${o.od_cyl||'—'}</td>
-            <td>${o.od_eje||'—'}</td><td>${o.od_add||'—'}</td>
-            <td>${o.dip||'—'}</td>
+            <td>${rptField(o.od_esf,{id:'rpt-od-esf',placeholder:'Ej: -1.00',mono:true,width:'70px'})}</td>
+            <td>${rptField(o.od_cyl,{id:'rpt-od-cyl',placeholder:'Ej: -0.50',mono:true,width:'70px'})}</td>
+            <td>${rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'85°',mono:true,width:'55px'})}</td>
+            <td>${rptField(o.od_add,{id:'rpt-od-add',placeholder:'+0.00',mono:true,width:'60px'})}</td>
+            <td>${rptField(o.dip,   {id:'rpt-dip',   placeholder:'mm',  mono:true,width:'50px'})}</td>
           </tr>
           <tr class="eye-row">
             <td>OI</td>
-            <td>${o.oi_esf||'—'}</td><td>${o.oi_cyl||'—'}</td>
-            <td>${o.oi_eje||'—'}</td><td>${o.oi_add||'—'}</td>
-            <td>${o.dip||'—'}</td>
+            <td>${rptField(o.oi_esf,{id:'rpt-oi-esf',placeholder:'Ej: -0.50',mono:true,width:'70px'})}</td>
+            <td>${rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'Ej: -0.25',mono:true,width:'70px'})}</td>
+            <td>${rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'90°',mono:true,width:'55px'})}</td>
+            <td>${rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'+0.00',mono:true,width:'60px'})}</td>
+            <td></td>
           </tr>
         </tbody>
       </table>
 
-      <div class="rpt-conditions">
-        ${conds.map(c=>`
-          <div class="rpt-cond ${rx[c.key]?'active':'inactive'}">
-            <span class="cond-icon">${rx[c.key]?'✓':'○'}</span> ${c.lbl}
-          </div>`).join('')}
+      <!-- Conditions: ALWAYS manual checkboxes — user marks what the optometrist diagnosed -->
+      <div style="margin-top:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+          Diagnóstico — marca las condiciones detectadas:
+        </div>
+        <div class="rpt-conditions" style="flex-wrap:wrap;gap:10px;">
+          ${rptCheck(o.miopia||''     || (hasRx ? (rxMiopia ?'SI':'') : ''),
+            'Miopía'        + (miopiaSev?' — '+miopiaSev:''), 'rpt-miopia',
+            hasRx&&!o.miopia ? 'calc' : 'manual')}
+          ${rptCheck(o.hipermetropia||'' || (hasRx ? (rxHiper ?'SI':'') : ''),
+            'Hipermetropía' + (hiperSev?' — '+hiperSev:''), 'rpt-hiper',
+            hasRx&&!o.hipermetropia ? 'calc' : 'manual')}
+          ${rptCheck(o.anisometropia||'' || (hasRx ? (rxAniso ?'SI':'') : ''),
+            'Anisometropía', 'rpt-aniso',
+            hasRx&&!o.anisometropia ? 'calc' : 'manual')}
+          ${rptCheck(o.astigmatismo||''  || (hasRx ? (rxAstig ?'SI':'') : ''),
+            'Astigmatismo'  + (astigSev?' — '+astigSev:''), 'rpt-astig',
+            hasRx&&!o.astigmatismo ? 'calc' : 'manual')}
+          ${rptCheck(o.presbicia||''     || (hasRx ? (rxPresbicia?'SI':'') : ''),
+            'Presbicia'     + (presSev?' — '+presSev:''), 'rpt-pres',
+            hasRx&&!o.presbicia ? 'calc' : 'manual')}
+          ${rptCheck(o.ambliopía||'', 'Ambliopia', 'rpt-ambli', 'manual')}
+        </div>
       </div>
 
-      <div class="rpt-gauges">
-        <div class="rpt-gauge-block">
-          <div class="rpt-gauge-title">Problema visual</div>
-          <div class="rpt-gauge-bar"><div class="rpt-gauge-fill ${svE.cls}" style="width:${rx.severidadE}%"></div></div>
-          <div class="rpt-gauge-label">${svE.lbl} — ${rx.maxE.toFixed(2)} D</div>
+      <!-- Spherical Equivalent + Severity gauges — only if Rx data present -->
+      ${hasRx ? `
+      <div style="margin-top:12px;padding:10px 12px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
+        <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span style="background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;font-size:9px;">calculado · validar</span>
+          Equivalente esférico (SE = ESF + CYL/2)
         </div>
-        <div class="rpt-gauge-block">
-          <div class="rpt-gauge-title">Astigmatismo</div>
-          <div class="rpt-gauge-bar"><div class="rpt-gauge-fill ${svC.cls}" style="width:${rx.severidadC}%"></div></div>
-          <div class="rpt-gauge-label">${svC.lbl} — ${rx.maxC.toFixed(2)} D</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;font-family:'DM Mono',monospace;">
+          <span style="background:#e8f5ee;color:#1a7a4a;padding:3px 8px;border-radius:5px;font-weight:700;">
+            OD SE: ${seOD >= 0 ? '+' : ''}${seOD.toFixed(2)} D
+          </span>
+          <span style="background:#e8f5ee;color:#1a7a4a;padding:3px 8px;border-radius:5px;font-weight:700;">
+            OI SE: ${seOI >= 0 ? '+' : ''}${seOI.toFixed(2)} D
+          </span>
+          ${rxAniso ? '<span style="background:#fee2e2;color:#dc2626;padding:3px 8px;border-radius:5px;font-weight:700;">Anisometropía: '+Math.abs(odE-oiE).toFixed(2)+' D</span>' : ''}
         </div>
-      </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${rxMiopia   ? gauge(sevPct(miopiaMax, 8), 'Miopía',        miopiaSev+' ('+miopiaMax.toFixed(2)+' D)') : ''}
+          ${rxHiper    ? gauge(sevPct(hiperMax,  6), 'Hipermetropía', hiperSev +' ('+hiperMax.toFixed(2) +' D)') : ''}
+          ${rxAstig    ? gauge(sevPct(astigMax,  4), 'Astigmatismo',  astigSev +' ('+astigMax.toFixed(2) +' D)') : ''}
+          ${rxPresbicia? gauge(sevPct(add, 3.5),     'Presbicia ADD', presSev  +' (+'+add.toFixed(2)     +' D)') : ''}
+        </div>
+      </div>` : ''}
     </div>
 
-    <!-- SECTION 2: LENTES RECOMENDADOS -->
+    <!-- SECTION 2: LENTES — from order fields, editable if missing -->
     <div class="rpt-section">
       <div class="rpt-section-hdr">
         <div class="rpt-section-num">2</div>
@@ -1082,28 +1254,40 @@ function renderReporte(o) {
       </div>
       <table class="rpt-lens-table">
         <thead>
-          <tr><th>Característica</th><th>Diseño / Material / Tratamiento</th><th>Atributos</th></tr>
+          <tr><th>Característica</th><th>Especificación</th><th>Observaciones</th></tr>
         </thead>
         <tbody>
-          <tr><td>Diseño</td><td>${getLensDesign(rx)}</td><td rowspan="3" style="vertical-align:middle;color:var(--g1);font-weight:600;font-size:11px">
-            ${rx.maxE > 3 ? 'Alta corrección, máxima nitidez' : rx.astigmatismo ? 'Mayor claridad y menor distorsión' : 'Mejor comodidad visual'}
-          </td></tr>
-          <tr><td>Material</td><td>${(o.poli||o.policarbonato||rx.maxE>4)?'Policarbonato':'CR-39 (Orgánico)'}</td></tr>
-          <tr><td>Tratamiento</td><td>${getTratamiento(o)}</td></tr>
+          <tr>
+            <td>Diseño</td>
+            <td>${rptSelect(visionVal,['MONO','BIFOCAL','PROGRESIVO'],'rpt-vision')}</td>
+            <td rowspan="3" style="vertical-align:top;padding-top:8px">
+              ${rptField(o.observaciones_lente||'',{id:'rpt-obs-lente',placeholder:'Observaciones del optometrista...',width:'100%'})}
+            </td>
+          </tr>
+          <tr>
+            <td>Material</td>
+            <td>${rptSelect(matVal,['','CR-39 (Orgánico)','Policarbonato','Hi Index','Trivex'],'rpt-material')}</td>
+          </tr>
+          <tr>
+            <td>Tratamiento</td>
+            <td>${rptField(tratVal,{id:'rpt-trat',placeholder:'Ej: Antireflejante, BLUE...',width:'140px'})}</td>
+          </tr>
         </tbody>
       </table>
-      <div class="rpt-lens-types">
-        <div class="rpt-lens-type ${isMono?'selected':''}">
+
+      <!-- Lens type selector — visual, from vision field -->
+      <div class="rpt-lens-types" style="margin-top:12px">
+        <div class="rpt-lens-type ${isMono?'selected':''}" onclick="document.getElementById('rpt-vision').value='MONO';rptSync(document.getElementById('rpt-vision'),'rpt-vision');document.querySelectorAll('.rpt-lens-type').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');" style="cursor:pointer">
           <div class="rpt-lens-type-icon">○</div>
           <div class="rpt-lens-type-name">Monofocal</div>
           <div class="rpt-lens-type-desc">Una sola visión</div>
         </div>
-        <div class="rpt-lens-type ${isBif?'selected':''}">
+        <div class="rpt-lens-type ${isBif?'selected':''}" onclick="document.getElementById('rpt-vision').value='BIFOCAL';rptSync(document.getElementById('rpt-vision'),'rpt-vision');document.querySelectorAll('.rpt-lens-type').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');" style="cursor:pointer">
           <div class="rpt-lens-type-icon">◑</div>
           <div class="rpt-lens-type-name">Bifocal</div>
           <div class="rpt-lens-type-desc">Visión lejana y cercana</div>
         </div>
-        <div class="rpt-lens-type ${isProg?'selected':''}">
+        <div class="rpt-lens-type ${isProg?'selected':''}" onclick="document.getElementById('rpt-vision').value='PROGRESIVO';rptSync(document.getElementById('rpt-vision'),'rpt-vision');document.querySelectorAll('.rpt-lens-type').forEach(x=>x.classList.remove('selected'));this.classList.add('selected');" style="cursor:pointer">
           <div class="rpt-lens-type-icon">◐</div>
           <div class="rpt-lens-type-name">Progresivo</div>
           <div class="rpt-lens-type-desc">Visión gradual lejana, intermedia y cercana</div>
@@ -1111,46 +1295,70 @@ function renderReporte(o) {
       </div>
     </div>
 
-    <!-- SECTION 3: ARMAZÓN -->
+    <!-- SECTION 3: ARMAZÓN — from medidas field, editable per part if missing -->
     <div class="rpt-section">
       <div class="rpt-section-hdr">
         <div class="rpt-section-num">3</div>
         <div class="rpt-section-title">Armazón Recomendado</div>
       </div>
-      ${o.armazon ? `<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--dk)">
-        Modelo: ${o.armazon}${o.color||o.color_armazon ? ' · '+( o.color||o.color_armazon) : ''}
-      </div>` : ''}
+      <div style="font-size:13px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <div><span style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Modelo:</span>
+          ${rptField(o.armazon,{id:'rpt-armazon',placeholder:'Modelo armazón',width:'140px'})}</div>
+        <div><span style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Color:</span>
+          ${rptField(o.color||o.color_armazon,{id:'rpt-color',placeholder:'Color',width:'100px'})}</div>
+      </div>
       <div class="rpt-frame">
         <div class="rpt-frame-measure">
           <div class="rpt-frame-lbl">Varilla</div>
-          <div class="rpt-frame-val">${med.varilla}</div>
+          <div class="rpt-frame-val">${rptField(med.varilla,{id:'rpt-varilla',placeholder:'—',mono:true,width:'50px'})}</div>
           <div class="rpt-frame-unit">mm</div>
         </div>
         <div class="rpt-frame-measure">
           <div class="rpt-frame-lbl">Aro</div>
-          <div class="rpt-frame-val">${med.aro}</div>
+          <div class="rpt-frame-val">${rptField(med.aro,{id:'rpt-aro',placeholder:'—',mono:true,width:'50px'})}</div>
           <div class="rpt-frame-unit">mm</div>
         </div>
         <div class="rpt-frame-measure">
           <div class="rpt-frame-lbl">Puente</div>
-          <div class="rpt-frame-val">${med.puente}</div>
+          <div class="rpt-frame-val">${rptField(med.puente,{id:'rpt-puente',placeholder:'—',mono:true,width:'50px'})}</div>
           <div class="rpt-frame-unit">mm</div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 4: RECOMENDACIONES -->
+    <!-- SECTION 4: RECOMENDACIONES — always manual checkboxes, never auto -->
     <div class="rpt-section">
       <div class="rpt-section-hdr">
         <div class="rpt-section-num">4</div>
         <div class="rpt-section-title">Recomendaciones de Uso</div>
       </div>
-      <div class="rpt-usage">
-        ${usages.map(u=>`
-          <div class="rpt-usage-item ${u.active?'active':'inactive'}">
-            <span>${u.active?'✓':'○'}</span> ${u.lbl}
-          </div>`).join('')}
+      <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+        Marca las indicaciones para el paciente:
       </div>
+      <div class="rpt-usage" style="flex-direction:column;gap:8px">
+        ${rptCheck(o.rec_no_lentes||''    || (hasRx?(rxNoLentes?'SI':''):''),
+          'No requiere lentes', 'rpt-rec1', hasRx&&!o.rec_no_lentes?'calc':'manual')}
+        ${rptCheck(o.rec_todo_dia||''     || (hasRx?(rxTodoDia?'SI':''):''),
+          'Requiere lentes todo el día', 'rpt-rec2', hasRx&&!o.rec_todo_dia?'calc':'manual')}
+        ${rptCheck(o.rec_lectura||''      || (hasRx?(rxLectura?'SI':''):''),
+          'Solo lectura / cerca', 'rpt-rec3', hasRx&&!o.rec_lectura?'calc':'manual')}
+        ${rptCheck(o.rec_computadora||''  || (hasRx?(rxComputadora?'SI':''):''),
+          'Para uso en computadora', 'rpt-rec4', hasRx&&!o.rec_computadora?'calc':'manual')}
+        ${rptCheck(o.rec_conducir||''     || (hasRx?(rxConducir?'SI':''):''),
+          'Para conducir', 'rpt-rec5', hasRx&&!o.rec_conducir?'calc':'manual')}
+      </div>
+    </div>
+
+    <!-- OBSERVACIONES GENERALES — always editable free text -->
+    <div class="rpt-section">
+      <div class="rpt-section-hdr">
+        <div class="rpt-section-num">5</div>
+        <div class="rpt-section-title">Observaciones Generales</div>
+      </div>
+      <textarea id="rpt-observaciones" placeholder="Escribe aquí las observaciones del optometrista para el paciente..."
+        style="width:100%;min-height:70px;border:1.5px dashed #d97706;background:#fffbeb;color:#92400e;
+          border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;"
+        oninput="rptSync(this,'rpt-obs')">${o.observaciones||''}</textarea>
     </div>
 
     <!-- FIRMA -->
@@ -1160,15 +1368,15 @@ function renderReporte(o) {
       </div>
       <div class="rpt-sig-block">
         <div class="rpt-sig-line"></div>
-        <div class="rpt-sig-name">${o.optom||o.optometrista||'Optometrista'}</div>
+        <div class="rpt-sig-name">${o.optom||o.optometrista||'___________________'}</div>
         <div class="rpt-sig-title">Salud Visual · Servicios de Salud</div>
       </div>
     </div>
 
     <!-- NOTA -->
     <div class="rpt-note">
-      NOTA: Los resultados pueden variar por factores como alimentación, medicamentos o ejercicio.
-      Los datos deben ser siempre interpretados por un profesional. · Folio #${o.folio||'—'} · ${new Date().toLocaleDateString('es-MX')}
+      NOTA: Los resultados deben ser interpretados por un profesional.
+      Los datos provienen directamente de la orden de pedido. · Folio #${o.folio||'—'} · ${new Date().toLocaleDateString('es-MX')}
     </div>
   </div>`;
   document.getElementById('rpt-container').innerHTML = html;
