@@ -527,8 +527,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="sec">Armazón y Lentes</div>
       <div class="grid g3">
         <div class="fld"><label>Armazón</label><input type="text" id="f-armazon"></div>
-        <div class="fld"><label>Color</label><input type="text" id="f-color"></div>
-        <div class="fld"><label>Medidas</label><input type="text" id="f-medidas" placeholder="52-18-145"></div>
+        <div class="fld"><label>Color Armazón</label><input type="text" id="f-medidas" placeholder="Negro, Carey..."></div>
+        <div class="fld"><label>Varilla (mm)</label><input type="number" inputmode="numeric" id="f-varilla" placeholder="130"></div>
+        <div class="fld"><label>Aro (mm)</label><input type="number" inputmode="numeric" id="f-aro" placeholder="52"></div>
+        <div class="fld"><label>Puente (mm)</label><input type="number" inputmode="numeric" id="f-puente" placeholder="18"></div>
         <div class="fld"><label>Tipo de Visión</label>
           <select id="f-vision"><option value="">—</option><option>MONO</option><option>BIFOCAL</option><option>PROGRESIVO</option></select></div>
       </div>
@@ -942,6 +944,7 @@ function renderFormulario(o) {
             +'<th style="'+RXH+'">EJE</th>'
             +'<th style="'+RXH+'">ADD</th>'
             +'<th style="'+RXH+'">DIP</th>'
+            +'<th style="'+RXH+'">ALT</th>'
           +'</tr>'
           +'<tr>'
             +'<td style="'+EYE+'">OD</td>'
@@ -950,6 +953,7 @@ function renderFormulario(o) {
             +'<td style="'+RXC+'">'+(o.od_eje||'')+'</td>'
             +'<td style="'+RXC+'">'+(o.od_add||'')+'</td>'
             +'<td style="'+RXC+'">'+(o.dip||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.alt||'')+'</td>'
           +'</tr>'
           +'<tr>'
             +'<td style="'+EYE+'">OI</td>'
@@ -984,15 +988,15 @@ function renderFormulario(o) {
           +'</tr>'
           +'<tr>'
             +'<td style="'+LBL+'">Color</td>'
-            +'<td colspan="3" style="'+VAL+'">'+(o.color||o.color_armazon||'')+'</td>'
+            +'<td colspan="3" style="'+VAL+'">'+(o.medidas||'')+'</td>'
           +'</tr>'
           +'<tr>'
-            +'<td style="'+LBL+'font-size:8px;">ARO</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[0]||'—':'—')+'</td>'
-            +'<td style="'+LBL+'font-size:8px;">PUENTE</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[1]||'—':'—')+'</td>'
+            +'<td style="'+LBL+'font-size:8px;">ARO</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.aro||'—')+'</td>'
+            +'<td style="'+LBL+'font-size:8px;">PUENTE</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.puente||'—')+'</td>'
           +'</tr>'
           +'<tr>'
             +'<td style="'+LBL+'font-size:8px;" colspan="2">VARILLA</td>'
-            +'<td colspan="2" style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[2]||'—':'—')+'</td>'
+            +'<td colspan="2" style="'+VAL+'font-size:10px;text-align:center;">'+(o.varilla||'—')+'</td>'
           +'</tr>'
           // Condiciones médicas
           +'<tr>'
@@ -1356,8 +1360,10 @@ function renderReporte(o) {
         : o.fecha)
     : '';
 
-  var med = parseMedidas(o.medidas);
+  // AA=Varilla, AB=Aro, AC=Puente, AL=Color Armazón (col medidas)
+  var med = {aro:o.aro||'', puente:o.puente||'', varilla:o.varilla||''};
   rptOrder.aro=med.aro; rptOrder.puente=med.puente; rptOrder.varilla=med.varilla;
+  var colorArmazon = o.medidas||o.color||""; // AL column = Color Armazón
 
   // ── Rx Calculations ──────────────────────────────────────────────
   var odE=parseFloat(o.od_esf)||0, odC=parseFloat(o.od_cyl)||0;
@@ -1468,7 +1474,8 @@ function renderReporte(o) {
       +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">CILINDRO</th>'
       +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">EJE</th>'
       +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ADICIÓN</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">DIST.</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">DIP</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ALT</th>'
     +'</tr></thead>'
     +'<tbody>'
     +'<tr>'
@@ -1478,6 +1485,7 @@ function renderReporte(o) {
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_add,{id:'rpt-od-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.dip,{id:'rpt-dip',placeholder:'—',mono:true,width:'40px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.alt,{id:'rpt-alt',placeholder:'—',mono:true,width:'40px'})+'</td>'
     +'</tr>'
     +'<tr>'
       +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:5px 8px;text-align:center;border:1px solid #d1fae5;">OI</td>'
@@ -1485,6 +1493,7 @@ function renderReporte(o) {
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'—',mono:true,width:'54px'})+'</td>'
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;"></td>'
       +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;"></td>'
     +'</tr>'
     +'</tbody></table>'
@@ -1588,7 +1597,7 @@ function renderReporte(o) {
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:6px;">'
           +'<span style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;min-width:50px;">Color:</span>'
-          +rptField(o.color||o.color_armazon,{id:'rpt-color',placeholder:'Color',width:'110px'})
+          +rptField(colorArmazon,{id:'rpt-color',placeholder:'Color Armazón',width:'110px'})
         +'</div>'
       +'</div>'
     +'</div>'
@@ -1661,7 +1670,8 @@ function buildPayload(d) {
     'costo lente':d.costo,'forma de pago':d.fpago,'anticipo':d.anticipo,'rbdo':0,'deuda':d.deuda,
     'od_esf':d.od_esf,'od_cyl':d.od_cyl,'od_eje':d.od_eje,'od_add':d.od_add,
     'oi_esf':d.oi_esf,'oi_cyl':d.oi_cyl,'oi_eje':d.oi_eje,'oi_add':d.oi_add,
-    'dip':d.dip,'alt':d.alt,'ant_od':d.ant_od,'ant_oi':d.ant_oi,'act_od':d.act_od,'act_oi':d.act_oi,
+    'dip':d.dip,'alt':d.alt,'varilla':d.varilla,'aro':d.aro,'puente':d.puente,
+    'ant_od':d.ant_od,'ant_oi':d.ant_oi,'act_od':d.act_od,'act_oi':d.act_oi,
     'vision':d.vision,'filtro':d.filtro,'ar':d.ar,'armazon':d.armazon,
     'medidas':d.medidas,'distancia':d.dist,
     'blanco':d.blanco,'foto':d.foto,'invisible':d.invisible,
@@ -1710,9 +1720,10 @@ function getFormData() {
     od_esf:g('od-esf'),od_cyl:g('od-cyl'),od_eje:g('od-eje'),od_add:g('od-add'),
     oi_esf:g('oi-esf'),oi_cyl:g('oi-cyl'),oi_eje:g('oi-eje'),oi_add:g('oi-add'),
     dip:g('f-dip'),alt:g('f-alt'),
+    varilla:g('f-varilla'),aro:g('f-aro'),puente:g('f-puente'),
     ant_od:g('ant-od'),ant_oi:g('ant-oi'),act_od:g('act-od'),act_oi:g('act-oi'),
     vision:g('f-vision'),filtro:g('f-filtro'),ar:g('f-ar'),
-    armazon:g('f-armazon'),color:g('f-color'),medidas:g('f-medidas'),dist:g('f-dist'),
+    armazon:g('f-armazon'),color:g('f-medidas'),medidas:g('f-medidas'),dist:'',
     blanco:gc('ch-blanco'),foto:gc('ch-foto'),invisible:gc('ch-invisible'),
     prog:gc('ch-prog'),hi:gc('ch-hi'),poli:gc('ch-poli'),diab:gc('ch-diab'),pres:gc('ch-pres'),
     blue:gc('ch-blue'),ar_check:gc('ch-ar'),ar_blue:gc('ch-ar-blue'),ar_no:gc('ch-ar-no'),
