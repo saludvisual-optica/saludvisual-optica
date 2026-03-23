@@ -362,7 +362,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   .screen.active{display:block!important;padding:0!important;}
   body{background:white;display:block;}
   .screen-max{max-width:none;}
-  .of-wrap,.rpt-wrap{box-shadow:none;border-radius:0;}
+  .rpt-wrap{box-shadow:none;border-radius:0;}
+  #screen-formulario .screen-max{padding:0!important;max-width:100%!important;}
+  .rpt-formulario-wrap{page-break-inside:avoid;max-width:100%!important;}
   @page{margin:8mm;}
 }
 
@@ -798,185 +800,218 @@ function fv(val) { return val || ''; }
 function fmt(val) { return val ? `<strong>${val}</strong>` : ''; }
 
 function renderFormulario(o) {
-  // Helper: one row of the form table
-  const fr = (lbl, val, full=false) => `
-    <tr>
-      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
-        letter-spacing:.3px;white-space:nowrap;width:90px;vertical-align:middle;
-        border:1px solid #d1d5db;">${lbl}</td>
-      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
-        border:1px solid #d1d5db;${full?'':''}vertical-align:middle;">${val||''}</td>
-    </tr>`;
-  const fr2 = (lbl1,val1,lbl2,val2) => `
-    <tr>
-      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
-        letter-spacing:.3px;white-space:nowrap;width:90px;border:1px solid #d1d5db;vertical-align:middle;">${lbl1}</td>
-      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
-        border:1px solid #d1d5db;vertical-align:middle;">${val1||''}</td>
-      <td style="padding:5px 8px;font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
-        letter-spacing:.3px;white-space:nowrap;width:90px;border:1px solid #d1d5db;vertical-align:middle;">${lbl2}</td>
-      <td style="padding:5px 8px;font-size:11px;font-weight:600;color:#111827;
-        border:1px solid #d1d5db;vertical-align:middle;">${val2||''}</td>
-    </tr>`;
+  // compact cell helpers
+  var S = 'border:1px solid #b8cce4;padding:3px 6px;vertical-align:middle;';
+  var LBL = S+'font-size:9px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;background:#dce6f1;';
+  var VAL = S+'font-size:11px;font-weight:600;color:#111827;min-width:60px;';
+  var VAL2 = S+'font-size:11px;font-weight:600;color:#111827;min-width:80px;';
+  var RXH = 'border:1px solid #b8cce4;padding:4px 6px;text-align:center;font-size:9px;font-weight:700;color:#fff;background:#1e3a5f;letter-spacing:.4px;';
+  var RXC = S+'text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;font-weight:700;color:#111827;min-width:44px;';
+  var EYE = S+'background:#1a7a4a;color:#fff;font-weight:800;font-size:10px;text-align:center;width:26px;';
 
-  const chkBox = (val) => {
-    const on = val && val !== 'NO' && val !== '' && String(val) !== '0';
-    return `<span style="display:inline-flex;align-items:center;justify-content:center;
-      width:14px;height:14px;border:1.5px solid ${on?'#1a7a4a':'#888'};border-radius:2px;
-      background:${on?'#1a7a4a':'transparent'};color:#fff;font-size:10px;font-weight:800;
-      margin-right:3px;flex-shrink:0">${on?'✓':''}</span>`;
-  };
-  const chkItem = (val, lbl) => `
-    <span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;
-      color:#374151;white-space:nowrap;margin-right:10px">${chkBox(val)}${lbl}</span>`;
+  function chk(val) {
+    var on = val&&val!=='NO'&&val!=='';
+    return '<span style="display:inline-flex;align-items:center;justify-content:center;'
+      +'width:13px;height:13px;border:1.5px solid '+(on?'#1a7a4a':'#999')+';border-radius:2px;'
+      +'background:'+(on?'#1a7a4a':'transparent')+';color:#fff;font-size:9px;font-weight:800;'
+      +'margin-right:3px;flex-shrink:0;">'+(on?'✓':'')+'</span>';
+  }
+  function ci(val,lbl) {
+    return '<span style="display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:700;'
+      +'color:#1e3a5f;white-space:nowrap;margin-right:8px;">'+chk(val)+lbl+'</span>';
+  }
 
-  const rxCell = (v) => `<td style="padding:4px 8px;text-align:center;font-family:'DM Mono',monospace;
-    font-size:11px;font-weight:600;border:1px solid #d1d5db;min-width:45px;">${v||''}</td>`;
-  const rxHdr  = (v) => `<th style="padding:5px 8px;text-align:center;background:#1e3a5f;color:#fff;
-    font-size:9px;letter-spacing:.5px;border:1px solid #2a4a6f;min-width:45px;">${v}</th>`;
+  var arLens = o.ar_lens||o.ar||'';
 
-  const prow = (lbl, val, bold=false) => `
-    <div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #f0f0f0;">
-      <span style="font-size:10px;font-weight:700;color:#5a6a7a;text-transform:uppercase;
-        letter-spacing:.3px;min-width:80px;flex-shrink:0">${lbl}</span>
-      <span style="font-size:${bold?'13':'11'}px;font-weight:700;font-family:'DM Mono',monospace;
-        color:${bold?'#1a7a4a':'#111827'}">${val}</span>
-    </div>`;
+  var html =
+  // Print-only style: fit to page width, no margins waste
+  '<style>@media print{'
+  +'.rpt-formulario-wrap{page-break-inside:avoid;}'
+  +'}</style>'
 
-  const html = `
-  <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);font-family:'DM Sans',sans-serif;">
+  +'<div class="rpt-formulario-wrap" style="font-family:\'DM Sans\',sans-serif;max-width:720px;">'
 
-    <!-- ── HEADER ── -->
-    <div style="display:flex;background:#1e3a5f;color:#fff;">
-      <div style="flex:1;padding:12px 16px;">
-        <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px">ORDEN DE PEDIDO</div>
-      </div>
-      <div style="background:#15293f;padding:12px 16px;text-align:right;min-width:120px;">
-        <div style="font-size:10px;opacity:.7;letter-spacing:1px">FOLIO</div>
-        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;line-height:1">${o.folio||'—'}</div>
-        <div style="font-size:9px;opacity:.7;margin-top:2px">SALUD VISUAL</div>
-      </div>
-    </div>
-    <div style="background:#1a7a4a;color:#fff;padding:4px 16px;display:flex;flex-wrap:wrap;gap:12px;font-size:10px;font-weight:600;letter-spacing:.4px;">
-      <span>LAB: ${o.lab||'—'}</span>
-      <span>FOLIO LAB: ${o.fol||'—'}</span>
-      <span>SERVICIOS DE SALUD · 8136443744</span>
-    </div>
+  // ── TOP HEADER ──
+  +'<table style="width:100%;border-collapse:collapse;border:2px solid #1e3a5f;">'
+    +'<tr>'
+      // Big title
+      +'<td colspan="3" style="background:#1e3a5f;color:#fff;text-align:center;padding:6px 10px;'
+        +'font-size:20px;font-weight:800;letter-spacing:-.5px;width:55%;">ORDEN DE PEDIDO</td>'
+      // Folio block
+      +'<td style="background:#2a4a6f;color:#fff;padding:4px 10px;vertical-align:top;width:22%;">'
+        +'<div style="font-size:9px;letter-spacing:1px;opacity:.8">FOLIO</div>'
+        +'<div style="font-size:22px;font-weight:800;font-family:\'DM Mono\',monospace;line-height:1">'+(o.folio||'—')+'</div>'
+        +'<div style="font-size:8px;opacity:.7;margin-top:1px">SALUD VISUAL</div>'
+      +'</td>'
+      // Lab block
+      +'<td style="background:#1a7a4a;color:#fff;padding:4px 8px;vertical-align:top;width:23%;">'
+        +'<div style="font-size:8px;letter-spacing:.5px;opacity:.8">LAB</div>'
+        +'<div style="font-size:13px;font-weight:800">'+(o.lab||'—')+'</div>'
+        +'<div style="font-size:8px;opacity:.7;margin-top:2px">FOLIO LAB: '+(o.fol||'—')+'</div>'
+        +'<div style="font-size:8px;opacity:.7">TEL: 8136443744</div>'
+      +'</td>'
+    +'</tr>'
+  +'</table>'
 
-    <!-- ── DATOS PACIENTE ── -->
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;min-width:320px;">
-        <tbody>
-          ${fr2('NOMBRE', o.nombre, 'FECHA', o.fecha)}
-          ${fr('DIRECCIÓN', o.calle, true)}
-          ${fr2('MUNICIPIO', o.municipio, 'COLONIA', o.colonia)}
-          ${fr2('ENTRE CALLES', o.entre||o.entre_calles, 'TELÉFONO', o.tel)}
-          ${fr2('REFERENCIA', o.ref||o.referencia, 'EDAD', o.edad)}
-          ${fr2('OPTOMETRISTA', o.optom||o.optometrista, 'PACIENTE', o.nombre)}
-        </tbody>
-      </table>
-    </div>
+  // ── PATIENT + RIGHT OPTIONS in one row table ──
+  +'<table style="width:100%;border-collapse:collapse;border:1px solid #b8cce4;border-top:none;">'
+    +'<tr>'
+      // Left: patient data
+      +'<td style="vertical-align:top;padding:0;width:60%;">'
+        +'<table style="width:100%;border-collapse:collapse;">'
+          +'<tr>'
+            +'<td style="'+LBL+'width:70px;">Nombre</td>'
+            +'<td colspan="3" style="'+VAL2+'font-size:12px;font-weight:800;color:#1e3a5f;">'+(o.nombre||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Dirección</td>'
+            +'<td colspan="3" style="'+VAL2+'">'+(o.calle||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Municipio</td><td style="'+VAL+'">'+(o.municipio||'')+'</td>'
+            +'<td style="'+LBL+'">Colonia</td><td style="'+VAL+'">'+(o.colonia||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Teléfono</td><td style="'+VAL+'">'+(o.tel||'')+'</td>'
+            +'<td style="'+LBL+'">Edad</td><td style="'+VAL+'">'+(o.edad||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Optometrista</td>'
+            +'<td colspan="3" style="'+VAL+'">'+(o.optom||o.optometrista||'')+'</td>'
+          +'</tr>'
+        +'</table>'
+      +'</td>'
+      // Right: lens options as checkboxes
+      +'<td style="vertical-align:top;padding:0;border-left:2px solid #1e3a5f;width:40%;">'
+        +'<table style="width:100%;border-collapse:collapse;">'
+          +'<tr><td style="'+LBL+'background:#1e3a5f;color:#fff;text-align:center;" colspan="2">TIPO DE LENTE / EXTRAS</td></tr>'
+          +'<tr>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.blanco,'BLANCO')+'</td>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.foto||o.filtro==='FOTO'?'SI':'','FOTOCROMÁTICO')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(arLens&&arLens!=='NO'?'SI':'','ANTIREFLEJANTE')
+              +(arLens&&arLens!=='NO'?'<span style="font-size:9px;font-weight:800;color:#1a7a4a;margin-left:3px;">('+arLens+')</span>':'')+'</td>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.invisible,'INVISIBLE')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.prog||o.progresivo,'PROGRESIVO')+'</td>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.hi||o.hi_index,'HI INDEX')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+S+'padding:3px 6px;">'+ci(o.poli||o.policarbonato,'POLICARBONATO')+'</td>'
+            +'<td style="'+S+'padding:3px 6px;"><span style="font-size:9px;font-weight:700;color:#1e3a5f;">VISIÓN: <strong style="color:#1a7a4a;">'+(o.vision||'—')+'</strong></span></td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td colspan="2" style="'+S+'padding:3px 6px;background:#f0f4f8;">'
+              +'<span style="font-size:9px;font-weight:700;color:#1e3a5f;">FILTRO: '+(o.filtro||'—')+'</span>'
+              +'&nbsp;&nbsp;<span style="font-size:9px;font-weight:700;color:#1e3a5f;">DIST: '+(o.dist||o.distancia||'—')+'</span>'
+            +'</td>'
+          +'</tr>'
+        +'</table>'
+      +'</td>'
+    +'</tr>'
+  +'</table>'
 
-    <!-- ── CHECKBOX BAND ── -->
-    <div style="background:#f8fafc;border-top:1px solid #d1d5db;border-bottom:1px solid #d1d5db;
-      padding:7px 12px;display:flex;flex-wrap:wrap;gap:4px 0;align-items:center;">
-      ${chkItem(o.blanco,'BLANCO')}
-      ${chkItem(o.foto,'FOTOCROMÁTICO')}
-      ${chkItem(o.ar_lens&&o.ar_lens!=='NO'?'SI':'','ANTIREFLEJANTE')}
-      ${chkItem(o.invisible,'INVISIBLE')}
-      ${chkItem(o.prog||o.progresivo,'PROGRESIVO')}
-      ${chkItem(o.hi||o.hi_index,'HI INDEX')}
-      ${chkItem(o.poli||o.policarbonato,'POLICARBONATO')}
-    </div>
+  // ── RX TABLE + ARMAZÓN side by side ──
+  +'<table style="width:100%;border-collapse:collapse;border:1px solid #b8cce4;border-top:none;">'
+    +'<tr>'
+      // RX
+      +'<td style="vertical-align:top;padding:0;width:55%;">'
+        +'<table style="border-collapse:collapse;width:100%;">'
+          +'<tr>'
+            +'<th style="'+RXH+'width:26px;"></th>'
+            +'<th style="'+RXH+'">ESF</th>'
+            +'<th style="'+RXH+'">CYL</th>'
+            +'<th style="'+RXH+'">EJE</th>'
+            +'<th style="'+RXH+'">ADD</th>'
+            +'<th style="'+RXH+'">DIP</th>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+EYE+'">OD</td>'
+            +'<td style="'+RXC+'">'+(o.od_esf||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.od_cyl||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.od_eje||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.od_add||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.dip||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+EYE+'">OI</td>'
+            +'<td style="'+RXC+'">'+(o.oi_esf||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.oi_cyl||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.oi_eje||'')+'</td>'
+            +'<td style="'+RXC+'">'+(o.oi_add||'')+'</td>'
+            +'<td style="'+RXC+'"></td>'
+          +'</tr>'
+          // ANTERIOR / ACTUAL
+          +'<tr>'
+            +'<td style="'+LBL+'background:#dce6f1;font-size:8px;" colspan="2">ANT OD</td>'
+            +'<td style="'+VAL+'font-size:10px;" colspan="2">'+(o.ant_od||'—')+'</td>'
+            +'<td style="'+LBL+'background:#dce6f1;font-size:8px;">ANT OI</td>'
+            +'<td style="'+VAL+'font-size:10px;">'+(o.ant_oi||'—')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'background:#dce6f1;font-size:8px;" colspan="2">ACT OD</td>'
+            +'<td style="'+VAL+'font-size:10px;" colspan="2">'+(o.act_od||'—')+'</td>'
+            +'<td style="'+LBL+'background:#dce6f1;font-size:8px;">ACT OI</td>'
+            +'<td style="'+VAL+'font-size:10px;">'+(o.act_oi||'—')+'</td>'
+          +'</tr>'
+        +'</table>'
+      +'</td>'
+      // Armazón + medidas
+      +'<td style="vertical-align:top;padding:0;border-left:2px solid #1e3a5f;width:45%;">'
+        +'<table style="width:100%;border-collapse:collapse;">'
+          +'<tr><td style="'+LBL+'background:#1e3a5f;color:#fff;text-align:center;" colspan="4">ARMAZÓN</td></tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Modelo</td>'
+            +'<td colspan="3" style="'+VAL+'">'+(o.armazon||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'">Color</td>'
+            +'<td colspan="3" style="'+VAL+'">'+(o.color||o.color_armazon||'')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'font-size:8px;">ARO</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[0]||'—':'—')+'</td>'
+            +'<td style="'+LBL+'font-size:8px;">PUENTE</td><td style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[1]||'—':'—')+'</td>'
+          +'</tr>'
+          +'<tr>'
+            +'<td style="'+LBL+'font-size:8px;" colspan="2">VARILLA</td>'
+            +'<td colspan="2" style="'+VAL+'font-size:10px;text-align:center;">'+(o.medidas?o.medidas.split('-')[2]||'—':'—')+'</td>'
+          +'</tr>'
+          // Condiciones médicas
+          +'<tr>'
+            +'<td colspan="4" style="'+S+'padding:4px 6px;background:#f0f4f8;">'
+              +ci(o.diab||o.diabetes,'DIABETES')
+              +ci(o.pres||o.presion,'PRESIÓN')
+            +'</td>'
+          +'</tr>'
+        +'</table>'
+      +'</td>'
+    +'</tr>'
+  +'</table>'
 
-    <!-- ── RX TABLE ── -->
-    <div style="overflow-x:auto;border-bottom:1px solid #d1d5db;">
-      <table style="border-collapse:collapse;margin:8px 12px;">
-        <thead>
-          <tr>
-            <th style="width:34px;background:#1e3a5f;border:1px solid #2a4a6f;"></th>
-            ${rxHdr('ESF')}${rxHdr('CYL')}${rxHdr('EJE')}${rxHdr('ADD')}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="background:#1a7a4a;color:#fff;font-weight:700;font-size:11px;
-              text-align:center;padding:4px 6px;border:1px solid #1a7a4a;">OD</td>
-            ${rxCell(o.od_esf)}${rxCell(o.od_cyl)}${rxCell(o.od_eje)}${rxCell(o.od_add)}
-          </tr>
-          <tr>
-            <td style="background:#1a7a4a;color:#fff;font-weight:700;font-size:11px;
-              text-align:center;padding:4px 6px;border:1px solid #1a7a4a;">OI</td>
-            ${rxCell(o.oi_esf)}${rxCell(o.oi_cyl)}${rxCell(o.oi_eje)}${rxCell(o.oi_add)}
-          </tr>
-        </tbody>
-      </table>
-      <div style="font-size:9px;color:#6b7280;padding:0 12px 8px;">
-        DIP: <strong>${o.dip||'—'}</strong> &nbsp;&nbsp; ALT: <strong>${o.alt||'—'}</strong>
-      </div>
-    </div>
+  // ── PAYMENT STRIP (minimal — no prices, just schedule info) ──
+  +'<table style="width:100%;border-collapse:collapse;border:1px solid #b8cce4;border-top:none;background:#f0f4f8;">'
+    +'<tr>'
+      +'<td style="'+LBL+'background:#1e3a5f;color:#fff;width:70px;">DÍA PAGO</td>'
+      +'<td style="'+VAL+'min-width:80px;">'+(o.diapago||'')+'</td>'
+      +'<td style="'+LBL+'background:#1e3a5f;color:#fff;">DÍA ENTREGA</td>'
+      +'<td style="'+VAL+'min-width:80px;">'+(o.entrega||o.dia_entrega||'')+'</td>'
+      +'<td style="'+LBL+'background:#1e3a5f;color:#fff;">F. PAGO</td>'
+      +'<td style="'+VAL+'">'
+        +ci(o.fpago==='CONTADO'?'SI':'','CONTADO')
+        +ci(o.fpago==='CREDITO'?'SI':'','CRÉDITO')
+      +'</td>'
+      +'<td style="'+LBL+'background:#1e3a5f;color:#fff;">PROMOTOR</td>'
+      +'<td style="'+VAL+'min-width:40px;">'+(o.prom||'')+'</td>'
+    +'</tr>'
+  +'</table>'
 
-    <!-- ── ARMAZÓN + EXTRAS ── -->
-    <div style="overflow-x:auto;border-bottom:1px solid #d1d5db;">
-      <table style="width:100%;border-collapse:collapse;min-width:300px;">
-        <tbody>
-          ${fr2('ARMAZÓN', o.armazon, 'COLOR', o.color||o.color_armazon)}
-          ${fr2('MEDIDAS', o.medidas, 'TPO VISIÓN', o.vision)}
-          ${fr2('DISTANCIA', o.dist||o.distancia, 'FILTRO / AR', (o.filtro||'')+(o.ar_lens&&o.ar_lens!=='NO'?' · '+o.ar_lens:''))}
-          ${fr2('COLOR ARMAZÓN', o.color||o.color_armazon, 'TAMAÑO', o.medidas)}
-        </tbody>
-      </table>
-    </div>
+  +'</div>';
 
-    <!-- ── ANTERIOR / ACTUAL + DIABETES/PRESIÓN ── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #d1d5db;">
-      <div style="padding:8px 12px;border-right:1px solid #d1d5db;">
-        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">ANTERIOR</div>
-        <div style="font-size:10px;display:flex;gap:14px;margin-bottom:6px;">
-          <span style="color:#6b7280;font-weight:700">OD:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.ant_od||'—'}</span>
-          <span style="color:#6b7280;font-weight:700">OI:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.ant_oi||'—'}</span>
-        </div>
-        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">ACTUAL</div>
-        <div style="font-size:10px;display:flex;gap:14px;">
-          <span style="color:#6b7280;font-weight:700">OD:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.act_od||'—'}</span>
-          <span style="color:#6b7280;font-weight:700">OI:</span><span style="font-family:'DM Mono',monospace;font-weight:600">${o.act_oi||'—'}</span>
-        </div>
-      </div>
-      <div style="padding:8px 12px;">
-        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:8px;">CONDICIONES MÉDICAS</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${chkItem(o.diab||o.diabetes,'DIABETES')}
-          ${chkItem(o.pres||o.presion,'PRESIÓN')}
-        </div>
-        <div style="margin-top:8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:#374151;margin-bottom:6px;">TIPO DE VISIÓN</div>
-        <div style="font-size:11px;font-weight:700;color:#1a7a4a">${o.vision||'—'}</div>
-      </div>
-    </div>
-
-    <!-- ── PAYMENT ── -->
-    <div style="background:#f8fafc;padding:10px 14px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;">
-        <div>
-          ${prow('DÍA DE PAGO', o.diapago||'—')}
-          ${prow('DÍA ENTREGA', o.entrega||o.dia_entrega||'—')}
-          ${prow('COSTO LENTE', '$'+Number(o.costo||0).toLocaleString('es-MX'), true)}
-        </div>
-        <div>
-          ${prow('DEUDA', '$'+Number(o.deuda||0).toLocaleString('es-MX'), true)}
-          ${prow('ENGANCHE', '$'+Number(o.anticipo||0).toLocaleString('es-MX'))}
-          ${prow('PAGO SEMANAL', '$'+Number(o.semanal||o.pago_semanal||0).toLocaleString('es-MX'))}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid #d1d5db;">
-        ${chkItem(o.fpago==='CONTADO'?'SI':'','CONTADO')}
-        ${chkItem(o.fpago==='CREDITO'?'SI':'','CRÉDITO')}
-        ${chkItem(o.fpago==='ENGANCHE'||o.anticipo>0?'SI':'','ENGANCHE')}
-      </div>
-    </div>
-
-  </div>`;
   document.getElementById('of-container').innerHTML = html;
 }
+
 
 // ─── RENDER REPORTE CLIENTE ───────────────────────────────────────
 // ─── REPORT HELPERS ──────────────────────────────────────────────
