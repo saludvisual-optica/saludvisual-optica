@@ -1018,68 +1018,69 @@ function renderFormulario(o) {
 // Returns an inline editable input when value is missing,
 // or a styled static display when value exists.
 // ── FIELD HELPERS: ALL fields editable (always show input/select) ──────────
+// ─────────────────────────────────────────────────────────────────
+// SALUD VISUAL — REPORTE CLIENTE (carta, editable, secciones)
+// ─────────────────────────────────────────────────────────────────
+
+// ── INPUT HELPERS ─────────────────────────────────────────────────
 function rptField(val, opts) {
-  var id=(opts&&opts.id)||'', type=(opts&&opts.type)||'text',
-      placeholder=(opts&&opts.placeholder)||'—',
-      width=(opts&&opts.width)||'auto', mono=(opts&&opts.mono)||false,
-      isCalc=(opts&&opts.calc)||false;
-  var ff = mono?"'DM Mono',monospace":"'DM Sans',sans-serif";
-  var border = isCalc
-    ? 'border-bottom:1.5px dashed #d97706;background:#fffbeb;color:#92400e;'
-    : 'border-bottom:1.5px solid #cbd5e1;background:transparent;color:#111827;';
+  var id = (opts&&opts.id)||'', type = (opts&&opts.type)||'text',
+      ph = (opts&&opts.placeholder)||'—', w = (opts&&opts.width)||'auto',
+      mono = (opts&&opts.mono)||false, calc = (opts&&opts.calc)||false;
+  var ff = mono ? "'DM Mono',monospace" : "'DM Sans',sans-serif";
+  var bd = calc ? 'border-bottom:1.5px dashed #d97706;background:#fffbeb;color:#92400e;'
+                : 'border-bottom:1.5px solid #cbd5e1;background:transparent;color:#111827;';
   return '<input type="'+type+'" '+(id?'id="'+id+'"':'')+' value="'+(val||'')+'"'
-    +' placeholder="'+placeholder+'"'
-    +' style="'+border+'border-top:none;border-left:none;border-right:none;border-radius:0;'
-    +'padding:2px 4px;width:'+width+';font-family:'+ff+';font-size:13px;font-weight:600;"'
+    +' placeholder="'+ph+'" style="'+bd+'border-top:none;border-left:none;border-right:none;'
+    +'border-radius:0;padding:2px 4px;width:'+w+';font-family:'+ff+';font-size:12px;font-weight:600;"'
     +' oninput="rptSync(this,\''+id+'\')'+(id?';rptLive()':'')+';">';
 }
 
-function rptSelect(val, options, id, isCalc) {
-  var border = isCalc && !val
-    ? 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d;'
-    : 'background:#e8f5ee;color:#1a7a4a;border:1px solid #bbf7d0;';
-  return '<select '+(id?'id="'+id+'"':'')+' style="font-size:13px;font-weight:700;border-radius:5px;'
-    +'padding:2px 6px;cursor:pointer;'+border+'" oninput="rptSync(this,\''+id+'\')'+(id?';rptLive()':'')+';">'
-    +(val?'':'<option value="">— seleccionar —</option>')
-    +options.map(function(o){return '<option '+(o===val?'selected':'')+'>'+o+'</option>';}).join('')
+function rptSelect(val, options, id, calc) {
+  var bd = (calc && !val)
+    ? 'background:#fffbeb;color:#92400e;border:1.5px dashed #d97706;'
+    : 'background:#e8f5ee;color:#1a7a4a;border:1.5px solid #86efac;';
+  return '<select '+(id?'id="'+id+'"':'')+' style="font-size:12px;font-weight:700;'
+    +'border-radius:5px;padding:3px 8px;cursor:pointer;'+bd+'"'
+    +' oninput="rptSync(this,\''+id+'\')'+(id?';rptLive()':'')+';">'
+    +(val ? '' : '<option value="">— seleccionar —</option>')
+    + options.map(function(o){return '<option '+(o===val?'selected':'')+'>'+o+'</option>';}).join('')
     +'</select>';
 }
 
-// Three-state check: manual=green, calc=yellow+badge, always editable
-function rptCheck(val, label, id, source) {
-  var checked = val==='SI'||val===true;
-  var isCalc  = source==='calc';
-  var bg      = checked?(isCalc?'#fffbeb':'#e8f5ee'):'#f9fafb';
-  var bd      = checked?(isCalc?'1.5px solid #fcd34d':'1.5px solid #bbf7d0'):'1.5px solid #e5e7eb';
-  var accent  = isCalc?'#d97706':'#1a7a4a';
-  var badge   = isCalc&&checked
-    ? '<span class="calc-badge" style="font-size:9px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;margin-left:4px;font-weight:700;">calc · validar</span>'
+function rptCheck(val, label, id, calc) {
+  var on = val==='SI'||val===true;
+  var isCalc = calc==='calc';
+  var bg = on ? (isCalc?'#fffbeb':'#e8f5ee') : '#f9fafb';
+  var bd = on ? (isCalc?'1.5px dashed #d97706':'1.5px solid #86efac') : '1.5px solid #e5e7eb';
+  var acc = isCalc ? '#d97706' : '#1a7a4a';
+  var badge = (isCalc && on)
+    ? '<span class="cbadge" style="font-size:8px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 4px;margin-left:4px;font-weight:700;">calc·validar</span>'
     : '';
-  return '<label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;'
-    +'background:'+bg+';border:'+bd+';border-radius:6px;padding:5px 10px;flex-wrap:wrap;'
-    +(isCalc&&checked?'':'')+'white-space:nowrap;">'
-    +'<input type="checkbox" id="'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:'+accent+';" '
-    +'onchange="rptSync(this,\''+id+'\');rptLive();">'
-    +'<span style="color:'+(checked?(isCalc?'#92400e':'#1a7a4a'):'#9ca3af')+'">'+label+'</span>'
+  return '<label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;'
+    +'background:'+bg+';border:'+bd+';border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;">'
+    +'<input type="checkbox" id="'+id+'" '+(on?'checked':'')+' style="width:15px;height:15px;accent-color:'+acc+';"'
+    +' onchange="rptSync(this,\''+id+'\');rptLive();">'
+    +'<span style="color:'+(on?(isCalc?'#92400e':'#1a7a4a'):'#9ca3af')+'">'+label+'</span>'
     +badge+'</label>';
 }
 
-let rptEdits = {};
-let rptOrder = {};
+var rptEdits = {}, rptOrder = {};
 function rptSync(el, key) {
   rptEdits[key] = el.type==='checkbox' ? (el.checked?'SI':'') : el.value;
 }
 
-// Live update of frame SVG when measurements change
+// Live-update frame SVG and lens types when inputs change
 function rptLive() {
-  var aro     = (document.getElementById('rpt-aro')    && document.getElementById('rpt-aro').value)    || rptOrder.aro    || '?';
-  var puente  = (document.getElementById('rpt-puente') && document.getElementById('rpt-puente').value) || rptOrder.puente || '?';
-  var varilla = (document.getElementById('rpt-varilla')&& document.getElementById('rpt-varilla').value)|| rptOrder.varilla|| '?';
+  var aro = (document.getElementById('rpt-aro') ? document.getElementById('rpt-aro').value : '') || rptOrder.aro || '';
+  var pte = (document.getElementById('rpt-puente') ? document.getElementById('rpt-puente').value : '') || rptOrder.puente || '';
+  var var_ = (document.getElementById('rpt-varilla') ? document.getElementById('rpt-varilla').value : '') || rptOrder.varilla || '';
   var fEl = document.getElementById('rpt-frame-svg');
-  if (fEl) fEl.innerHTML = buildFrameSVG(aro, puente, varilla);
-  var vision = (document.getElementById('rpt-vision') && document.getElementById('rpt-vision').value) || rptOrder.visionVal || '';
-  var lEl = document.getElementById('rpt-lens-types');
-  if (lEl) lEl.innerHTML = buildLensTypes(vision);
+  if (fEl) fEl.outerHTML = buildFrameSVGWrap(aro, pte, var_);
+
+  var vis = document.getElementById('rpt-vision') ? document.getElementById('rpt-vision').value : rptOrder.visionVal;
+  var lEl = document.getElementById('rpt-lens-wrap');
+  if (lEl) lEl.innerHTML = buildLensTypes(vis);
 }
 
 function parseMedidas(m) {
@@ -1089,178 +1090,208 @@ function parseMedidas(m) {
   return {aro:m,puente:'',varilla:''};
 }
 
-// ── CIRCULAR GAUGE — proper half-circle speedometer ────────────────────────
-function svgGauge(pct, title, subtitle) {
+// ─────────────────────────────────────────────────────────────────
+// GAUGE — proper half-circle speedometer
+// ─────────────────────────────────────────────────────────────────
+function buildGauge(pct, title, sub) {
   pct = Math.min(100, Math.max(0, pct||0));
-
-  // Half-circle: from 180° to 0° (left to right)
-  var cx=80, cy=80, r1=62, r2=38;
-
+  var W=140, H=80, cx=70, cy=74, rO=58, rI=38;
   function pt(r, deg) {
-    var rad = deg * Math.PI / 180;
-    return [(cx + r*Math.cos(rad)).toFixed(1), (cy - r*Math.sin(rad)).toFixed(1)];
+    var rad = deg*Math.PI/180;
+    return [cx + r*Math.cos(rad), cy - r*Math.sin(rad)];
   }
-
-  function arcPath(r1, r2, a1, a2, fill) {
-    var p1=pt(r1,a1), p2=pt(r1,a2), p3=pt(r2,a2), p4=pt(r2,a1);
-    var large = (a1-a2)>180?1:0;
-    return '<path d="M'+p1[0]+','+p1[1]+' A'+r1+','+r1+' 0 '+large+',0 '+p2[0]+','+p2[1]
-      +' L'+p3[0]+','+p3[1]+' A'+r2+','+r2+' 0 '+large+',1 '+p4[0]+','+p4[1]+'Z" fill="'+fill+'"/>';
+  function arc(r1,r2,a1,a2,col) {
+    var p1=pt(r1,a1),p2=pt(r1,a2),p3=pt(r2,a2),p4=pt(r2,a1);
+    var lg=(a1-a2)>180?1:0;
+    return '<path d="M'+p1[0].toFixed(1)+','+p1[1].toFixed(1)
+      +' A'+r1+','+r1+' 0 '+lg+',0 '+p2[0].toFixed(1)+','+p2[1].toFixed(1)
+      +' L'+p3[0].toFixed(1)+','+p3[1].toFixed(1)
+      +' A'+r2+','+r2+' 0 '+lg+',1 '+p4[0].toFixed(1)+','+p4[1].toFixed(1)+'Z"'
+      +' fill="'+col+'"/>';
   }
-
-  // 5 segments from left (180°) to right (0°)
-  var segs = [
-    {a1:180,a2:144,c:'#22c55e'},  // 0-20% green
-    {a1:144,a2:108,c:'#86efac'},  // 20-40% light green
-    {a1:108,a2:72, c:'#fbbf24'},  // 40-60% yellow
-    {a1:72, a2:36, c:'#f97316'},  // 60-80% orange
-    {a1:36, a2:0,  c:'#ef4444'},  // 80-100% red
-  ];
-  var arcsSvg = segs.map(function(s){return arcPath(r1,r2,s.a1,s.a2,s.c);}).join('');
-
+  // 5 arc segments left→right (180°→0°)
+  var segs=[{a1:180,a2:144,c:'#22c55e'},{a1:144,a2:108,c:'#86efac'},
+            {a1:108,a2:72,c:'#fbbf24'},{a1:72,a2:36,c:'#f97316'},{a1:36,a2:0,c:'#ef4444'}];
+  var arcs = segs.map(function(s){return arc(rO,rI,s.a1,s.a2,s.c);}).join('');
   // Tick marks
-  var ticks = '';
+  var ticks='';
   for(var i=0;i<=10;i++){
-    var deg = 180 - i*18;
-    var p1t=pt(r1+3,deg), p2t=pt(r1+(i%5===0?10:6),deg);
-    ticks += '<line x1="'+p1t[0]+'" y1="'+p1t[1]+'" x2="'+p2t[0]+'" y2="'+p2t[1]+'" stroke="#fff" stroke-width="'+(i%5===0?2:1)+'" stroke-opacity="0.7"/>';
+    var d=180-i*18, rTick=(i%5===0)?8:5;
+    var p1=pt(rO,d), p2=pt(rO+rTick,d);
+    ticks+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)
+      +'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)
+      +'" stroke="'+(i%5===0?'#94a3b8':'#cbd5e1')+'" stroke-width="'+(i%5===0?1.5:1)+'"/>';
   }
-
-  // Labels 0 / 50 / 100
-  var lbl0=pt(r2-14,180), lbl50=pt(r2-14,90), lbl100=pt(r2-14,0);
-  var labels = '<text x="'+lbl0[0]+'" y="'+(+lbl0[1]+4)+'" text-anchor="middle" font-size="8" fill="#6b7280">0</text>'
-    +'<text x="'+lbl50[0]+'" y="'+(+lbl50[1]+4)+'" text-anchor="middle" font-size="8" fill="#6b7280">50</text>'
-    +'<text x="'+lbl100[0]+'" y="'+(+lbl100[1]+4)+'" text-anchor="middle" font-size="8" fill="#6b7280">100</text>';
-
   // Needle
-  var needleDeg = 180 - pct*1.8;
-  var needleRad = needleDeg * Math.PI / 180;
-  var nx = (cx + (r1-6)*Math.cos(needleRad)).toFixed(1);
-  var ny = (cy - (r1-6)*Math.sin(needleRad)).toFixed(1);
-  var b1x=(cx+7*Math.cos((needleDeg+90)*Math.PI/180)).toFixed(1);
-  var b1y=(cy-7*Math.sin((needleDeg+90)*Math.PI/180)).toFixed(1);
-  var b2x=(cx+7*Math.cos((needleDeg-90)*Math.PI/180)).toFixed(1);
-  var b2y=(cy-7*Math.sin((needleDeg-90)*Math.PI/180)).toFixed(1);
-  var bx=(cx-10*Math.cos(needleRad)).toFixed(1);
-  var by=(cy+10*Math.sin(needleRad)).toFixed(1);
-  var needle = '<path d="M'+b1x+','+b1y+' L'+nx+','+ny+' L'+b2x+','+b2y+' L'+bx+','+by+'Z" fill="#1e3a5f" stroke="none"/>';
-  var pivotOuter = '<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="#1e3a5f"/>';
-  var pivotInner = '<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#fff"/>';
-
-  // Center value text
+  var nd = 180 - pct*1.8, nr = nd*Math.PI/180;
+  var ntip = pt(rO-4, nd);
+  var nb1 = pt(7, nd+90), nb2 = pt(7, nd-90), nbase = pt(10, nd+180);
+  var needle = '<path d="M'+nb1[0].toFixed(1)+','+nb1[1].toFixed(1)
+    +' L'+ntip[0].toFixed(1)+','+ntip[1].toFixed(1)
+    +' L'+nb2[0].toFixed(1)+','+nb2[1].toFixed(1)
+    +' L'+nbase[0].toFixed(1)+','+nbase[1].toFixed(1)+'Z"'
+    +' fill="#1e3a5f"/>';
   var col = pct<30?'#16a34a':pct<60?'#d97706':'#dc2626';
-  var valTxt = '<text x="'+cx+'" y="'+(cy+22)+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+col+'" font-family="\'DM Sans\',sans-serif">'+Math.round(pct)+'%</text>';
-
-  // Bottom flat line of the half-circle (decorative border)
-  var flatLine = '<line x1="'+(cx-r1-5)+'" y1="'+cy+'" x2="'+(cx+r1+5)+'" y2="'+cy+'" stroke="#e5e7eb" stroke-width="1.5"/>';
-
-  return '<div style="text-align:center;flex:1;min-width:120px;max-width:160px;">'
-    +'<svg viewBox="0 0 160 95" width="100%" style="display:block;margin:0 auto;overflow:visible;">'
-    +arcsSvg+ticks+flatLine+labels+needle+pivotOuter+pivotInner+valTxt
+  return '<div style="text-align:center;flex:1;min-width:110px;max-width:145px;">'
+    +'<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block;margin:0 auto;overflow:visible;">'
+    +arcs+ticks+needle
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="#1e3a5f"/>'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="5" fill="#fff"/>'
+    +'<text x="'+cx+'" y="'+(cy+20)+'" text-anchor="middle" font-size="12" font-weight="800" fill="'+col+'" font-family="DM Sans,sans-serif">'+Math.round(pct)+'%</text>'
     +'</svg>'
-    +'<div style="font-size:11px;font-weight:700;color:#1e3a5f;line-height:1.2;margin-top:2px;">'+title+'</div>'
-    +'<div style="font-size:9px;color:#6b7280;margin-top:2px;line-height:1.3;">'+subtitle+'</div>'
+    +'<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-top:1px;line-height:1.2;">'+title+'</div>'
+    +'<div style="font-size:9px;color:#6b7280;margin-top:2px;line-height:1.3;">'+sub+'</div>'
     +'</div>';
 }
 
-// ── LENS TYPE VISUALS — matching the Salud Digna style ────────────────────
+// ─────────────────────────────────────────────────────────────────
+// LENS TYPE VISUALS
+// ─────────────────────────────────────────────────────────────────
 function buildLensTypes(selected) {
-  function lens(id, label, desc, svgContent) {
-    var on = (selected===id)||(selected===''&&id==='MONO');
-    var border = on?'2px solid #1a7a4a':'2px solid #e5e7eb';
-    var bg     = on?'#f0fdf4':'#f9fafb';
-    var lcol   = on?'#1a7a4a':'#374151';
-    return '<div style="flex:1;border:'+border+';border-radius:12px;padding:12px 8px;text-align:center;background:'+bg+';transition:all .2s;cursor:pointer;" onclick="document.getElementById(\'rpt-vision\').value=\''+id+'\';rptSync(document.getElementById(\'rpt-vision\'),\'rpt-vision\');rptLive();">'
-      +svgContent
-      +'<div style="font-size:12px;font-weight:800;color:'+lcol+';margin-bottom:3px;">'+label+'</div>'
-      +'<div style="font-size:10px;color:#6b7280;line-height:1.3;">'+desc+'</div>'
-      +'</div>';
+  function card(id, lbl, desc, svgHtml) {
+    var on = selected===id;
+    return '<div onclick="if(document.getElementById(\'rpt-vision\')){document.getElementById(\'rpt-vision\').value=\''+id+'\';rptSync(document.getElementById(\'rpt-vision\'),\'rpt-vision\');rptLive();}"'
+      +' style="flex:1;border:'+(on?'2px solid #1a7a4a':'2px solid #e5e7eb')+';border-radius:10px;padding:10px 6px;'
+      +'text-align:center;background:'+(on?'#f0fdf4':'#f9fafb')+';cursor:pointer;transition:all .15s;">'
+      +svgHtml
+      +'<div style="font-size:11px;font-weight:800;color:'+(on?'#1a7a4a':'#374151')+';">'+lbl+'</div>'
+      +'<div style="font-size:9px;color:#6b7280;margin-top:2px;line-height:1.3;">'+desc+'</div>'
+    +'</div>';
   }
-
-  // MONOFOCAL: uniform circle
-  var monoSvg = '<svg viewBox="0 0 80 80" width="72" height="72" style="display:block;margin:0 auto 6px;">'
-    +'<circle cx="40" cy="40" r="34" fill="#e8f5ee" stroke="#1a7a4a" stroke-width="2.5"/>'
-    +'<circle cx="40" cy="40" r="28" fill="none" stroke="#1a7a4a" stroke-width="1" stroke-opacity="0.3"/>'
-    +'<text x="40" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#1a7a4a" font-family="\'DM Sans\',sans-serif">LEJOS</text>'
+  var mono = '<svg viewBox="0 0 70 70" width="60" height="60" style="display:block;margin:0 auto 5px;">'
+    +'<circle cx="35" cy="35" r="30" fill="#e8f5ee" stroke="#1a7a4a" stroke-width="2.5"/>'
+    +'<circle cx="35" cy="35" r="22" fill="none" stroke="#1a7a4a" stroke-width="1" stroke-opacity="0.4"/>'
+    +'<text x="35" y="39" text-anchor="middle" font-size="10" font-weight="700" fill="#1a7a4a" font-family="DM Sans,sans-serif">LEJOS</text>'
     +'</svg>';
-
-  // BIFOCAL: circle with lower segment (like the image)
-  var bifSvg = '<svg viewBox="0 0 80 80" width="72" height="72" style="display:block;margin:0 auto 6px;">'
-    +'<clipPath id="cir-clip"><circle cx="40" cy="40" r="34"/></clipPath>'
-    +'<circle cx="40" cy="40" r="34" fill="#e8f5ee" stroke="#1a7a4a" stroke-width="2.5"/>'
-    +'<rect x="6" y="54" width="68" height="20" fill="#fbbf24" clip-path="url(#cir-clip)"/>'
-    +'<line x1="6" y1="54" x2="74" y2="54" stroke="#1a7a4a" stroke-width="1.5"/>'
-    +'<circle cx="40" cy="40" r="34" fill="none" stroke="#1a7a4a" stroke-width="2.5"/>'
-    +'<text x="40" y="40" text-anchor="middle" font-size="9" fill="#1a7a4a" font-family="\'DM Sans\',sans-serif">LEJOS</text>'
-    +'<text x="40" y="66" text-anchor="middle" font-size="9" fill="#92400e" font-family="\'DM Sans\',sans-serif" font-weight="700">CERCA</text>'
+  var bif = '<svg viewBox="0 0 70 70" width="60" height="60" style="display:block;margin:0 auto 5px;">'
+    +'<clipPath id="bclip"><circle cx="35" cy="35" r="30"/></clipPath>'
+    +'<circle cx="35" cy="35" r="30" fill="#e8f5ee" stroke="#1a7a4a" stroke-width="2.5"/>'
+    +'<rect x="5" y="48" width="60" height="17" fill="#fbbf24" clip-path="url(#bclip)"/>'
+    +'<line x1="5" y1="48" x2="65" y2="48" stroke="#1a7a4a" stroke-width="1.5"/>'
+    +'<circle cx="35" cy="35" r="30" fill="none" stroke="#1a7a4a" stroke-width="2.5"/>'
+    +'<text x="35" y="38" text-anchor="middle" font-size="9" fill="#1a7a4a" font-family="DM Sans,sans-serif">LEJOS</text>'
+    +'<text x="35" y="60" text-anchor="middle" font-size="9" fill="#92400e" font-weight="700" font-family="DM Sans,sans-serif">CERCA</text>'
     +'</svg>';
-
-  // PROGRESIVO: circle with curved gradient zones (like the image)
-  var progSvg = '<svg viewBox="0 0 80 80" width="72" height="72" style="display:block;margin:0 auto 6px;">'
-    +'<clipPath id="prog-clip"><circle cx="40" cy="40" r="34"/></clipPath>'
-    +'<circle cx="40" cy="40" r="34" fill="#e8f5ee"/>'
-    +'<ellipse cx="40" cy="62" rx="26" ry="14" fill="#fbbf24" fill-opacity="0.5" clip-path="url(#prog-clip)"/>'
-    +'<path d="M8 50 Q40 44 72 50" stroke="#f97316" stroke-width="1.5" fill="none" clip-path="url(#prog-clip)"/>'
-    +'<path d="M12 60 Q40 56 68 60" stroke="#fbbf24" stroke-width="1.5" fill="none" clip-path="url(#prog-clip)"/>'
-    +'<circle cx="40" cy="40" r="34" fill="none" stroke="#1a7a4a" stroke-width="2.5"/>'
-    +'<text x="40" y="32" text-anchor="middle" font-size="9" fill="#1a7a4a" font-family="\'DM Sans\',sans-serif">LEJOS</text>'
-    +'<text x="40" y="48" text-anchor="middle" font-size="8" fill="#374151" font-family="\'DM Sans\',sans-serif">INTERMEDIO</text>'
-    +'<text x="40" y="66" text-anchor="middle" font-size="9" fill="#92400e" font-family="\'DM Sans\',sans-serif" font-weight="700">CERCA</text>'
+  var prog = '<svg viewBox="0 0 70 70" width="60" height="60" style="display:block;margin:0 auto 5px;">'
+    +'<clipPath id="pclip"><circle cx="35" cy="35" r="30"/></clipPath>'
+    +'<circle cx="35" cy="35" r="30" fill="#dcfce7" stroke="#1a7a4a" stroke-width="2.5"/>'
+    +'<ellipse cx="35" cy="56" rx="22" ry="12" fill="#fbbf24" fill-opacity="0.55" clip-path="url(#pclip)"/>'
+    +'<path d="M7 46 Q35 40 63 46" stroke="#f97316" stroke-width="1.5" fill="none" clip-path="url(#pclip)"/>'
+    +'<circle cx="35" cy="35" r="30" fill="none" stroke="#1a7a4a" stroke-width="2.5"/>'
+    +'<text x="35" y="29" text-anchor="middle" font-size="8" fill="#1a7a4a" font-family="DM Sans,sans-serif">LEJOS</text>'
+    +'<text x="35" y="43" text-anchor="middle" font-size="7.5" fill="#374151" font-family="DM Sans,sans-serif">INTER.</text>'
+    +'<text x="35" y="62" text-anchor="middle" font-size="8" fill="#92400e" font-weight="700" font-family="DM Sans,sans-serif">CERCA</text>'
     +'</svg>';
-
-  return '<div style="display:flex;gap:12px;">'
-    +lens('MONO','Monofocal','Una sola\nvisión',monoSvg)
-    +lens('BIFOCAL','Bifocal','Visión lejana\ny cercana',bifSvg)
-    +lens('PROGRESIVO','Progresivo','Visión gradual lejana,\nintermedia y cercana',progSvg)
+  return '<div style="display:flex;gap:10px;">'
+    + card('MONO','Monofocal','Una sola visión',mono)
+    + card('BIFOCAL','Bifocal','Lejana y cercana',bif)
+    + card('PROGRESIVO','Progresivo','Gradual lejana,\nintermedia, cerca',prog)
     +'</div>';
 }
 
-// ── FRAME SVG — glasses silhouette with dashed measurement annotations ──────
-function buildFrameSVG(aro, puente, varilla) {
-  var a=aro||'—', p=puente||'—', v=varilla||'—';
-  return ''
+// ─────────────────────────────────────────────────────────────────
+// FRAME SVG — glasses with live measurements
+// ─────────────────────────────────────────────────────────────────
+function buildFrameSVGWrap(aro, puente, varilla) {
+  var a = aro||'—', p = puente||'—', v = varilla||'—';
+  // SVG elements string — all within viewBox "0 0 320 100"
+  var body = ''
     // Left temple
-    +'<line x1="28" y1="52" x2="8" y2="44" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>'
-    // Left lens
-    +'<rect x="30" y="28" width="88" height="52" rx="22" fill="#dbeafe" fill-opacity="0.6" stroke="#3b82f6" stroke-width="2.5"/>'
-    +'<rect x="36" y="34" width="76" height="40" rx="18" fill="#bfdbfe" fill-opacity="0.4" stroke="#93c5fd" stroke-width="1"/>'
-    // Right lens
-    +'<rect x="142" y="28" width="88" height="52" rx="22" fill="#dbeafe" fill-opacity="0.6" stroke="#3b82f6" stroke-width="2.5"/>'
-    +'<rect x="148" y="34" width="76" height="40" rx="18" fill="#bfdbfe" fill-opacity="0.4" stroke="#93c5fd" stroke-width="1"/>'
+    +'<line x1="22" y1="46" x2="4" y2="38" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>'
+    // Left lens shape
+    +'<rect x="24" y="22" width="82" height="46" rx="20" fill="#bfdbfe" fill-opacity="0.55" stroke="#2563eb" stroke-width="2"/>'
+    // Right lens shape
+    +'<rect x="136" y="22" width="82" height="46" rx="20" fill="#bfdbfe" fill-opacity="0.55" stroke="#2563eb" stroke-width="2"/>'
     // Bridge
-    +'<path d="M118 48 C124 42 136 42 142 48" fill="none" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>'
+    +'<path d="M106 40 C112 34 124 34 136 40" fill="none" stroke="#1e3a5f" stroke-width="2.5" stroke-linecap="round"/>'
     // Right temple
-    +'<line x1="230" y1="52" x2="252" y2="44" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>'
+    +'<line x1="218" y1="46" x2="236" y2="38" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>'
     // Nose pads
-    +'<ellipse cx="122" cy="52" rx="3" ry="4" fill="#93c5fd" stroke="#3b82f6" stroke-width="1"/>'
-    +'<ellipse cx="138" cy="52" rx="3" ry="4" fill="#93c5fd" stroke="#3b82f6" stroke-width="1"/>'
+    +'<ellipse cx="110" cy="46" rx="3" ry="4" fill="#93c5fd" stroke="#3b82f6" stroke-width="1"/>'
+    +'<ellipse cx="130" cy="46" rx="3" ry="4" fill="#93c5fd" stroke="#3b82f6" stroke-width="1"/>'
 
-    // ── Measurement lines & labels ──
-    // ARO width (left lens): horizontal dashed line below left lens
-    +'<line x1="30" y1="88" x2="118" y2="88" stroke="#1a7a4a" stroke-width="1" stroke-dasharray="3,2"/>'
-    +'<line x1="30" y1="84" x2="30" y2="92" stroke="#1a7a4a" stroke-width="1.5"/>'
-    +'<line x1="118" y1="84" x2="118" y2="92" stroke="#1a7a4a" stroke-width="1.5"/>'
-    +'<text x="74" y="100" text-anchor="middle" font-size="10" font-weight="700" fill="#1a7a4a" font-family="\'DM Sans\',sans-serif">ARO: '+a+' mm</text>'
+    // ── ARO annotation (under left lens) ──
+    +'<line x1="24" y1="77" x2="106" y2="77" stroke="#1a7a4a" stroke-width="1" stroke-dasharray="3,2"/>'
+    +'<line x1="24" y1="73" x2="24" y2="82" stroke="#1a7a4a" stroke-width="1.5"/>'
+    +'<line x1="106" y1="73" x2="106" y2="82" stroke="#1a7a4a" stroke-width="1.5"/>'
+    +'<text x="65" y="92" text-anchor="middle" font-size="9" font-weight="700" fill="#1a7a4a" font-family="DM Sans,sans-serif">ARO: '+a+' mm</text>'
 
-    // PUENTE width: horizontal dashed line below bridge
-    +'<line x1="118" y1="88" x2="142" y2="88" stroke="#d97706" stroke-width="1" stroke-dasharray="3,2"/>'
-    +'<line x1="118" y1="84" x2="118" y2="92" stroke="#d97706" stroke-width="1.5"/>'
-    +'<line x1="142" y1="84" x2="142" y2="92" stroke="#d97706" stroke-width="1.5"/>'
-    +'<text x="130" y="100" text-anchor="middle" font-size="10" font-weight="700" fill="#d97706" font-family="\'DM Sans\',sans-serif">'+p+'</text>'
+    // ── PUENTE annotation ──
+    +'<line x1="106" y1="77" x2="136" y2="77" stroke="#d97706" stroke-width="1" stroke-dasharray="3,2"/>'
+    +'<line x1="106" y1="73" x2="106" y2="82" stroke="#d97706" stroke-width="1.5"/>'
+    +'<line x1="136" y1="73" x2="136" y2="82" stroke="#d97706" stroke-width="1.5"/>'
+    +'<text x="121" y="92" text-anchor="middle" font-size="9" font-weight="700" fill="#d97706" font-family="DM Sans,sans-serif">'+p+' mm</text>'
 
-    // VARILLA: dashed leader from right temple going right
-    +'<line x1="252" y1="44" x2="276" y2="44" stroke="#6366f1" stroke-width="1" stroke-dasharray="3,2"/>'
-    +'<text x="278" y="48" font-size="10" font-weight="700" fill="#6366f1" font-family="\'DM Sans\',sans-serif">Varilla: '+v+' mm</text>';
+    // ── VARILLA annotation (right of frame, leader line) ──
+    +'<line x1="236" y1="38" x2="252" y2="38" stroke="#6366f1" stroke-width="1" stroke-dasharray="3,2"/>'
+    +'<text x="254" y="42" font-size="9" font-weight="700" fill="#6366f1" font-family="DM Sans,sans-serif">Varilla: '+v+' mm</text>';
+
+  return '<div id="rpt-frame-svg" style="margin:8px 0;">'
+    +'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100"'
+    +' width="100%" style="display:block;max-width:320px;">'
+    + body
+    +'</svg></div>';
 }
 
-function svgFrame(aro, puente, varilla) {
-  return '<div id="rpt-frame-svg">'
-    +'<svg viewBox="0 0 380 112" width="100%" style="display:block;max-width:380px;">'
-    +buildFrameSVG(aro, puente, varilla)
-    +'</svg>'
+// ─────────────────────────────────────────────────────────────────
+// FACE SHAPE SECTION
+// ─────────────────────────────────────────────────────────────────
+var FACE_FRAMES = {
+  'Redondo':     'Cuadrado, rectangular, angular — compensan la redondez',
+  'Ovalado':     'Casi cualquier forma — cuadrado, aviador, cat-eye',
+  'Diamante':    'Oval, sin aro, cat-eye — suavizan los pómulos',
+  'Cuadrado':    'Redondo, ovalado, piloto — suavizan la mandíbula',
+  'Corazón':     'Inferior ancho, aviador — equilibran la frente',
+  'Rectangular': 'Ancho y alto, redondo — acortan el rostro',
+};
+function buildFaceSection(selectedFace) {
+  var shapes = Object.keys(FACE_FRAMES);
+  var rec = selectedFace && FACE_FRAMES[selectedFace] ? FACE_FRAMES[selectedFace] : '— Selecciona el tipo de cara —';
+  // Simple face shape SVGs
+  var faceSvgs = {
+    'Redondo':     '<ellipse cx="20" cy="24" rx="16" ry="20" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>',
+    'Ovalado':     '<ellipse cx="20" cy="24" rx="14" ry="21" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>',
+    'Diamante':    '<polygon points="20,4 35,22 20,44 5,22" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>',
+    'Cuadrado':    '<rect x="4" y="5" width="32" height="38" rx="4" fill="#fde8d8" stroke="#ea580c" stroke-width="1.5"/>',
+    'Corazón':     '<path d="M20 40 C4 28 4 12 12 8 Q20 4 20 12 Q20 4 28 8 C36 12 36 28 20 40Z" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>',
+    'Rectangular': '<rect x="3" y="8" width="34" height="32" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>',
+  };
+  var cards = shapes.map(function(s){
+    var on = s===selectedFace;
+    return '<div onclick="document.getElementById(\'rpt-face\').value=\''+s+'\';rptSync(document.getElementById(\'rpt-face\'),\'rpt-face\');rptLive();"'
+      +' style="flex:1;min-width:70px;max-width:90px;border:'+(on?'2px solid #1a7a4a':'2px solid #e5e7eb')+';border-radius:8px;padding:6px 4px;text-align:center;background:'+(on?'#f0fdf4':'#f9fafb')+';cursor:pointer;">'
+      +'<svg viewBox="0 0 40 48" width="36" height="43" style="display:block;margin:0 auto 3px;">'+(faceSvgs[s]||'')+'</svg>'
+      +'<div style="font-size:9px;font-weight:700;color:'+(on?'#1a7a4a':'#374151')+';">'+s+'</div>'
+    +'</div>';
+  }).join('');
+
+  return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin-bottom:12px;">'
+    + cards
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+    +'<label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;">Tipo de cara:</label>'
+    +rptSelect(selectedFace,['','Redondo','Ovalado','Diamante','Cuadrado','Corazón','Rectangular'],'rpt-face',!selectedFace)
+    +'</div>'
+    +'<div id="rpt-face-rec" style="background:#e8f5ee;border-radius:8px;padding:10px 14px;font-size:12px;">'
+      +'<span style="font-weight:700;color:#1e3a5f;">Forma de armazón recomendada: </span>'
+      +'<span style="color:#1a7a4a;font-weight:600;">'+rec+'</span>'
     +'</div>';
 }
 
+// ─────────────────────────────────────────────────────────────────
+// SECTION HEADER HELPER
+// ─────────────────────────────────────────────────────────────────
+function secHdr(num, title) {
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+    +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;min-width:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">'+num+'</div>'
+    +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#1e3a5f;">'+title+'</div>'
+    +'<div style="flex:1;height:1.5px;background:#e8f5ee;margin-left:6px;"></div>'
+    +'</div>';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MAIN RENDER
+// ─────────────────────────────────────────────────────────────────
 function renderReporte(o) {
   rptEdits = {};
   rptOrder = {};
@@ -1272,286 +1303,291 @@ function renderReporte(o) {
     : '';
 
   var med = parseMedidas(o.medidas);
-  rptOrder.aro = med.aro; rptOrder.puente = med.puente; rptOrder.varilla = med.varilla;
+  rptOrder.aro=med.aro; rptOrder.puente=med.puente; rptOrder.varilla=med.varilla;
 
-  // ── Rx CALCULATIONS ──────────────────────────────────────────────
+  // ── Rx Calculations ──────────────────────────────────────────────
   var odE=parseFloat(o.od_esf)||0, odC=parseFloat(o.od_cyl)||0;
   var oiE=parseFloat(o.oi_esf)||0, oiC=parseFloat(o.oi_cyl)||0;
   var odA=parseFloat(o.od_add)||0, oiA=parseFloat(o.oi_add)||0;
   var add=Math.max(odA,oiA);
   var seOD=odE+odC/2, seOI=oiE+oiC/2;
   var hasRx=odE!==0||oiE!==0||odC!==0||oiC!==0;
-
-  var rxMiopia    = odE<-0.25||oiE<-0.25;
-  var rxHiper     = odE>0.25||oiE>0.25;
-  var rxAstig     = Math.abs(odC)>0.25||Math.abs(oiC)>0.25;
-  var rxPresbicia = add>0;
-  var rxAniso     = Math.abs(odE-oiE)>1.0;
-
+  var rxMiopia=odE<-0.25||oiE<-0.25, rxHiper=odE>0.25||oiE>0.25;
+  var rxAstig=Math.abs(odC)>0.25||Math.abs(oiC)>0.25, rxPresbicia=add>0;
+  var rxAniso=Math.abs(odE-oiE)>1.0;
   var miopiaMax=Math.max(Math.abs(Math.min(seOD,0)),Math.abs(Math.min(seOI,0)));
   var hiperMax=Math.max(Math.max(seOD,0),Math.max(seOI,0));
-  var astigOD=Math.abs(odC), astigOI=Math.abs(oiC), astigMax=Math.max(astigOD,astigOI);
-  function sevLbl(p){return p<30?'Leve':p<60?'Moderado':'Alto';}
-  function mPct(val,scale){return Math.min(100,Math.round(Math.abs(val)/scale*100));}
+  var astigMax=Math.max(Math.abs(odC),Math.abs(oiC));
+  function pct(v,s){return Math.min(100,Math.round(Math.abs(v)/s*100));}
+  function slbl(p){return p<30?'Leve':p<60?'Moderado':'Alto';}
+  var gODv=pct(seOD,8),gOIv=pct(seOI,8),gODa=pct(odC,4),gOIa=pct(oiC,4);
+  function sen(se){return (se>=0?'+':'')+se.toFixed(2)+' D SE';}
+  function slev(v,scales){var x=Math.abs(v);return x<=scales[0]?'Leve':x<=scales[1]?'Moderado/a':'Alto/a';}
+  var miopiaSev=miopiaMax>0.25?slev(miopiaMax,[3,6]):'';
+  var hiperSev=hiperMax>0.25?slev(hiperMax,[2,5]):'';
+  var astigSev=astigMax>0.25?slev(astigMax,[1,2]):'';
+  var presSev=add>0?(add<=1?'Inicial':add<=2?'Moderada':'Avanzada'):'';
 
-  var gOD_vis=mPct(seOD,8), gOI_vis=mPct(seOI,8);
-  var gOD_astig=mPct(odC,4), gOI_astig=mPct(oiC,4);
+  // Recommendation inference
+  var rxNL=!rxMiopia&&!rxHiper&&!rxAstig&&!rxPresbicia&&hasRx;
+  var rxTD=(miopiaMax>1.0||hiperMax>2.0)&&!rxPresbicia;
+  var rxLec=rxPresbicia||(rxHiper&&!rxMiopia&&hiperMax<=2.0);
+  var rxComp=rxAstig&&astigMax<=2.0;
+  var rxCond=miopiaMax>=0.75;
 
-  function seNote(se){return (se>=0?'+':'')+se.toFixed(2)+' D SE';}
-
-  var miopiaSev=miopiaMax<=0.25?null:miopiaMax<=3?'Leve':miopiaMax<=6?'Moderada':'Alta';
-  var hiperSev=hiperMax<=0.25?null:hiperMax<=2?'Leve':hiperMax<=5?'Moderada':'Alta';
-  var astigSev=astigMax<=0.25?null:astigMax<=1?'Leve':astigMax<=2?'Moderado':'Alto';
-  var presSev=add<=0?null:add<=1?'Inicial':add<=2?'Moderada':'Avanzada';
-
-  var rxNoLentes=!rxMiopia&&!rxHiper&&!rxAstig&&!rxPresbicia&&hasRx;
-  var rxTodoDia=(miopiaMax>1.0||hiperMax>2.0)&&!rxPresbicia;
-  var rxLectura=rxPresbicia||(rxHiper&&!rxMiopia&&hiperMax<=2.0);
-  var rxComputadora=rxAstig&&astigMax<=2.0;
-  var rxConducir=miopiaMax>=0.75;
-
-  function cv(field,calc){return field||''||(hasRx?(calc?'SI':''):'');}
-  function cs(field,calc){return hasRx&&!field?'calc':'manual';}
+  function cv(f,c){return f||''||(hasRx?(c?'SI':''):'');}
+  function cs(f,c){return hasRx&&!f?'calc':'manual';}
 
   var visionVal=o.vision||o.tpo_vision||'';
-  rptOrder.visionVal = visionVal;
+  rptOrder.visionVal=visionVal;
   var matVal=(o.poli==='SI'||o.policarbonato==='SI')?'Policarbonato':(o.hi==='SI'||o.hi_index==='SI')?'Hi Index':'';
-  var tratParts=[], arLens=o.ar_lens||o.ar||'';
-  if(arLens&&arLens!=='NO')tratParts.push('Antireflejante '+arLens);
-  if(o.filtro&&o.filtro!=='NINGUNO')tratParts.push(o.filtro);
-  if(o.foto==='SI')tratParts.push('Fotocromático');
-  if(o.invisible==='SI')tratParts.push('Invisible');
-  var tratVal=tratParts.join(', ');
+  var arLens=o.ar_lens||o.ar||'';
+  var trat=[]; if(arLens&&arLens!=='NO')trat.push('AR '+arLens);
+  if(o.filtro&&o.filtro!=='NINGUNO'&&o.filtro)trat.push(o.filtro);
+  if(o.foto==='SI')trat.push('Fotocromático');
+  if(o.invisible==='SI')trat.push('Invisible');
+  var tratVal=trat.join(', ');
+  var selectedFace = o.tipo_cara || o.face || '';
 
   var conds=[
-    {lbl:'Miopía'+(miopiaSev?' — '+miopiaSev:''),       id:'rpt-miopia', val:cv(o.miopia,''),       calc:hasRx&&!o.miopia,       active:rxMiopia},
-    {lbl:'Hipermetropía'+(hiperSev?' — '+hiperSev:''),   id:'rpt-hiper',  val:cv(o.hipermetropia,''),calc:hasRx&&!o.hipermetropia,active:rxHiper},
-    {lbl:'Anisometropía',                                 id:'rpt-aniso',  val:cv(o.anisometropia,''),calc:hasRx&&!o.anisometropia, active:rxAniso},
-    {lbl:'Astigmatismo'+(astigSev?' — '+astigSev:''),    id:'rpt-astig',  val:cv(o.astigmatismo,''), calc:hasRx&&!o.astigmatismo,  active:rxAstig},
-    {lbl:'Presbicia'+(presSev?' — '+presSev:''),          id:'rpt-pres2',  val:cv(o.presbicia,''),    calc:hasRx&&!o.presbicia,     active:rxPresbicia},
-    {lbl:'Ambliopia',                                     id:'rpt-ambli',  val:o.ambliopía||'',       calc:false,                   active:false},
+    {l:'Miopía'+(miopiaSev?' — '+miopiaSev:''),       id:'rpt-miopia', v:cv(o.miopia,''),         c:hasRx&&!o.miopia,        a:rxMiopia},
+    {l:'Hipermetropía'+(hiperSev?' — '+hiperSev:''),   id:'rpt-hiper',  v:cv(o.hipermetropia,''),  c:hasRx&&!o.hipermetropia, a:rxHiper},
+    {l:'Anisometropía',                                 id:'rpt-aniso',  v:cv(o.anisometropia,''),  c:hasRx&&!o.anisometropia, a:rxAniso},
+    {l:'Astigmatismo'+(astigSev?' — '+astigSev:''),    id:'rpt-astig',  v:cv(o.astigmatismo,''),   c:hasRx&&!o.astigmatismo,  a:rxAstig},
+    {l:'Presbicia'+(presSev?' — '+presSev:''),          id:'rpt-pres2',  v:cv(o.presbicia,''),      c:hasRx&&!o.presbicia,     a:rxPresbicia},
+    {l:'Ambliopia',                                     id:'rpt-ambli',  v:o.ambliopía||'',         c:false,                   a:false},
+  ];
+  var recs=[
+    {l:'No requiere lentes',   id:'rpt-r1',v:cv(o.rec_no_lentes,''),   c:hasRx&&!o.rec_no_lentes,   a:rxNL},
+    {l:'Lentes todo el día',   id:'rpt-r2',v:cv(o.rec_todo_dia,''),    c:hasRx&&!o.rec_todo_dia,    a:rxTD},
+    {l:'Solo lectura / cerca', id:'rpt-r3',v:cv(o.rec_lectura,''),     c:hasRx&&!o.rec_lectura,     a:rxLec},
+    {l:'Para computadora',     id:'rpt-r4',v:cv(o.rec_computadora,''), c:hasRx&&!o.rec_computadora, a:rxComp},
+    {l:'Para conducir',        id:'rpt-r5',v:cv(o.rec_conducir,''),    c:hasRx&&!o.rec_conducir,    a:rxCond},
   ];
 
-  var rcRecs=[
-    {lbl:'No requiere lentes',     id:'rpt-rec1',val:cv(o.rec_no_lentes,''),calc:hasRx&&!o.rec_no_lentes,active:rxNoLentes},
-    {lbl:'Lentes todo el día',     id:'rpt-rec2',val:cv(o.rec_todo_dia,''), calc:hasRx&&!o.rec_todo_dia, active:rxTodoDia},
-    {lbl:'Solo lectura / cerca',   id:'rpt-rec3',val:cv(o.rec_lectura,''),  calc:hasRx&&!o.rec_lectura,  active:rxLectura},
-    {lbl:'Para computadora',       id:'rpt-rec4',val:cv(o.rec_computadora,''),calc:hasRx&&!o.rec_computadora,active:rxComputadora},
-    {lbl:'Para conducir',          id:'rpt-rec5',val:cv(o.rec_conducir,''), calc:hasRx&&!o.rec_conducir, active:rxConducir},
-  ];
-
-  // Print-time style block
-  var html=
+  // ── PRINT STYLE ──
+  var html =
   '<style>'
-  +'.calc-badge{font-size:9px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 5px;font-weight:700;letter-spacing:.3px;}'
+  +'.cbadge{font-size:8px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 4px;font-weight:700;}'
   +'@media print{'
-  +'.calc-badge{display:none!important;}'
-  +'label[style*="#fffbeb"]{background:transparent!important;border:1.5px solid #d1d5db!important;}'
-  +'input[style*="#fffbeb"]{background:transparent!important;border-bottom:1.5px solid #d1d5db!important;color:#111!important;}'
-  +'select[style*="#fffbeb"]{background:transparent!important;color:#111!important;border-color:#d1d5db!important;}'
-  +'.no-print-rpt{display:none!important;}'
+  +'.cbadge{display:none!important;}'
+  +'label[style*="#fffbeb"]{background:white!important;border:1px solid #d1d5db!important;}'
+  +'input[style*="#fffbeb"],input[style*="border-bottom:1.5px solid #cbd5e1"]{background:transparent!important;color:#000!important;border-bottom:1px solid #aaa!important;}'
+  +'select{background:white!important;color:#000!important;border:1px solid #aaa!important;}'
+  +'.no-print{display:none!important;}'
+  +'textarea{border:1px solid #aaa!important;background:white!important;color:#000!important;}'
   +'}'
   +'</style>'
 
-  +'<div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1);font-family:\'DM Sans\',sans-serif;">'
+  // ── WRAPPER (carta size visual hint on screen) ──
+  +'<div style="background:#fff;max-width:760px;margin:0 auto;'
+  +'font-family:\'DM Sans\',sans-serif;font-size:12px;">'
 
-  // HEADER
-  +'<div style="background:#1a7a4a;color:#fff;padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">'
+  // ════ HEADER BAND ════
+  +'<div style="background:#1a7a4a;color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">'
     +'<div>'
-      +'<div style="font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1">Salud Visual</div>'
-      +'<div style="font-size:11px;opacity:.8;margin-top:3px;">Servicios de Salud Óptica · 8136443744</div>'
+      +'<div style="font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1;">Salud Visual</div>'
+      +'<div style="font-size:10px;opacity:.85;margin-top:2px;letter-spacing:.3px;">Servicios de Salud Óptica · 8136443744</div>'
     +'</div>'
-    +'<div style="background:rgba(0,0,0,.15);border-radius:8px;padding:10px 14px;text-align:right;">'
-      +'<div style="font-size:14px;font-weight:700">'+(o.nombre||rptField('',{id:'rpt-nombre',placeholder:'Nombre del paciente',width:'180px'}))+'</div>'
-      +'<div style="font-size:11px;opacity:.9;line-height:1.7">'
-        +'Folio: <strong>#'+(o.folio||'—')+'</strong><br>'
-        +'Fecha: '+(fecha||rptField('',{id:'rpt-fecha',placeholder:'Fecha',width:'120px'}))
-        +(o.optom||o.optometrista?'<br>Optom.: '+(o.optom||o.optometrista):'<br>Optom.: '+rptField('',{id:'rpt-optom',placeholder:'Nombre optometrista',width:'140px'}))
+    +'<div style="text-align:right;">'
+      +'<div style="font-size:13px;font-weight:800;">'+(o.nombre||rptField('',{id:'rpt-nombre',placeholder:'Nombre del paciente',width:'180px'}))+'</div>'
+      +'<div style="font-size:10px;opacity:.9;line-height:1.7;">'
+        +'Folio: <strong>#'+(o.folio||'—')+'</strong>&nbsp;·&nbsp;'+(fecha||rptField('',{id:'rpt-fecha',placeholder:'Fecha',width:'100px'}))+'<br>'
+        +'Optometrista: '+(o.optom||o.optometrista||rptField('',{id:'rpt-optom',placeholder:'Nombre',width:'140px'}))
       +'</div>'
     +'</div>'
   +'</div>'
 
-  // ── S1: REFRACCIÓN ──
-  +'<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
-      +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</div>'
-      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111827;">Refracción (Condición Visual)</div>'
-    +'</div>'
-    +'<div style="overflow-x:auto;margin-bottom:14px;">'
-    +'<table style="border-collapse:collapse;width:100%;min-width:340px;font-size:12px;">'
-      +'<thead><tr>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">OJO</th>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">ESFERA</th>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">CILINDRO</th>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">EJE</th>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">ADICIÓN</th>'
-        +'<th style="background:#1e3a5f;color:#fff;padding:6px 8px;text-align:center;font-size:10px;letter-spacing:.4px;">DIST.NP</th>'
-      +'</tr></thead>'
-      +'<tbody>'
-      +'<tr><td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:6px 8px;text-align:center;border:1px solid #d1d5db;">OD</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_esf,{id:'rpt-od-esf',placeholder:'—',mono:true,width:'60px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_cyl,{id:'rpt-od-cyl',placeholder:'—',mono:true,width:'60px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'—',mono:true,width:'50px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_add,{id:'rpt-od-add',placeholder:'—',mono:true,width:'50px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.dip,{id:'rpt-dip',placeholder:'—',mono:true,width:'50px'})+'</td>'
-      +'</tr>'
-      +'<tr><td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:6px 8px;text-align:center;border:1px solid #d1d5db;">OI</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_esf,{id:'rpt-oi-esf',placeholder:'—',mono:true,width:'60px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'—',mono:true,width:'60px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'—',mono:true,width:'50px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'—',mono:true,width:'50px'})+'</td>'
-        +'<td style="padding:4px 6px;text-align:center;border:1px solid #d1d5db;"></td>'
-      +'</tr>'
-      +'</tbody>'
-    +'</table></div>'
+  // ════ SECTION 1: REFRACCIÓN ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fff;">'
+  + secHdr('1','Refracción (Condición Visual)')
 
-    // Condition pills (all editable via rptCheck)
-    +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">'
-    +conds.map(function(c){
-      return rptCheck(c.val==='SI'||c.active?'SI':'', c.lbl, c.id, c.calc?'calc':'manual');
-    }).join('')
+  // Rx table + conditions side by side on wider screens
+  +'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;">'
+
+    // Rx table
+    +'<div style="flex:1;min-width:260px;overflow-x:auto;">'
+    +'<table style="border-collapse:collapse;width:100%;font-size:11px;">'
+    +'<thead><tr style="background:#1e3a5f;color:#fff;">'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;min-width:26px;">OJO</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ESFERA</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">CILINDRO</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">EJE</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ADICIÓN</th>'
+      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">DIST.</th>'
+    +'</tr></thead>'
+    +'<tbody>'
+    +'<tr>'
+      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:5px 8px;text-align:center;border:1px solid #d1fae5;">OD</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_esf,{id:'rpt-od-esf',placeholder:'—',mono:true,width:'54px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_cyl,{id:'rpt-od-cyl',placeholder:'—',mono:true,width:'54px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_add,{id:'rpt-od-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.dip,{id:'rpt-dip',placeholder:'—',mono:true,width:'40px'})+'</td>'
+    +'</tr>'
+    +'<tr>'
+      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:5px 8px;text-align:center;border:1px solid #d1fae5;">OI</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_esf,{id:'rpt-oi-esf',placeholder:'—',mono:true,width:'54px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'—',mono:true,width:'54px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
+      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;"></td>'
+    +'</tr>'
+    +'</tbody></table>'
     +'</div>'
 
-    // GAUGES — 4 gauges in 2-column layout
-    +(hasRx?
-    '<div style="background:#f9fafb;border-radius:10px;padding:14px;border:1px solid #e5e7eb;">'
-      +'<div class="no-print-rpt" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;">'
-        +'Grado de afectación calculado del Rx '
-        +'<span class="calc-badge">calculado · validar con optometrista</span>'
+    // Conditions column
+    +'<div style="flex:1;min-width:200px;">'
+      +'<div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;">Condiciones detectadas:</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:5px;">'
+      +conds.map(function(c){
+        return rptCheck(c.v==='SI'||c.a?'SI':'',c.l,c.id,c.c?'calc':'manual');
+      }).join('')
       +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-        +'<div>'
-          +'<div style="font-size:10px;font-weight:800;color:#1e3a5f;text-align:center;margin-bottom:8px;letter-spacing:.5px;padding-bottom:4px;border-bottom:2px solid #1e3a5f;">OJO DERECHO</div>'
-          +'<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">'
-            +svgGauge(gOD_vis,  'Problema visual',  sevLbl(gOD_vis)+' · '+seNote(seOD))
-            +svgGauge(gOD_astig,'Astigmatismo',     sevLbl(gOD_astig)+' · CYL '+odC.toFixed(2)+'D')
-          +'</div>'
+    +'</div>'
+  +'</div>'
+
+  // GAUGES — 4 circles in a row
+  +(hasRx?
+    '<div style="background:#f8fafc;border-radius:10px;padding:12px;border:1px solid #e2e8f0;">'
+    +'<div class="no-print" style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
+      +'Grado de afectación calculado'
+      +'<span class="cbadge">calculado · validar con optometrista</span>'
+    +'</div>'
+    +'<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">'
+      +'<div style="flex:1;min-width:200px;">'
+        +'<div style="font-size:9px;font-weight:800;color:#1e3a5f;text-align:center;letter-spacing:.5px;border-bottom:2px solid #1e3a5f;padding-bottom:3px;margin-bottom:6px;">OJO DERECHO</div>'
+        +'<div style="display:flex;justify-content:center;gap:6px;">'
+          +buildGauge(gODv, 'Problema visual', slbl(gODv)+' · '+sen(seOD))
+          +buildGauge(gODa, 'Astigmatismo', slbl(gODa)+' · CYL:'+odC.toFixed(2)+'D')
         +'</div>'
-        +'<div>'
-          +'<div style="font-size:10px;font-weight:800;color:#1e3a5f;text-align:center;margin-bottom:8px;letter-spacing:.5px;padding-bottom:4px;border-bottom:2px solid #1e3a5f;">OJO IZQUIERDO</div>'
-          +'<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">'
-            +svgGauge(gOI_vis,  'Problema visual',  sevLbl(gOI_vis)+' · '+seNote(seOI))
-            +svgGauge(gOI_astig,'Astigmatismo',     sevLbl(gOI_astig)+' · CYL '+oiC.toFixed(2)+'D')
-          +'</div>'
-        +'</div>'
       +'</div>'
-    +'</div>'
-    :'')
-  +'</div>'
-
-  // ── S2: LENTES ──
-  +'<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
-      +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</div>'
-      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111827;">Lentes Recomendados</div>'
-    +'</div>'
-    +'<table style="border-collapse:collapse;width:100%;font-size:12px;margin-bottom:14px;">'
-      +'<thead><tr>'
-        +'<th style="background:#e5e7eb;padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;width:120px;">Característica</th>'
-        +'<th style="background:#e5e7eb;padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;">Especificación</th>'
-        +'<th style="background:#e5e7eb;padding:6px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;">Notas del optometrista</th>'
-      +'</tr></thead>'
-      +'<tbody>'
-      +'<tr><td style="padding:7px 10px;border-bottom:1px solid #f3f4f6;font-weight:600;color:#374151;">Diseño</td>'
-        +'<td style="padding:7px 10px;border-bottom:1px solid #f3f4f6;">'+rptSelect(visionVal,['MONO','BIFOCAL','PROGRESIVO'],'rpt-vision',!visionVal)+'</td>'
-        +'<td style="padding:7px 10px;border-bottom:1px solid #f3f4f6;" rowspan="3" style="vertical-align:top;">'+rptField(o.observaciones_lente||'',{id:'rpt-obs-lente',placeholder:'Observaciones del optometrista...',width:'100%'})+'</td>'
-      +'</tr>'
-      +'<tr><td style="padding:7px 10px;border-bottom:1px solid #f3f4f6;font-weight:600;color:#374151;">Material</td>'
-        +'<td style="padding:7px 10px;border-bottom:1px solid #f3f4f6;">'+rptSelect(matVal,['','CR-39 (Orgánico)','Policarbonato','Hi Index','Trivex'],'rpt-material',!matVal)+'</td>'
-      +'</tr>'
-      +'<tr><td style="padding:7px 10px;font-weight:600;color:#374151;">Tratamiento</td>'
-        +'<td style="padding:7px 10px;">'+rptField(tratVal,{id:'rpt-trat',placeholder:'Ej: AR, BLUE, Fotocromático...',width:'160px'})+'</td>'
-      +'</tr>'
-      +'</tbody>'
-    +'</table>'
-    +'<div id="rpt-lens-types">'+buildLensTypes(visionVal)+'</div>'
-  +'</div>'
-
-  // ── S3: ARMAZÓN ──
-  +'<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
-      +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">3</div>'
-      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111827;">Armazón Recomendado</div>'
-    +'</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">'
-      +svgFrame(med.aro, med.puente, med.varilla)
-      +'<div style="flex:1;min-width:160px;">'
-        +'<div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;">¿Conoces tu talla de armazón?</div>'
-        +'<div style="display:flex;flex-direction:column;gap:8px;">'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-            +'<span style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;min-width:55px;">Modelo:</span>'
-            +rptField(o.armazon,{id:'rpt-armazon',placeholder:'Modelo armazón',width:'140px'})
-          +'</div>'
-          +'<div style="display:flex;align-items:center;gap:8px;">'
-            +'<span style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;min-width:55px;">Color:</span>'
-            +rptField(o.color||o.color_armazon,{id:'rpt-color',placeholder:'Color',width:'120px'})
-          +'</div>'
-          +'<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">'
-            +'<div style="background:#e8f5ee;border-radius:8px;padding:8px 12px;text-align:center;min-width:64px;">'
-              +'<div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Varilla</div>'
-              +'<div style="font-size:17px;font-weight:800;color:#1a7a4a;font-family:\'DM Mono\',monospace;line-height:1;">'+rptField(med.varilla,{id:'rpt-varilla',placeholder:'—',mono:true,width:'40px'})+'</div>'
-              +'<div style="font-size:9px;color:#6b7280;margin-top:2px;">mm</div>'
-            +'</div>'
-            +'<div style="background:#e8f5ee;border-radius:8px;padding:8px 12px;text-align:center;min-width:64px;">'
-              +'<div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Aro</div>'
-              +'<div style="font-size:17px;font-weight:800;color:#1a7a4a;font-family:\'DM Mono\',monospace;line-height:1;">'+rptField(med.aro,{id:'rpt-aro',placeholder:'—',mono:true,width:'40px'})+'</div>'
-              +'<div style="font-size:9px;color:#6b7280;margin-top:2px;">mm</div>'
-            +'</div>'
-            +'<div style="background:#e8f5ee;border-radius:8px;padding:8px 12px;text-align:center;min-width:64px;">'
-              +'<div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Puente</div>'
-              +'<div style="font-size:17px;font-weight:800;color:#1a7a4a;font-family:\'DM Mono\',monospace;line-height:1;">'+rptField(med.puente,{id:'rpt-puente',placeholder:'—',mono:true,width:'40px'})+'</div>'
-              +'<div style="font-size:9px;color:#6b7280;margin-top:2px;">mm</div>'
-            +'</div>'
-          +'</div>'
+      +'<div style="width:1px;background:#e2e8f0;align-self:stretch;margin:0 4px;"></div>'
+      +'<div style="flex:1;min-width:200px;">'
+        +'<div style="font-size:9px;font-weight:800;color:#1e3a5f;text-align:center;letter-spacing:.5px;border-bottom:2px solid #1e3a5f;padding-bottom:3px;margin-bottom:6px;">OJO IZQUIERDO</div>'
+        +'<div style="display:flex;justify-content:center;gap:6px;">'
+          +buildGauge(gOIv, 'Problema visual', slbl(gOIv)+' · '+sen(seOI))
+          +buildGauge(gOIa, 'Astigmatismo', slbl(gOIa)+' · CYL:'+oiC.toFixed(2)+'D')
         +'</div>'
       +'</div>'
     +'</div>'
+    +'</div>'
+  :'')
   +'</div>'
 
-  // ── S4: RECOMENDACIONES ──
-  +'<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
-      +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">4</div>'
-      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111827;">Recomendaciones de Uso</div>'
+  // ════ SECTION 2: LENTES RECOMENDADOS ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fafffe;">'
+  + secHdr('2','Lentes Recomendados')
+  +'<div style="display:flex;gap:14px;flex-wrap:wrap;">'
+    // Table
+    +'<div style="flex:1;min-width:200px;">'
+    +'<table style="border-collapse:collapse;width:100%;font-size:11px;margin-bottom:10px;">'
+    +'<thead><tr><th style="background:#e2e8f0;padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;width:90px;">Característica</th>'
+      +'<th style="background:#e2e8f0;padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;">Especificación</th></tr></thead>'
+    +'<tbody>'
+    +'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#374151;">Diseño</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;">'+rptSelect(visionVal,['MONO','BIFOCAL','PROGRESIVO'],'rpt-vision',!visionVal)+'</td></tr>'
+    +'<tr><td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#374151;">Material</td>'
+      +'<td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;">'+rptSelect(matVal,['','CR-39','Policarbonato','Hi Index','Trivex'],'rpt-material',!matVal)+'</td></tr>'
+    +'<tr><td style="padding:6px 8px;font-weight:600;color:#374151;">Tratamiento</td>'
+      +'<td style="padding:6px 8px;">'+rptField(tratVal,{id:'rpt-trat',placeholder:'AR, BLUE, Fotocromático...',width:'100%'})+'</td></tr>'
+    +'</tbody></table>'
+    +'<div style="font-size:9px;color:#6b7280;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Observaciones del optometrista:</div>'
+    +rptField(o.observaciones_lente||'',{id:'rpt-obs-lente',placeholder:'Escribe observaciones...',width:'100%'})
     +'</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
-    +rcRecs.map(function(r){
-      return rptCheck(r.val==='SI'||r.active?'SI':'',r.lbl,r.id,r.calc?'calc':'manual');
-    }).join('')
+    // Lens type visual
+    +'<div style="flex:1;min-width:200px;">'
+      +'<div id="rpt-lens-wrap">'+buildLensTypes(visionVal)+'</div>'
     +'</div>'
   +'</div>'
-
-  // ── S5: OBSERVACIONES ──
-  +'<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-      +'<div style="background:#1a7a4a;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">5</div>'
-      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#111827;">Observaciones</div>'
-    +'</div>'
-    +'<textarea id="rpt-observaciones" placeholder="Escribe aquí las observaciones para el paciente..."'
-      +' style="width:100%;min-height:56px;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px;'
-      +'font-size:13px;font-family:\'DM Sans\',sans-serif;resize:vertical;color:#111827;background:#fafafa;"'
-      +' oninput="rptSync(this,\'rpt-obs\')">'+(o.observaciones||'')+'</textarea>'
   +'</div>'
 
-  // SIGNATURE
-  +'<div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;">'
-    +'<div style="font-size:11px;color:#6b7280;max-width:280px;line-height:1.5;">'
-      +'Se recomienda acudir al optometrista por lo menos una vez al año.'
+  // ════ SECTION 3: ARMAZÓN ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fff;">'
+  + secHdr('3','Armazón Recomendado')
+  +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">'
+    // Frame SVG
+    +buildFrameSVGWrap(med.aro, med.puente, med.varilla)
+    // Measurements + model
+    +'<div style="flex:1;min-width:160px;">'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
+        +'<div style="background:#e8f5ee;border-radius:8px;padding:7px 10px;text-align:center;min-width:60px;">'
+          +'<div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:3px;">Aro</div>'
+          +'<div style="font-size:15px;font-weight:800;color:#1a7a4a;font-family:\'DM Mono\',monospace;">'+rptField(med.aro,{id:'rpt-aro',placeholder:'—',mono:true,width:'38px'})+'</div>'
+          +'<div style="font-size:8px;color:#6b7280;">mm</div>'
+        +'</div>'
+        +'<div style="background:#fff7ed;border-radius:8px;padding:7px 10px;text-align:center;min-width:60px;">'
+          +'<div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:3px;">Puente</div>'
+          +'<div style="font-size:15px;font-weight:800;color:#d97706;font-family:\'DM Mono\',monospace;">'+rptField(med.puente,{id:'rpt-puente',placeholder:'—',mono:true,width:'38px'})+'</div>'
+          +'<div style="font-size:8px;color:#6b7280;">mm</div>'
+        +'</div>'
+        +'<div style="background:#ede9fe;border-radius:8px;padding:7px 10px;text-align:center;min-width:60px;">'
+          +'<div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:3px;">Varilla</div>'
+          +'<div style="font-size:15px;font-weight:800;color:#6366f1;font-family:\'DM Mono\',monospace;">'+rptField(med.varilla,{id:'rpt-varilla',placeholder:'—',mono:true,width:'38px'})+'</div>'
+          +'<div style="font-size:8px;color:#6b7280;">mm</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;">'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+          +'<span style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;min-width:50px;">Modelo:</span>'
+          +rptField(o.armazon,{id:'rpt-armazon',placeholder:'Modelo armazón',width:'140px'})
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
+          +'<span style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;min-width:50px;">Color:</span>'
+          +rptField(o.color||o.color_armazon,{id:'rpt-color',placeholder:'Color',width:'110px'})
+        +'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>'
+  +'</div>'
+
+  // ════ SECTION 4: TIPO DE CARA ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fafffe;">'
+  + secHdr('4','Diseño de Armazón por Tipo de Cara')
+  + buildFaceSection(selectedFace)
+  +'</div>'
+
+  // ════ SECTION 5: RECOMENDACIONES ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fff;">'
+  + secHdr('5','Recomendaciones de Uso')
+  +'<div style="display:flex;flex-wrap:wrap;gap:7px;">'
+  +recs.map(function(r){return rptCheck(r.v==='SI'||r.a?'SI':'',r.l,r.id,r.c?'calc':'manual');}).join('')
+  +'</div>'
+  +'</div>'
+
+  // ════ SECTION 6: OBSERVACIONES ════
+  +'<div style="padding:12px 16px;border-bottom:2px solid #e8f5ee;background:#fafffe;">'
+  + secHdr('6','Observaciones del Optometrista')
+  +'<textarea id="rpt-observaciones" placeholder="Escribe aquí las observaciones y recomendaciones para el paciente..."'
+    +' style="width:100%;min-height:52px;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;'
+    +'font-size:12px;font-family:\'DM Sans\',sans-serif;resize:vertical;color:#111;background:#fafafa;"'
+    +' oninput="rptSync(this,\'rpt-obs\')">'+(o.observaciones||'')+'</textarea>'
+  +'</div>'
+
+  // ════ SIGNATURE ════
+  +'<div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;background:#fff;">'
+    +'<div style="font-size:10px;color:#6b7280;max-width:280px;line-height:1.5;">'
+      +'Se recomienda revisión anual con el optometrista.<br>'
+      +'Los valores calculados deben ser confirmados por un profesional.'
     +'</div>'
     +'<div style="text-align:center;min-width:160px;">'
-      +'<div style="border-bottom:2px solid #111827;height:40px;margin-bottom:6px;"></div>'
-      +'<div style="font-size:12px;font-weight:700;">'+(o.optom||o.optometrista||'___________________')+'</div>'
-      +'<div style="font-size:10px;color:#6b7280;">Salud Visual · Servicios de Salud</div>'
+      +'<div style="border-bottom:2px solid #111;height:36px;margin-bottom:5px;"></div>'
+      +'<div style="font-size:11px;font-weight:700;">'+(o.optom||o.optometrista||'___________________')+'</div>'
+      +'<div style="font-size:9px;color:#6b7280;">Salud Visual · Servicios de Salud</div>'
     +'</div>'
   +'</div>'
-  +'<div style="background:#f0fdf4;border-top:1px solid #bbf7d0;padding:8px 16px;font-size:10px;color:#166534;line-height:1.5;">'
-    +'Folio #'+(o.folio||'—')+' · '+(fecha||new Date().toLocaleDateString('es-MX'))
-    +' · Los valores calculados deben ser validados por el optometrista.'
+
+  // ════ FOOTER NOTE ════
+  +'<div style="background:#f0fdf4;border-top:1px solid #bbf7d0;padding:6px 16px;font-size:9px;color:#166534;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">'
+    +'<span>Folio #'+(o.folio||'—')+' · '+(fecha||new Date().toLocaleDateString('es-MX'))+'</span>'
+    +'<span class="cbadge" style="font-size:9px;">Los campos en amarillo son valores calculados del Rx — validar con el optometrista</span>'
   +'</div>'
-  +'</div>';
+
+  +'</div>'; // end wrapper
 
   document.getElementById('rpt-container').innerHTML = html;
 }
+
 
 
 
