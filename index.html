@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a7a4a">
-<title>Orden de Pedido</title>
+<title>Salud Visual – Orden de Pedido</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --g1:#1a7a4a;--g2:#2d9e62;--g3:#e8f5ee;--g4:#f0fbf5;
   --dk:#111827;--md:#374151;--mu:#6b7280;--bd:#d1d5db;
-  --bg:#f9fafb;--wh:#ffffff;--rd:#dc2626;
-  --nav-h:56px;--tab-h:60px;
+  --bg:#f9fafb;--wh:#ffffff;--rd:#dc2626;--am:#d97706;
+  --nav-h:56px;--tab-h:62px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overscroll-behavior:none;}
@@ -35,6 +35,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .sync-dot.busy{background:#fbbf24;animation:blink .7s infinite;}
 .sync-dot.err{background:#f87171;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* desktop tabs in nav */
+.nav-dtabs{display:none;gap:4px;}
+.nav-dt{padding:5px 11px;border-radius:6px;cursor:pointer;font-size:11px;
+  font-weight:600;color:rgba(255,255,255,.7);border:none;background:transparent;}
+.nav-dt.active,.nav-dt:hover{background:rgba(255,255,255,.2);color:#fff;}
 
 /* ── SCROLL AREA ── */
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -46,95 +51,91 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   height:var(--tab-h);z-index:100;
   padding-bottom:env(safe-area-inset-bottom);}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;background:none;border:none;cursor:pointer;color:var(--mu);transition:color .15s;
-  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;padding:6px 0;}
+  gap:2px;background:none;border:none;cursor:pointer;color:var(--mu);transition:color .15s;
+  font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;padding:6px 0;
+  letter-spacing:.3px;text-transform:uppercase;}
 .tab-btn.active{color:var(--g1);}
-.tab-btn svg{width:22px;height:22px;stroke-width:2;}
+.tab-btn svg{width:20px;height:20px;stroke-width:2;}
 .tab-indicator{position:absolute;top:0;height:2px;background:var(--g1);
-  border-radius:0 0 2px 2px;transition:left .2s;width:50%;}
+  border-radius:0 0 2px 2px;width:25%;transition:left .2s;}
 
 /* ── SCREENS ── */
 .screen{display:none;padding:16px;}
 .screen.active{display:block;}
-.screen-max{max-width:680px;margin:0 auto;}
+.screen-max{max-width:700px;margin:0 auto;}
 
-/* ── OFFLINE BANNER ── */
+/* ── SHARED: offline queue banner ── */
 .queue-bar{background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;
   padding:10px 14px;margin-bottom:12px;display:none;
   align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#92400e;}
 .queue-bar.show{display:flex;}
 
-/* ── FORM HEADER ── */
+/* ── SHARED: folio picker ── */
+.folio-picker{background:var(--wh);border-radius:12px;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);padding:14px 16px;
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.folio-picker label{font-size:12px;font-weight:700;color:var(--mu);
+  text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.folio-picker select{flex:1;min-width:160px;border:1.5px solid var(--bd);border-radius:8px;
+  padding:8px 10px;font-size:14px;font-family:'DM Sans',sans-serif;
+  color:var(--dk);background:var(--wh);-webkit-appearance:none;height:40px;}
+.folio-picker select:focus{outline:none;border-color:var(--g2);}
+
+/* ── FORM HEADER (Nueva tab) ── */
 .form-header{background:var(--g1);color:#fff;border-radius:12px 12px 0 0;
   padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
 .form-header h1{font-size:17px;font-weight:700;}
 .folio-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);
   border-radius:7px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;}
 
-/* ── FORM CARD ── */
+/* ── FORM BODY (Nueva tab) ── */
 .form-card{background:var(--wh);border-radius:0 0 12px 12px;
   box-shadow:0 4px 20px rgba(0,0,0,.08);padding:16px;}
 .sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
   color:var(--g2);border-bottom:2px solid var(--g3);padding-bottom:5px;
   margin:16px 0 10px;}
 .sec:first-child{margin-top:0;}
-
-/* ── GRIDS — desktop first, collapse on mobile ── */
 .grid{display:grid;gap:10px;}
 .g2{grid-template-columns:1fr 1fr;}
 .g3{grid-template-columns:1fr 1fr 1fr;}
 .g4{grid-template-columns:1fr 1fr 1fr 1fr;}
 .g5{grid-template-columns:1fr 1fr 1fr 1fr 1fr;}
 .s2{grid-column:span 2;}
-
-/* ── FIELDS ── */
 .fld{display:flex;flex-direction:column;gap:4px;}
 .fld label{font-size:10px;font-weight:700;color:var(--mu);
   letter-spacing:.4px;text-transform:uppercase;}
-.fld input,.fld select{
-  border:1.5px solid var(--bd);border-radius:9px;
-  padding:10px 12px;font-family:'DM Sans',sans-serif;
-  font-size:16px;  /* 16px prevents iOS zoom on focus */
-  color:var(--dk);background:var(--wh);
-  height:46px;width:100%;
+.fld input,.fld select{border:1.5px solid var(--bd);border-radius:9px;
+  padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:16px;
+  color:var(--dk);background:var(--wh);height:46px;width:100%;
   -webkit-appearance:none;appearance:none;}
-.fld input:focus,.fld select:focus{
-  outline:none;border-color:var(--g2);
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--g2);
   box-shadow:0 0 0 3px rgba(45,158,98,.15);}
 .fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
-
-/* ── RX TABLE ── */
 .rx-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;}
-.rx-table{width:100%;border-collapse:collapse;min-width:420px;}
+.rx-table{width:100%;border-collapse:collapse;min-width:400px;}
 .rx-table th{background:var(--g3);color:var(--g1);font-size:10px;font-weight:700;
   text-align:center;padding:8px 4px;border:1px solid #c3e6d4;}
 .rx-table td{border:1px solid var(--bd);padding:2px 3px;}
-.eye{background:var(--g1);color:#fff;font-weight:700;font-size:12px;
+.eye{background:var(--g1);color:#fff;font-weight:700;font-size:11px;
   text-align:center;width:32px;}
-.rx-table input{
-  width:100%;border:none;text-align:center;
+.rx-table input{width:100%;border:none;text-align:center;
   font-family:'DM Mono',monospace;font-size:14px;
   padding:8px 2px;background:transparent;color:var(--dk);}
 .rx-table input:focus{outline:2px solid var(--g2);outline-offset:-2px;border-radius:4px;}
-.rx-table tr:hover td{background:var(--g4);}
-
-/* ── CHECKS ── */
 .checks{display:flex;flex-wrap:wrap;gap:10px 20px;}
 .chk{display:flex;align-items:center;gap:7px;cursor:pointer;padding:4px 0;}
-.chk input{width:18px;height:18px;accent-color:var(--g1);flex-shrink:0;cursor:pointer;}
+.chk input{width:18px;height:18px;accent-color:var(--g1);flex-shrink:0;}
 .chk span{font-size:14px;font-weight:500;}
-
-/* ── DEUDA ── */
 .deuda-el{background:var(--g3);border:1.5px solid #c3e6d4;border-radius:9px;
   padding:10px 12px;height:46px;display:flex;align-items:center;
   font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--g1);}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:12px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;
-  font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none;
-  min-height:46px;touch-action:manipulation;}
+  padding:10px 16px;border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none;
+  min-height:42px;touch-action:manipulation;white-space:nowrap;}
 .btn-primary{background:var(--g1);color:#fff;}
 .btn-primary:active{background:#156038;}
 .btn-primary:disabled{opacity:.6;cursor:not-allowed;}
@@ -142,74 +143,247 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .btn-sec:active{background:#d4eedd;}
 .btn-out{background:var(--wh);color:var(--md);border:1.5px solid var(--bd);}
 .btn-danger{background:#fee2e2;color:var(--rd);border:1.5px solid #fca5a5;}
+.btn-print{background:#1d4ed8;color:#fff;}
+.btn-print:active{background:#1e40af;}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;
   margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);flex-wrap:wrap;}
 
-/* ── STATS GRID ── */
+/* ── HISTORY ── */
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
-.stat{background:var(--wh);border-radius:12px;padding:14px 14px;
+.stat{background:var(--wh);border-radius:12px;padding:12px 14px;
   box-shadow:0 2px 8px rgba(0,0,0,.06);border-left:3px solid var(--g1);}
 .stat .v{font-size:22px;font-weight:700;color:var(--g1);font-family:'DM Mono',monospace;}
-.stat .l{font-size:11px;color:var(--mu);margin-top:2px;}
-
-/* ── SEARCH ── */
+.stat .l{font-size:10px;color:var(--mu);margin-top:2px;}
 .search-row{display:flex;gap:8px;margin-bottom:12px;}
 .search-row input{flex:1;border:1.5px solid var(--bd);border-radius:10px;
   padding:10px 14px;font-size:16px;font-family:'DM Sans',sans-serif;
   -webkit-appearance:none;}
 .search-row input:focus{outline:none;border-color:var(--g2);}
-
-/* ── CARDS (mobile-first history) ── */
 .order-cards{display:flex;flex-direction:column;gap:10px;}
 .order-card{background:var(--wh);border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;
-  border:1px solid var(--bd);}
+  box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--bd);}
 .card-header{padding:12px 14px;display:flex;align-items:center;
   justify-content:space-between;border-bottom:1px solid var(--bg);}
-.card-folio{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;
-  color:var(--mu);}
+.card-folio{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--mu);}
 .card-name{font-size:14px;font-weight:700;}
 .card-body{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .card-row{display:flex;flex-direction:column;gap:1px;}
-.card-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;
-  font-weight:700;color:var(--mu);}
+.card-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--mu);}
 .card-val{font-size:13px;font-weight:500;}
-.card-val.mono{font-family:'DM Mono',monospace;font-size:12px;}
 .card-footer{padding:8px 14px;background:var(--bg);
-  display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.badge{display:inline-block;padding:3px 8px;border-radius:20px;
-  font-size:11px;font-weight:700;}
+  display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;}
 .b-green{background:var(--g3);color:var(--g1);}
 .b-yellow{background:#fef3c7;color:#92400e;}
 .b-red{background:#fee2e2;color:var(--rd);}
-
-/* ── LOADING STATE ── */
-.loading-row{text-align:center;padding:32px 16px;color:var(--mu);font-size:14px;}
 .empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px;}
+.loading-row{text-align:center;padding:32px 16px;color:var(--mu);font-size:14px;}
 
-/* ── MODAL (sheet-style on mobile) ── */
+/* ══════════════════════════════════════════════
+   FORMULARIO (Orden de Pedido visual)
+   ══════════════════════════════════════════════ */
+.of-wrap{background:var(--wh);border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);overflow:hidden;font-family:'DM Sans',sans-serif;}
+
+/* FORM HEADER BAND */
+.of-header{display:grid;grid-template-columns:1fr auto;
+  background:#1e3a5f;color:#fff;}
+.of-title{padding:10px 16px;font-size:22px;font-weight:800;
+  letter-spacing:-0.5px;align-self:center;}
+.of-folio-block{background:#15293f;padding:10px 16px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:140px;}
+.of-folio-lbl{font-size:10px;opacity:.7;letter-spacing:1px;}
+.of-folio-num{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;}
+.of-brand-tag{font-size:9px;opacity:.8;letter-spacing:.5px;text-align:right;}
+.of-lab-row{background:#1a7a4a;color:#fff;padding:4px 16px;
+  display:flex;justify-content:flex-end;gap:16px;font-size:10px;font-weight:600;letter-spacing:.5px;}
+
+/* DATA ROWS */
+.of-body{padding:0;}
+.of-fields{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bd);}
+.of-field{display:flex;align-items:center;gap:6px;padding:5px 10px;
+  border-bottom:1px solid #eee;border-right:1px solid #eee;min-height:26px;}
+.of-field:nth-child(even){border-right:none;}
+.of-field.full{grid-column:span 2;border-right:none;}
+.of-fl{font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.4px;flex-shrink:0;min-width:70px;}
+.of-fv{font-size:11px;color:var(--dk);font-weight:500;flex:1;}
+
+/* RX TABLE in form */
+.of-rx-section{display:grid;grid-template-columns:auto 1fr;gap:0;border-bottom:1px solid var(--bd);}
+.of-rx-table-wrap{border-right:1px solid var(--bd);padding:8px 10px;}
+.of-rx-tbl{border-collapse:collapse;font-size:11px;}
+.of-rx-tbl th{background:#1e3a5f;color:#fff;padding:5px 10px;
+  text-align:center;font-size:9px;letter-spacing:.5px;border:1px solid #2a4a6f;}
+.of-rx-tbl td{border:1px solid var(--bd);padding:4px 8px;
+  text-align:center;font-family:'DM Mono',monospace;font-size:11px;}
+.of-rx-tbl .eye-cell{background:#1e3a5f;color:#fff;font-weight:700;font-size:10px;}
+
+/* Armazon/extras in form */
+.of-extras{padding:6px 10px;display:flex;flex-direction:column;gap:4px;}
+.of-extra-row{display:flex;align-items:center;gap:6px;font-size:10px;}
+.of-extra-lbl{font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.3px;min-width:75px;}
+.of-extra-val{color:var(--dk);font-weight:500;}
+
+/* Checkboxes band */
+.of-checks-band{background:#f8fafc;border-bottom:1px solid var(--bd);
+  padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px 16px;}
+.of-chk{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;}
+.of-box{width:13px;height:13px;border:1.5px solid #888;border-radius:2px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.of-box.checked{background:#1a7a4a;border-color:#1a7a4a;color:#fff;}
+
+/* Conditions row (DESVANECIDO / TINTE) */
+.of-cond-section{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bd);}
+.of-cond-block{padding:6px 10px;border-right:1px solid #eee;font-size:9px;}
+.of-cond-block:last-child{border-right:none;}
+.of-cond-title{font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:4px;color:var(--dk);}
+.of-boxes-row{display:flex;gap:6px;flex-wrap:wrap;}
+.of-cond-item{display:flex;align-items:center;gap:3px;}
+
+/* Vision/medical section */
+.of-vision-section{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bd);}
+.of-vision-block{padding:6px 10px;border-right:1px solid #eee;font-size:10px;}
+.of-vision-block:last-child{border-right:none;}
+
+/* Payment footer */
+.of-payment{background:#f8fafc;padding:8px 12px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;border-bottom:1px solid var(--bd);}
+.of-pay-row{display:flex;align-items:center;gap:6px;font-size:10px;}
+.of-pay-lbl{font-weight:700;color:var(--mu);text-transform:uppercase;
+  letter-spacing:.3px;min-width:65px;}
+.of-pay-line{flex:1;border-bottom:1.5px solid #aaa;min-width:50px;}
+.of-pay-row.full{grid-column:span 2;}
+
+/* ══════════════════════════════════════════════
+   REPORTE CLIENTE (Salud Visual branded)
+   ══════════════════════════════════════════════ */
+.rpt-wrap{background:var(--wh);border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);overflow:hidden;font-family:'DM Sans',sans-serif;}
+
+/* Brand header */
+.rpt-header{background:var(--g1);color:#fff;padding:16px 20px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.rpt-brand-name{font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;}
+.rpt-brand-sub{font-size:11px;opacity:.8;margin-top:3px;letter-spacing:.5px;}
+.rpt-brand-phone{font-size:12px;opacity:.7;margin-top:2px;}
+.rpt-patient-box{background:rgba(0,0,0,.15);border-radius:8px;
+  padding:10px 14px;text-align:right;font-size:12px;}
+.rpt-patient-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.rpt-patient-meta{font-size:11px;opacity:.85;line-height:1.6;}
+
+/* Sections */
+.rpt-section{padding:14px 16px;border-bottom:1px solid var(--bd);}
+.rpt-section:last-child{border-bottom:none;}
+.rpt-section-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rpt-section-num{background:var(--g1);color:#fff;width:22px;height:22px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;}
+.rpt-section-title{font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--dk);}
+
+/* Refraction table */
+.rpt-rx-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px;}
+.rpt-rx-table th{background:#1e3a5f;color:#fff;padding:7px 10px;
+  text-align:center;font-size:10px;letter-spacing:.5px;}
+.rpt-rx-table td{border:1px solid var(--bd);padding:7px 10px;
+  text-align:center;font-family:'DM Mono',monospace;}
+.rpt-rx-table .eye-row td:first-child{background:var(--g3);color:var(--g1);font-weight:700;}
+
+/* Condition pills */
+.rpt-conditions{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
+.rpt-cond{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;
+  display:flex;align-items:center;gap:5px;}
+.rpt-cond.active{background:var(--g1);color:#fff;}
+.rpt-cond.inactive{background:#f3f4f6;color:var(--mu);}
+.rpt-cond .cond-icon{font-size:12px;}
+
+/* Severity gauges */
+.rpt-gauges{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.rpt-gauge-block{background:#f9fafb;border-radius:8px;padding:10px 12px;}
+.rpt-gauge-title{font-size:10px;font-weight:700;color:var(--mu);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.rpt-gauge-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:4px;}
+.rpt-gauge-fill{height:100%;border-radius:3px;transition:width .5s;}
+.rpt-gauge-fill.low{background:#22c55e;}
+.rpt-gauge-fill.med{background:#f59e0b;}
+.rpt-gauge-fill.high{background:#ef4444;}
+.rpt-gauge-label{font-size:10px;color:var(--mu);}
+
+/* Lens recommendation */
+.rpt-lens-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;}
+.rpt-lens-table th{background:#f3f4f6;padding:7px 10px;text-align:left;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);}
+.rpt-lens-table td{padding:7px 10px;border-bottom:1px solid #f3f4f6;font-weight:500;}
+.rpt-lens-types{display:flex;gap:10px;margin-top:8px;}
+.rpt-lens-type{flex:1;border:2px solid var(--bd);border-radius:10px;
+  padding:10px;text-align:center;font-size:11px;}
+.rpt-lens-type.selected{border-color:var(--g1);background:var(--g3);}
+.rpt-lens-type-icon{font-size:22px;margin-bottom:4px;}
+.rpt-lens-type-name{font-weight:700;font-size:12px;color:var(--dk);}
+.rpt-lens-type-desc{font-size:10px;color:var(--mu);margin-top:2px;}
+
+/* Frame measurements */
+.rpt-frame{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;}
+.rpt-frame-measure{background:#f9fafb;border-radius:8px;padding:10px;text-align:center;}
+.rpt-frame-lbl{font-size:9px;font-weight:700;color:var(--mu);
+  text-transform:uppercase;letter-spacing:.5px;}
+.rpt-frame-val{font-size:18px;font-weight:800;color:var(--g1);
+  font-family:'DM Mono',monospace;margin-top:2px;}
+.rpt-frame-unit{font-size:9px;color:var(--mu);}
+
+/* Usage recommendations */
+.rpt-usage{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.rpt-usage-item{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:6px;border:1.5px solid;}
+.rpt-usage-item.active{background:var(--g3);border-color:var(--g2);color:var(--g1);}
+.rpt-usage-item.inactive{background:#f9fafb;border-color:var(--bd);color:var(--mu);}
+
+/* Signature */
+.rpt-signature{padding:16px 16px;display:flex;justify-content:flex-end;}
+.rpt-sig-block{text-align:center;min-width:160px;}
+.rpt-sig-line{border-bottom:2px solid var(--dk);margin-bottom:6px;height:40px;}
+.rpt-sig-name{font-size:12px;font-weight:700;}
+.rpt-sig-title{font-size:10px;color:var(--mu);}
+
+/* Note footer */
+.rpt-note{background:#fffbeb;border-top:1px solid #fcd34d;
+  padding:10px 16px;font-size:10px;color:#92400e;line-height:1.5;}
+
+/* ══ PRINT STYLES ══ */
+@media print {
+  :root{--nav-h:0;--tab-h:0;}
+  .nav,.tab-bar,.folio-picker,.queue-bar,.no-print,
+  .form-actions,.card-footer,.search-row,.stats{display:none!important;}
+  .scroll-area{padding-bottom:0;overflow:visible;}
+  .screen{display:none!important;}
+  .screen.active{display:block!important;padding:0!important;}
+  body{background:white;display:block;}
+  .screen-max{max-width:none;}
+  .of-wrap,.rpt-wrap{box-shadow:none;border-radius:0;}
+  @page{margin:8mm;}
+}
+
+/* ── MODAL ── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
   z-index:200;align-items:flex-end;justify-content:center;}
 .modal-ov.open{display:flex;}
 .modal{background:var(--wh);border-radius:20px 20px 0 0;
   padding:20px 20px calc(20px + env(safe-area-inset-bottom));
-  width:100%;max-height:90dvh;overflow-y:auto;
-  box-shadow:0 -8px 40px rgba(0,0,0,.2);}
-.modal-handle{width:36px;height:4px;background:var(--bd);
-  border-radius:2px;margin:0 auto 16px;}
+  width:100%;max-height:90dvh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 16px;}
 .modal h3{font-size:17px;font-weight:700;margin-bottom:14px;}
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.di .k{font-size:9px;color:var(--mu);text-transform:uppercase;
-  letter-spacing:.5px;font-weight:700;}
+.di .k{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
 .di .v{font-size:13px;font-weight:500;}
 
-/* ── LOADER ── */
 .ld{display:inline-block;width:14px;height:14px;
   border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
   border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TOAST ── */
 .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(120px);
   bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
   background:var(--g1);color:#fff;padding:12px 20px;border-radius:100px;
@@ -221,11 +395,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .toast.info{background:#1d4ed8;}
 .toast.warn{background:#d97706;}
 
-/* ── DESKTOP overrides ── */
-@media(min-width:600px){
+/* ── DESKTOP ── */
+@media(min-width:640px){
   .modal-ov{align-items:center;}
-  .modal{border-radius:16px;max-width:520px;
-    padding:24px;margin:16px;}
+  .modal{border-radius:16px;max-width:520px;padding:24px;margin:16px;}
   .modal-handle{display:none;}
   .g3{grid-template-columns:1fr 1fr 1fr;}
   .g4{grid-template-columns:1fr 1fr 1fr 1fr;}
@@ -235,20 +408,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   .toast.show{transform:translateY(0);}
   .tab-bar{display:none;}
   .scroll-area{padding-bottom:16px;}
-  .nav{position:sticky;}
-  /* Desktop: nav tabs instead of bottom bar */
-  .nav-tabs-desktop{display:flex!important;gap:4px;}
-  .nav-tab-d{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;
-    font-weight:500;color:rgba(255,255,255,.75);border:none;background:transparent;}
-  .nav-tab-d.active,.nav-tab-d:hover{background:rgba(255,255,255,.2);color:#fff;}
+  .nav-dtabs{display:flex!important;}
+  .of-fields{grid-template-columns:1fr 1fr;}
 }
-@media(max-width:599px){
-  .nav-tabs-desktop{display:none!important;}
+@media(max-width:639px){
   .g2,.g3,.g4,.g5{grid-template-columns:1fr 1fr;}
-  .g5{grid-template-columns:1fr 1fr;}
   .s2{grid-column:span 2;}
   .form-actions{flex-direction:column;}
   .form-actions .btn{width:100%;}
+  .rpt-gauges{grid-template-columns:1fr;}
+  .rpt-frame{grid-template-columns:1fr 1fr 1fr;}
+  .rpt-lens-types{flex-direction:column;}
+  .of-rx-section{grid-template-columns:1fr;}
+  .of-rx-table-wrap{border-right:none;border-bottom:1px solid var(--bd);}
+  .of-cond-section{grid-template-columns:1fr;}
+  .of-cond-block{border-right:none;border-bottom:1px solid #eee;}
+  .of-vision-section{grid-template-columns:1fr;}
 }
 @media(max-width:380px){
   .g2,.g3,.g4,.g5{grid-template-columns:1fr;}
@@ -262,13 +437,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <nav class="nav">
   <div class="nav-brand">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M2 12c2.5-5 5.5-8 10-8s7.5 3 10 8c-2.5 5-5.5 8-10 8S4.5 17 2 12z"/></svg>
-    Servicios de Salud
+    Salud Visual
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <!-- Desktop tabs -->
-    <div class="nav-tabs-desktop" style="display:none">
-      <button class="nav-tab-d active" onclick="switchTab('form',this)">+ Nueva</button>
-      <button class="nav-tab-d" onclick="switchTab('history',this)">Historial</button>
+    <div class="nav-dtabs">
+      <button class="nav-dt active" id="ndt-nueva" onclick="switchTab('nueva',this)">+ Nueva</button>
+      <button class="nav-dt" id="ndt-historial" onclick="switchTab('historial',this)">Historial</button>
+      <button class="nav-dt" id="ndt-formulario" onclick="switchTab('formulario',this)">Formulario</button>
+      <button class="nav-dt" id="ndt-reporte" onclick="switchTab('reporte',this)">Reporte</button>
     </div>
     <div class="sync-chip" id="sync-chip" onclick="loadHistory(true)">
       <div class="sync-dot ok" id="sync-dot"></div>
@@ -277,175 +453,207 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   </div>
 </nav>
 
-<!-- SCROLL AREA -->
 <div class="scroll-area">
 
-  <!-- ═══ FORM SCREEN ═══ -->
-  <div id="screen-form" class="screen active">
-    <div class="screen-max">
-
-      <div class="queue-bar" id="queue-bar">
-        <span id="queue-msg">⚠ 1 orden pendiente</span>
-        <button class="btn btn-sec" style="font-size:12px;padding:6px 12px;min-height:auto" onclick="retryQueue()">Reintentar</button>
-      </div>
-
-      <div class="form-header">
-        <div>
-          <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Servicios de Salud · 8136443744</div>
-          <h1>ORDEN DE PEDIDO</h1>
-        </div>
-        <div class="folio-badge">FOLIO: <span id="folio-display">—</span></div>
-      </div>
-
-      <div class="form-card">
-
-        <div class="sec">Datos del Cliente</div>
-        <div class="grid g3">
-          <div class="fld"><label>Folio</label><input type="number" inputmode="numeric" id="f-folio" placeholder="101" oninput="document.getElementById('folio-display').textContent=this.value||'—'"></div>
-          <div class="fld"><label>Fecha</label><input type="date" id="f-fecha"></div>
-          <div class="fld"><label>Promotor</label>
-            <select id="f-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select></div>
-          <div class="fld s2"><label>Nombre del Paciente</label><input type="text" id="f-nombre" autocomplete="off" placeholder="Nombre completo"></div>
-          <div class="fld"><label>Teléfono</label><input type="tel" inputmode="tel" id="f-tel" placeholder="10 dígitos"></div>
-          <div class="fld s2"><label>Calle y Número</label><input type="text" id="f-calle" autocomplete="off"></div>
-          <div class="fld"><label>Colonia</label><input type="text" id="f-colonia" autocomplete="off"></div>
-          <div class="fld"><label>Municipio</label><input type="text" id="f-municipio" placeholder="Escobedo"></div>
-          <div class="fld"><label>Optometrista</label><input type="text" id="f-optom"></div>
-        </div>
-
-        <div class="sec">Graduación (Rx)</div>
-        <div class="rx-wrap">
-          <table class="rx-table">
-            <thead><tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th><th>DIP</th><th>ALT</th></tr></thead>
-            <tbody>
-              <tr>
-                <td class="eye">OD</td>
-                <td><input list="l-esf" id="od-esf" inputmode="decimal" placeholder="+/-0.00"></td>
-                <td><input list="l-cyl" id="od-cyl" inputmode="decimal" placeholder="+/-0.00"></td>
-                <td><input list="l-eje" id="od-eje" inputmode="numeric" placeholder="90°"></td>
-                <td><input list="l-add" id="od-add" inputmode="decimal" placeholder="+1.00"></td>
-                <td><input id="f-dip" inputmode="numeric" placeholder="65"></td>
-                <td><input id="f-alt" placeholder="/"></td>
-              </tr>
-              <tr>
-                <td class="eye">OI</td>
-                <td><input list="l-esf" id="oi-esf" inputmode="decimal" placeholder="+/-0.00"></td>
-                <td><input list="l-cyl" id="oi-cyl" inputmode="decimal" placeholder="+/-0.00"></td>
-                <td><input list="l-eje" id="oi-eje" inputmode="numeric" placeholder="90°"></td>
-                <td><input list="l-add" id="oi-add" inputmode="decimal" placeholder="+1.00"></td>
-                <td></td><td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <datalist id="l-esf"></datalist>
-        <datalist id="l-cyl"></datalist>
-        <datalist id="l-eje"></datalist>
-        <datalist id="l-add"></datalist>
-
-        <div class="sec">Anterior / Actual</div>
-        <div class="grid g4">
-          <div class="fld"><label>Ant. OD</label><input type="text" id="ant-od" style="font-family:'DM Mono',monospace"></div>
-          <div class="fld"><label>Ant. OI</label><input type="text" id="ant-oi" style="font-family:'DM Mono',monospace"></div>
-          <div class="fld"><label>Act. OD</label><input type="text" id="act-od" style="font-family:'DM Mono',monospace"></div>
-          <div class="fld"><label>Act. OI</label><input type="text" id="act-oi" style="font-family:'DM Mono',monospace"></div>
-        </div>
-
-        <div class="sec">Armazón y Lentes</div>
-        <div class="grid g3">
-          <div class="fld"><label>Armazón</label><input type="text" id="f-armazon"></div>
-          <div class="fld"><label>Color</label><input type="text" id="f-color"></div>
-          <div class="fld"><label>Medidas</label><input type="text" id="f-medidas" placeholder="52-18-145"></div>
-          <div class="fld"><label>Tipo de Visión</label>
-            <select id="f-vision"><option value="">—</option><option>MONO</option><option>BIFOCAL</option><option>PROGRESIVO</option></select></div>
-          <div class="fld"><label>Filtro</label>
-            <select id="f-filtro"><option value="">—</option><option>FOTO</option><option>BLUE</option><option>NINGUNO</option></select></div>
-          <div class="fld"><label>Antireflejante</label>
-            <select id="f-ar"><option value="">—</option><option>AR</option><option>BLUE</option><option>NO</option></select></div>
-          <div class="fld"><label>Distancia (cm)</label><input type="number" inputmode="numeric" id="f-dist" placeholder="66"></div>
-        </div>
-
-        <div class="sec">Extras</div>
-        <div class="checks">
-          <label class="chk"><input type="checkbox" id="ch-blanco"><span>Blanco</span></label>
-          <label class="chk"><input type="checkbox" id="ch-foto"><span>Fotocromático</span></label>
-          <label class="chk"><input type="checkbox" id="ch-invisible"><span>Invisible</span></label>
-          <label class="chk"><input type="checkbox" id="ch-prog"><span>Progresivo</span></label>
-          <label class="chk"><input type="checkbox" id="ch-hi"><span>Hi Index</span></label>
-          <label class="chk"><input type="checkbox" id="ch-poli"><span>Policarbonato</span></label>
-          <label class="chk"><input type="checkbox" id="ch-diab"><span>Diabetes</span></label>
-          <label class="chk"><input type="checkbox" id="ch-pres"><span>Presión</span></label>
-        </div>
-
-        <div class="sec">Pago</div>
-        <div class="grid g4">
-          <div class="fld"><label>Costo Lente</label><input type="number" inputmode="decimal" id="f-costo" placeholder="0" oninput="calcDeuda()"></div>
-          <div class="fld"><label>Forma de Pago</label>
-            <select id="f-fpago"><option value="">—</option><option>CONTADO</option><option>CREDITO</option></select></div>
-          <div class="fld"><label>Anticipo</label><input type="number" inputmode="decimal" id="f-anticipo" placeholder="0" oninput="calcDeuda()"></div>
-          <div class="fld"><label>Deuda</label><div class="deuda-el" id="deuda-el">$ —</div></div>
-          <div class="fld"><label>Pago Semanal</label><input type="number" inputmode="decimal" id="f-semanal" placeholder="0"></div>
-          <div class="fld"><label>Día de Entrega</label><input type="date" id="f-entrega"></div>
-          <div class="fld s2"><label>Día de Pago</label><input type="text" id="f-diapago" placeholder="Lunes"></div>
-        </div>
-
-        <div class="sec">Laboratorio</div>
-        <div class="grid g5">
-          <div class="fld"><label>Lab</label>
-            <select id="f-lab"><option value="">—</option><option>Indigo</option><option>Optimarket</option><option>Optikal MTY</option><option>FED</option></select></div>
-          <div class="fld"><label>Folio Lab</label><input type="text" id="f-fol"></div>
-          <div class="fld"><label>Micas $</label><input type="number" inputmode="decimal" id="f-micas" placeholder="0"></div>
-          <div class="fld"><label>Bisel $</label><input type="number" inputmode="decimal" id="f-bisel" placeholder="0"></div>
-          <div class="fld"><label>Maq $</label><input type="number" inputmode="decimal" id="f-maq" placeholder="0"></div>
-        </div>
-
-        <div class="form-actions">
-          <button class="btn btn-out" onclick="clearForm()">Limpiar</button>
-          <button class="btn btn-sec" onclick="exportCSV()">CSV</button>
-          <button class="btn btn-primary" id="save-btn" onclick="saveOrder()">
-            <span id="save-icon">☁</span><span id="save-label"> Guardar en Sheets</span>
-          </button>
-        </div>
-
-      </div><!-- /form-card -->
+<!-- ═══════════ NUEVA ORDEN ═══════════ -->
+<div id="screen-nueva" class="screen active">
+  <div class="screen-max">
+    <div class="queue-bar" id="queue-bar">
+      <span id="queue-msg">⚠ 1 orden pendiente</span>
+      <button class="btn btn-sec" style="font-size:12px;padding:6px 12px;min-height:auto" onclick="retryQueue()">Reintentar</button>
     </div>
-  </div><!-- /screen-form -->
-
-  <!-- ═══ HISTORY SCREEN ═══ -->
-  <div id="screen-history" class="screen">
-    <div class="screen-max">
-
-      <div class="stats">
-        <div class="stat"><div class="v" id="st-total">—</div><div class="l">Total órdenes</div></div>
-        <div class="stat"><div class="v" id="st-mes">—</div><div class="l">Este mes</div></div>
-        <div class="stat"><div class="v" id="st-deuda">—</div><div class="l">Deuda total</div></div>
-        <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
+    <div class="form-header">
+      <div>
+        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Salud Visual · 8136443744</div>
+        <h1>ORDEN DE PEDIDO</h1>
       </div>
-
-      <div class="search-row">
-        <input type="search" id="search-input" placeholder="Buscar nombre, folio, municipio..." oninput="filterCards()">
-        <button class="btn btn-sec" style="padding:10px 14px;white-space:nowrap" onclick="loadHistory(true)">↻ Sync</button>
-      </div>
-
-      <div id="order-cards" class="order-cards">
-        <div class="loading-row">Cargando historial...</div>
-      </div>
-
+      <div class="folio-badge">FOLIO: <span id="folio-display">—</span></div>
     </div>
-  </div><!-- /screen-history -->
+    <div class="form-card">
+      <div class="sec">Datos del Cliente</div>
+      <div class="grid g3">
+        <div class="fld"><label>Folio</label><input type="number" inputmode="numeric" id="f-folio" placeholder="101" oninput="document.getElementById('folio-display').textContent=this.value||'—'"></div>
+        <div class="fld"><label>Fecha</label><input type="date" id="f-fecha"></div>
+        <div class="fld"><label>Promotor</label>
+          <select id="f-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select></div>
+        <div class="fld s2"><label>Nombre del Paciente</label><input type="text" id="f-nombre" placeholder="Nombre completo" autocomplete="off"></div>
+        <div class="fld"><label>Teléfono</label><input type="tel" inputmode="tel" id="f-tel" placeholder="10 dígitos"></div>
+        <div class="fld s2"><label>Calle y Número</label><input type="text" id="f-calle" autocomplete="off"></div>
+        <div class="fld"><label>Colonia</label><input type="text" id="f-colonia" autocomplete="off"></div>
+        <div class="fld"><label>Municipio</label><input type="text" id="f-municipio" placeholder="Escobedo"></div>
+        <div class="fld"><label>Optometrista</label><input type="text" id="f-optom"></div>
+        <div class="fld"><label>Edad</label><input type="number" inputmode="numeric" id="f-edad" placeholder="—"></div>
+        <div class="fld"><label>Referencia</label><input type="text" id="f-ref"></div>
+      </div>
+      <div class="sec">Graduación (Rx)</div>
+      <div class="rx-wrap">
+        <table class="rx-table">
+          <thead><tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th><th>DIP</th><th>ALT</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="eye">OD</td>
+              <td><input list="l-esf" id="od-esf" inputmode="decimal" placeholder="+/-0.00"></td>
+              <td><input list="l-cyl" id="od-cyl" inputmode="decimal" placeholder="+/-0.00"></td>
+              <td><input list="l-eje" id="od-eje" inputmode="numeric" placeholder="90°"></td>
+              <td><input list="l-add" id="od-add" inputmode="decimal" placeholder="+1.00"></td>
+              <td><input id="f-dip" inputmode="numeric" placeholder="65"></td>
+              <td><input id="f-alt" placeholder="/"></td>
+            </tr>
+            <tr>
+              <td class="eye">OI</td>
+              <td><input list="l-esf" id="oi-esf" inputmode="decimal" placeholder="+/-0.00"></td>
+              <td><input list="l-cyl" id="oi-cyl" inputmode="decimal" placeholder="+/-0.00"></td>
+              <td><input list="l-eje" id="oi-eje" inputmode="numeric" placeholder="90°"></td>
+              <td><input list="l-add" id="oi-add" inputmode="decimal" placeholder="+1.00"></td>
+              <td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <datalist id="l-esf"></datalist><datalist id="l-cyl"></datalist>
+      <datalist id="l-eje"></datalist><datalist id="l-add"></datalist>
+
+      <div class="sec">Anterior / Actual</div>
+      <div class="grid g4">
+        <div class="fld"><label>Ant. OD</label><input type="text" id="ant-od" style="font-family:'DM Mono',monospace"></div>
+        <div class="fld"><label>Ant. OI</label><input type="text" id="ant-oi" style="font-family:'DM Mono',monospace"></div>
+        <div class="fld"><label>Act. OD</label><input type="text" id="act-od" style="font-family:'DM Mono',monospace"></div>
+        <div class="fld"><label>Act. OI</label><input type="text" id="act-oi" style="font-family:'DM Mono',monospace"></div>
+      </div>
+
+      <div class="sec">Armazón y Lentes</div>
+      <div class="grid g3">
+        <div class="fld"><label>Armazón</label><input type="text" id="f-armazon"></div>
+        <div class="fld"><label>Color</label><input type="text" id="f-color"></div>
+        <div class="fld"><label>Medidas</label><input type="text" id="f-medidas" placeholder="52-18-145"></div>
+        <div class="fld"><label>Tipo de Visión</label>
+          <select id="f-vision"><option value="">—</option><option>MONO</option><option>BIFOCAL</option><option>PROGRESIVO</option></select></div>
+        <div class="fld"><label>Filtro</label>
+          <select id="f-filtro"><option value="">—</option><option>FOTO</option><option>BLUE</option><option>NINGUNO</option></select></div>
+        <div class="fld"><label>Antireflejante</label>
+          <select id="f-ar"><option value="">—</option><option>AR</option><option>BLUE</option><option>NO</option></select></div>
+        <div class="fld"><label>Distancia (cm)</label><input type="number" inputmode="numeric" id="f-dist" placeholder="66"></div>
+        <div class="fld"><label>Entre Calles</label><input type="text" id="f-entre"></div>
+      </div>
+
+      <div class="sec">Extras</div>
+      <div class="checks">
+        <label class="chk"><input type="checkbox" id="ch-blanco"><span>Blanco</span></label>
+        <label class="chk"><input type="checkbox" id="ch-foto"><span>Fotocromático</span></label>
+        <label class="chk"><input type="checkbox" id="ch-invisible"><span>Invisible</span></label>
+        <label class="chk"><input type="checkbox" id="ch-prog"><span>Progresivo</span></label>
+        <label class="chk"><input type="checkbox" id="ch-hi"><span>Hi Index</span></label>
+        <label class="chk"><input type="checkbox" id="ch-poli"><span>Policarbonato</span></label>
+        <label class="chk"><input type="checkbox" id="ch-diab"><span>Diabetes</span></label>
+        <label class="chk"><input type="checkbox" id="ch-pres"><span>Presión</span></label>
+      </div>
+
+      <div class="sec">Pago</div>
+      <div class="grid g4">
+        <div class="fld"><label>Costo Lente</label><input type="number" inputmode="decimal" id="f-costo" placeholder="0" oninput="calcDeuda()"></div>
+        <div class="fld"><label>Forma de Pago</label>
+          <select id="f-fpago"><option value="">—</option><option>CONTADO</option><option>CREDITO</option></select></div>
+        <div class="fld"><label>Anticipo / Enganche</label><input type="number" inputmode="decimal" id="f-anticipo" placeholder="0" oninput="calcDeuda()"></div>
+        <div class="fld"><label>Deuda</label><div class="deuda-el" id="deuda-el">$ —</div></div>
+        <div class="fld"><label>Pago Semanal</label><input type="number" inputmode="decimal" id="f-semanal" placeholder="0"></div>
+        <div class="fld"><label>Día de Entrega</label><input type="date" id="f-entrega"></div>
+        <div class="fld s2"><label>Día de Pago</label><input type="text" id="f-diapago" placeholder="Lunes"></div>
+      </div>
+
+      <div class="sec">Laboratorio</div>
+      <div class="grid g5">
+        <div class="fld"><label>Lab</label>
+          <select id="f-lab"><option value="">—</option><option>Indigo</option><option>Optimarket</option><option>Optikal MTY</option><option>FED</option></select></div>
+        <div class="fld"><label>Folio Lab</label><input type="text" id="f-fol"></div>
+        <div class="fld"><label>Micas $</label><input type="number" inputmode="decimal" id="f-micas" placeholder="0"></div>
+        <div class="fld"><label>Bisel $</label><input type="number" inputmode="decimal" id="f-bisel" placeholder="0"></div>
+        <div class="fld"><label>Maq $</label><input type="number" inputmode="decimal" id="f-maq" placeholder="0"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-out" onclick="clearForm()">Limpiar</button>
+        <button class="btn btn-sec" onclick="exportCSV()">CSV</button>
+        <button class="btn btn-sec" onclick="viewCurrentAsForm()">📄 Formulario</button>
+        <button class="btn btn-sec" onclick="viewCurrentAsReport()">📊 Reporte</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveOrder()">
+          <span id="save-icon">☁</span><span id="save-label"> Guardar en Sheets</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HISTORIAL ═══════════ -->
+<div id="screen-historial" class="screen">
+  <div class="screen-max">
+    <div class="stats">
+      <div class="stat"><div class="v" id="st-total">—</div><div class="l">Total órdenes</div></div>
+      <div class="stat"><div class="v" id="st-mes">—</div><div class="l">Este mes</div></div>
+      <div class="stat"><div class="v" id="st-deuda">—</div><div class="l">Deuda total</div></div>
+      <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
+    </div>
+    <div class="search-row">
+      <input type="search" id="search-input" placeholder="Buscar nombre, folio, municipio..." oninput="filterCards()">
+      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
+    </div>
+    <div id="order-cards" class="order-cards">
+      <div class="loading-row">Cargando historial...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FORMULARIO (Orden de Pedido visual) ═══════════ -->
+<div id="screen-formulario" class="screen">
+  <div class="screen-max">
+    <div class="folio-picker no-print">
+      <label>Folio:</label>
+      <select id="fp-select" onchange="selectOrderByFolio(this.value)">
+        <option value="">— Selecciona un folio —</option>
+      </select>
+      <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
+    </div>
+    <div id="of-container">
+      <div class="empty">Selecciona un folio para ver el formulario.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ REPORTE CLIENTE ═══════════ -->
+<div id="screen-reporte" class="screen">
+  <div class="screen-max">
+    <div class="folio-picker no-print">
+      <label>Folio:</label>
+      <select id="rp-select" onchange="selectOrderByFolio(this.value)">
+        <option value="">— Selecciona un folio —</option>
+      </select>
+      <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
+    </div>
+    <div id="rpt-container">
+      <div class="empty">Selecciona un folio para ver el reporte del cliente.</div>
+    </div>
+  </div>
+</div>
 
 </div><!-- /scroll-area -->
 
-<!-- BOTTOM TAB BAR (mobile) -->
+<!-- BOTTOM TAB BAR -->
 <nav class="tab-bar">
-  <div class="tab-indicator" id="tab-indicator"></div>
-  <button class="tab-btn active" id="tabbtn-form" onclick="switchTab('form',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+  <div class="tab-indicator" id="tab-indicator" style="left:0"></div>
+  <button class="tab-btn active" id="tabbtn-nueva" onclick="switchTab('nueva',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
     Nueva
   </button>
-  <button class="tab-btn" id="tabbtn-history" onclick="switchTab('history',this)">
+  <button class="tab-btn" id="tabbtn-historial" onclick="switchTab('historial',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg>
     Historial
+  </button>
+  <button class="tab-btn" id="tabbtn-formulario" onclick="switchTab('formulario',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
+    Formulario
+  </button>
+  <button class="tab-btn" id="tabbtn-reporte" onclick="switchTab('reporte',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+    Reporte
   </button>
 </nav>
 
@@ -455,8 +663,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
     <div class="modal-handle"></div>
     <h3 id="m-title">Detalle</h3>
     <div id="m-body"></div>
-    <div style="margin-top:16px">
-      <button class="btn btn-sec" style="width:100%" onclick="document.getElementById('modal-ov').classList.remove('open')">Cerrar</button>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sec" style="flex:1" onclick="viewDetailForm()">📄 Formulario</button>
+      <button class="btn btn-sec" style="flex:1" onclick="viewDetailReport()">📊 Reporte</button>
+      <button class="btn btn-out" style="width:100%" onclick="document.getElementById('modal-ov').classList.remove('open')">Cerrar</button>
     </div>
   </div>
 </div>
@@ -464,56 +674,512 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Injected by GitHub Actions ────────────────────────────────────
+// ── Injected by GitHub Actions ─────────────────────────────────────
 const SCRIPT_URL = '%%SCRIPT_URL%%';
 
 // ─── STORAGE ──────────────────────────────────────────────────────
-const SK        = 'ss_gs_v3';
 const QUEUE_KEY = 'ss_gs_q';
-const HIST_KEY  = 'ss_gs_hist';  // cached history from Sheets
+const HIST_KEY  = 'ss_gs_hist';
+const getQueue  = () => { try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]')}catch{return[]} };
+const setQueue  = q  => localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+const getCached = () => { try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]')}catch{return[]} };
+const setCached = r  => localStorage.setItem(HIST_KEY, JSON.stringify(r));
 
-const getQueue   = () => { try{return JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]')}catch{return[]} };
-const setQueue   = q  => localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
-const getCached  = () => { try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]')}catch{return[]} };
-const setCached  = r  => localStorage.setItem(HIST_KEY, JSON.stringify(r));
+let allRows       = [];
+let selectedOrder = null;
+let _modalOrder   = null; // order currently shown in modal
 
 // ─── HISTORY FROM SHEETS ──────────────────────────────────────────
-let allRows = []; // in-memory, populated from Sheets
-
-async function loadHistory(forceRefresh = false) {
-  setSyncing('busy', 'Sincronizando...');
+async function loadHistory(forceRefresh) {
+  setSyncing('busy','Sincronizando...');
   const cached = getCached();
-
-  // Show cached immediately so UI isn't empty
-  if (cached.length) { allRows = cached; renderCards(); }
-
+  if (cached.length) { allRows = cached; renderCards(); rebuildFolioSelects(); }
   try {
-    const r = await fetch(SCRIPT_URL + '?action=history', { mode: 'cors' });
+    const r = await fetch(SCRIPT_URL + '?action=history', {mode:'cors'});
     const j = await r.json();
     if (j.ok && j.rows) {
-      allRows = j.rows;
-      setCached(allRows);
-      renderCards();
-      updateStats();
-      setSyncing('ok', 'Sheets');
+      allRows = j.rows; setCached(allRows);
+      renderCards(); updateStats(); rebuildFolioSelects();
+      setSyncing('ok','Sheets');
       if (forceRefresh) showToast('Historial actualizado');
-    } else throw new Error(j.error || 'Error al cargar');
+    } else throw new Error(j.error||'Error');
   } catch(e) {
-    setSyncing('err', 'Sin conexión');
-    if (!cached.length) {
+    setSyncing('err','Sin conexión');
+    if (!cached.length)
       document.getElementById('order-cards').innerHTML =
-        '<div class="empty">Sin conexión y sin caché local.<br>Conéctate para cargar el historial.</div>';
-    }
+        '<div class="empty">Sin conexión. Conéctate para cargar el historial.</div>';
   }
 }
 
-// ─── SEND ─────────────────────────────────────────────────────────
+function rebuildFolioSelects() {
+  const opts = allRows
+    .filter(o => o.folio)
+    .sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0))
+    .map(o => `<option value="${o.folio}">#${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
+    .join('');
+  const base = '<option value="">— Selecciona un folio —</option>';
+  document.getElementById('fp-select').innerHTML = base + opts;
+  document.getElementById('rp-select').innerHTML = base + opts;
+}
+
+// ─── SELECT ORDER ─────────────────────────────────────────────────
+function selectOrderByFolio(folio) {
+  if (!folio) return;
+  const o = allRows.find(x => String(x.folio) === String(folio));
+  if (!o) { showToast('Folio no encontrado','warn'); return; }
+  selectedOrder = o;
+  renderFormulario(o);
+  renderReporte(o);
+}
+
+function viewCurrentAsForm() {
+  const d = getFormData();
+  selectedOrder = formDataToOrderObj(d);
+  renderFormulario(selectedOrder);
+  renderReporte(selectedOrder);
+  switchTab('formulario', document.getElementById('tabbtn-formulario'));
+}
+
+function viewCurrentAsReport() {
+  const d = getFormData();
+  selectedOrder = formDataToOrderObj(d);
+  renderFormulario(selectedOrder);
+  renderReporte(selectedOrder);
+  switchTab('reporte', document.getElementById('tabbtn-reporte'));
+}
+
+function viewDetailForm() {
+  if (!_modalOrder) return;
+  selectedOrder = _modalOrder;
+  renderFormulario(selectedOrder);
+  renderReporte(selectedOrder);
+  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('modal-ov').classList.remove('open');
+  switchTab('formulario', document.getElementById('tabbtn-formulario'));
+}
+
+function viewDetailReport() {
+  if (!_modalOrder) return;
+  selectedOrder = _modalOrder;
+  renderFormulario(selectedOrder);
+  renderReporte(selectedOrder);
+  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('modal-ov').classList.remove('open');
+  switchTab('reporte', document.getElementById('tabbtn-reporte'));
+}
+
+function formDataToOrderObj(d) {
+  return {
+    folio:d.folio, fecha:d.fecha, nombre:d.nombre, prom:d.prom,
+    tel:d.tel, calle:d.calle, colonia:d.colonia, municipio:d.municipio,
+    optom:d.optom, edad:d.edad, ref:d.ref, entre:d.entre,
+    costo:d.costo, fpago:d.fpago, anticipo:d.anticipo, deuda:d.deuda,
+    od_esf:d.od_esf, od_cyl:d.od_cyl, od_eje:d.od_eje, od_add:d.od_add,
+    oi_esf:d.oi_esf, oi_cyl:d.oi_cyl, oi_eje:d.oi_eje, oi_add:d.oi_add,
+    dip:d.dip, alt:d.alt,
+    ant_od:d.ant_od, ant_oi:d.ant_oi, act_od:d.act_od, act_oi:d.act_oi,
+    vision:d.vision, filtro:d.filtro, ar_lens:d.ar,
+    armazon:d.armazon, medidas:d.medidas, dist:d.dist,
+    blanco:d.blanco, foto:d.foto, invisible:d.invisible,
+    prog:d.prog, hi:d.hi, poli:d.poli, diab:d.diab, pres:d.pres,
+    semanal:d.semanal, entrega:d.entrega, diapago:d.diapago,
+    lab:d.lab, fol:d.fol, micas:d.micas, bisel:d.bisel, maq:d.maq
+  };
+}
+
+// ─── RENDER FORMULARIO ────────────────────────────────────────────
+function box(val) {
+  const checked = val && val !== 'NO' && val !== '' && val !== '0';
+  return `<span class="of-box${checked?' checked':''}>${checked?'✓':''}</span>`;
+}
+function fv(val) { return val || ''; }
+function fmt(val) { return val ? `<strong>${val}</strong>` : ''; }
+
+function renderFormulario(o) {
+  const medidas = parseMedidas(o.medidas);
+  const html = `
+  <div class="of-wrap">
+    <div class="of-header">
+      <div class="of-title">ORDEN DE PEDIDO</div>
+      <div class="of-folio-block">
+        <div class="of-folio-lbl">FOLIO</div>
+        <div class="of-folio-num">${fv(o.folio)||'—'}</div>
+        <div class="of-brand-tag">SALUD VISUAL</div>
+      </div>
+    </div>
+    <div class="of-lab-row">
+      <span>LAB: ${fv(o.lab)||'—'}</span>
+      <span>FOLIO LAB: ${fv(o.fol)||'—'}</span>
+      <span>SERVICIOS DE SALUD · 8136443744</span>
+    </div>
+
+    <!-- PATIENT FIELDS -->
+    <div class="of-fields">
+      <div class="of-field"><span class="of-fl">NOMBRE:</span><span class="of-fv">${fmt(o.nombre)}</span></div>
+      <div class="of-field"><span class="of-fl">FECHA:</span><span class="of-fv">${fmt(o.fecha)}</span></div>
+      <div class="of-field full" style="grid-column:span 2"><span class="of-fl">DIRECCIÓN:</span><span class="of-fv">${fmt(o.calle)}</span></div>
+      <div class="of-field"><span class="of-fl">MUNICIPIO:</span><span class="of-fv">${fmt(o.municipio)}</span></div>
+      <div class="of-field"><span class="of-fl">COLONIA:</span><span class="of-fv">${fmt(o.colonia)}</span></div>
+      <div class="of-field"><span class="of-fl">ENTRE CALLES:</span><span class="of-fv">${fmt(o.entre||o.entre_calles)}</span></div>
+      <div class="of-field"><span class="of-fl">TELÉFONO:</span><span class="of-fv">${fmt(o.tel)}</span></div>
+      <div class="of-field"><span class="of-fl">REFERENCIA:</span><span class="of-fv">${fmt(o.ref||o.referencia)}</span></div>
+      <div class="of-field"><span class="of-fl">EDAD:</span><span class="of-fv">${fmt(o.edad)}</span></div>
+      <div class="of-field"><span class="of-fl">OPTOMETRISTA:</span><span class="of-fv">${fmt(o.optom||o.optometrista)}</span></div>
+    </div>
+
+    <!-- LENS OPTIONS CHECKBOXES -->
+    <div class="of-checks-band">
+      <div class="of-chk">${box(o.blanco)} BLANCO</div>
+      <div class="of-chk">${box(o.foto)} FOTOCROMÁTICO</div>
+      <div class="of-chk">${box(o.ar_lens && o.ar_lens!=='NO' ? o.ar_lens : '')} ANTIREFLEJANTE</div>
+      <div class="of-chk">${box(o.invisible)} INVISIBLE</div>
+      <div class="of-chk">${box(o.prog || o.progresivo)} PROGRESIVO</div>
+      <div class="of-chk">${box(o.hi || o.hi_index)} HI INDEX</div>
+      <div class="of-chk">${box(o.poli || o.policarbonato)} POLICARBONATO</div>
+    </div>
+
+    <!-- RX + ARMAZON -->
+    <div class="of-rx-section">
+      <div class="of-rx-table-wrap">
+        <table class="of-rx-tbl">
+          <thead>
+            <tr><th></th><th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="eye-cell">OD</td>
+              <td>${fv(o.od_esf)}</td><td>${fv(o.od_cyl)}</td>
+              <td>${fv(o.od_eje)}</td><td>${fv(o.od_add)}</td>
+            </tr>
+            <tr>
+              <td class="eye-cell">OI</td>
+              <td>${fv(o.oi_esf)}</td><td>${fv(o.oi_cyl)}</td>
+              <td>${fv(o.oi_eje)}</td><td>${fv(o.oi_add)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:6px;font-size:9px;color:var(--mu)">
+          DIP: <strong>${fv(o.dip)}</strong> &nbsp; ALT: <strong>${fv(o.alt)}</strong>
+        </div>
+      </div>
+      <div class="of-extras">
+        <div class="of-extra-row"><span class="of-extra-lbl">ARMAZÓN:</span><span class="of-extra-val">${fv(o.armazon)}</span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">COLOR:</span><span class="of-extra-val">${fv(o.color||o.color_armazon)}</span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">MEDIDAS:</span><span class="of-extra-val">${fv(o.medidas)}</span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">TPO VISIÓN:</span><span class="of-extra-val"><strong>${fv(o.vision)}</strong></span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">DISTANCIA:</span><span class="of-extra-val">${fv(o.dist||o.distancia)}</span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">FILTRO:</span><span class="of-extra-val">${fv(o.filtro)}</span></div>
+        <div class="of-extra-row"><span class="of-extra-lbl">AR:</span><span class="of-extra-val">${fv(o.ar_lens||o.ar)}</span></div>
+      </div>
+    </div>
+
+    <!-- ANTERIOR / ACTUAL / MEDICAL -->
+    <div class="of-vision-section">
+      <div class="of-vision-block">
+        <div class="of-cond-title" style="font-size:9px;margin-bottom:4px">GRADUACIÓN ANTERIOR</div>
+        <div style="display:flex;gap:16px;font-size:10px">
+          <div><span style="color:var(--mu);font-weight:700">OD: </span>${fv(o.ant_od)||'—'}</div>
+          <div><span style="color:var(--mu);font-weight:700">OI: </span>${fv(o.ant_oi)||'—'}</div>
+        </div>
+        <div class="of-cond-title" style="font-size:9px;margin:6px 0 4px">GRADUACIÓN ACTUAL</div>
+        <div style="display:flex;gap:16px;font-size:10px">
+          <div><span style="color:var(--mu);font-weight:700">OD: </span>${fv(o.act_od)||'—'}</div>
+          <div><span style="color:var(--mu);font-weight:700">OI: </span>${fv(o.act_oi)||'—'}</div>
+        </div>
+      </div>
+      <div class="of-vision-block">
+        <div class="of-cond-title" style="font-size:9px;margin-bottom:6px">CONDICIONES MÉDICAS</div>
+        <div style="display:flex;gap:10px;font-size:10px">
+          <div class="of-chk">${box(o.diab||o.diabetes)} DIABETES</div>
+          <div class="of-chk">${box(o.pres||o.presion)} PRESIÓN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="of-payment">
+      <div class="of-pay-row">
+        <span class="of-pay-lbl">DÍA PAGO:</span>
+        <span class="of-pay-line" style="padding:0 4px;font-size:10px;font-weight:600">${fv(o.diapago)}</span>
+      </div>
+      <div class="of-pay-row">
+        <span class="of-pay-lbl">DÍA ENTREGA:</span>
+        <span class="of-pay-line" style="padding:0 4px;font-size:10px;font-weight:600">${fv(o.entrega||o.dia_entrega)}</span>
+      </div>
+      <div class="of-pay-row">
+        <span class="of-pay-lbl">COSTO LENTE:</span>
+        <span style="font-size:11px;font-weight:700;color:var(--g1);font-family:'DM Mono',monospace">$${Number(o.costo||0).toLocaleString('es-MX')}</span>
+      </div>
+      <div class="of-pay-row">
+        <span class="of-pay-lbl">DEUDA:</span>
+        <span style="font-size:11px;font-weight:700;color:var(--rd);font-family:'DM Mono',monospace">$${Number(o.deuda||0).toLocaleString('es-MX')}</span>
+      </div>
+      <div class="of-pay-row full">
+        <div class="of-chk">${box(o.fpago==='CONTADO'?'SI':'')} CONTADO</div>
+        <div class="of-chk" style="margin-left:16px">${box(o.fpago==='CREDITO'?'SI':'')} CRÉDITO</div>
+        <span class="of-pay-lbl" style="margin-left:16px">ENGANCHE:</span>
+        <span style="font-size:11px;font-weight:700;font-family:'DM Mono',monospace">$${Number(o.anticipo||0).toLocaleString('es-MX')}</span>
+        <span class="of-pay-lbl" style="margin-left:16px">PAGO SEMANAL:</span>
+        <span style="font-size:11px;font-weight:700;font-family:'DM Mono',monospace">$${Number(o.semanal||o.pago_semanal||0).toLocaleString('es-MX')}</span>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('of-container').innerHTML = html;
+}
+
+// ─── RENDER REPORTE CLIENTE ───────────────────────────────────────
+function analyzeRx(o) {
+  const odE = parseFloat(o.od_esf)||0, odC = parseFloat(o.od_cyl)||0;
+  const oiE = parseFloat(o.oi_esf)||0, oiC = parseFloat(o.oi_cyl)||0;
+  const add  = parseFloat(o.od_add)||parseFloat(o.oi_add)||0;
+  const maxE = Math.max(Math.abs(odE), Math.abs(oiE));
+  const maxC = Math.max(Math.abs(odC), Math.abs(oiC));
+  return {
+    miopia:        odE < -0.25 || oiE < -0.25,
+    hipermetropia: odE > 0.25  || oiE > 0.25,
+    astigmatismo:  maxC > 0.25,
+    presbicia:     add  > 0,
+    anisometropia: Math.abs(odE - oiE) > 1.0,
+    necesitaLentes: maxE > 0.5 || maxC > 0.25 || add > 0,
+    tipoLente:     o.vision || (add > 0 ? 'PROGRESIVO' : 'MONO'),
+    severidadE:    maxE <= 1 ? 20 : maxE <= 3 ? 55 : 85,
+    severidadC:    maxC <= 0.5 ? 15 : maxC <= 1.5 ? 50 : 80,
+    add, maxE, maxC
+  };
+}
+
+function parseMedidas(m) {
+  if (!m) return { aro:'—', puente:'—', varilla:'—' };
+  const p = m.split('-');
+  if (p.length >= 3) return { aro:p[0], puente:p[1], varilla:p[2] };
+  return { aro:m, puente:'—', varilla:'—' };
+}
+
+function getTratamiento(o) {
+  const parts = [];
+  if (o.ar_lens && o.ar_lens !== 'NO') parts.push('Antireflejante '+o.ar_lens);
+  if (o.foto === 'SI' || o.filtro === 'FOTO') parts.push('Fotocromático');
+  if (o.filtro === 'BLUE') parts.push('Blue Filter');
+  if (o.invisible === 'SI') parts.push('Invisible');
+  return parts.join(', ') || 'Estándar';
+}
+
+function getLensDesign(rx) {
+  if (rx.tipoLente === 'PROGRESIVO') return 'Progresivo Digital Avanzado';
+  if (rx.tipoLente === 'BIFOCAL') return 'Bifocal';
+  return 'Monofocal';
+}
+
+function getSeveridadLabel(pct) {
+  if (pct < 30) return {lbl:'Leve', cls:'low'};
+  if (pct < 65) return {lbl:'Moderado', cls:'med'};
+  return {lbl:'Alto', cls:'high'};
+}
+
+function renderReporte(o) {
+  const rx  = analyzeRx(o);
+  const med = parseMedidas(o.medidas);
+  const fecha = o.fecha ? (String(o.fecha).includes('-') ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'}) : o.fecha) : '—';
+
+  const conds = [
+    {key:'miopia',     lbl:'Miopía'},
+    {key:'hipermetropia', lbl:'Hipermetropía'},
+    {key:'anisometropia', lbl:'Anisometropía'},
+    {key:'astigmatismo',  lbl:'Astigmatismo'},
+    {key:'presbicia',     lbl:'Presbicia'},
+  ];
+
+  const svE = getSeveridadLabel(rx.severidadE);
+  const svC = getSeveridadLabel(rx.severidadC);
+
+  const lensType = rx.tipoLente;
+  const isProg   = lensType === 'PROGRESIVO';
+  const isBif    = lensType === 'BIFOCAL';
+  const isMono   = !isProg && !isBif;
+
+  const usages = [
+    {lbl:'No requiere lentes',           active:!rx.necesitaLentes},
+    {lbl:'Requiere lentes todo el día',  active:rx.necesitaLentes && (rx.miopia || rx.hipermetropia)},
+    {lbl:'Solo lectura',                 active:rx.presbicia && !rx.miopia && !rx.hipermetropia},
+    {lbl:'Uso en computadora',           active:rx.astigmatismo && !rx.necesitaLentes},
+  ];
+
+  const html = `
+  <div class="rpt-wrap">
+    <!-- HEADER -->
+    <div class="rpt-header">
+      <div>
+        <div class="rpt-brand-name">Salud Visual</div>
+        <div class="rpt-brand-sub">Servicios de Salud Óptica</div>
+        <div class="rpt-brand-phone">📞 8136443744</div>
+      </div>
+      <div class="rpt-patient-box">
+        <div class="rpt-patient-name">${o.nombre||'Paciente'}</div>
+        <div class="rpt-patient-meta">
+          Folio: #${o.folio||'—'}<br>
+          Fecha: ${fecha}<br>
+          ${o.optom||o.optometrista ? 'Optometrista: '+(o.optom||o.optometrista) : ''}
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: REFRACCIÓN -->
+    <div class="rpt-section">
+      <div class="rpt-section-hdr">
+        <div class="rpt-section-num">1</div>
+        <div class="rpt-section-title">Refracción (Condición Visual)</div>
+      </div>
+      <table class="rpt-rx-table">
+        <thead>
+          <tr>
+            <th>OJO</th><th>ESFERA</th><th>CILINDRO</th><th>EJE</th><th>ADICIÓN</th><th>DIST. NP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="eye-row">
+            <td>OD</td>
+            <td>${o.od_esf||'—'}</td><td>${o.od_cyl||'—'}</td>
+            <td>${o.od_eje||'—'}</td><td>${o.od_add||'—'}</td>
+            <td>${o.dip||'—'}</td>
+          </tr>
+          <tr class="eye-row">
+            <td>OI</td>
+            <td>${o.oi_esf||'—'}</td><td>${o.oi_cyl||'—'}</td>
+            <td>${o.oi_eje||'—'}</td><td>${o.oi_add||'—'}</td>
+            <td>${o.dip||'—'}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="rpt-conditions">
+        ${conds.map(c=>`
+          <div class="rpt-cond ${rx[c.key]?'active':'inactive'}">
+            <span class="cond-icon">${rx[c.key]?'✓':'○'}</span> ${c.lbl}
+          </div>`).join('')}
+      </div>
+
+      <div class="rpt-gauges">
+        <div class="rpt-gauge-block">
+          <div class="rpt-gauge-title">Problema visual</div>
+          <div class="rpt-gauge-bar"><div class="rpt-gauge-fill ${svE.cls}" style="width:${rx.severidadE}%"></div></div>
+          <div class="rpt-gauge-label">${svE.lbl} — ${rx.maxE.toFixed(2)} D</div>
+        </div>
+        <div class="rpt-gauge-block">
+          <div class="rpt-gauge-title">Astigmatismo</div>
+          <div class="rpt-gauge-bar"><div class="rpt-gauge-fill ${svC.cls}" style="width:${rx.severidadC}%"></div></div>
+          <div class="rpt-gauge-label">${svC.lbl} — ${rx.maxC.toFixed(2)} D</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: LENTES RECOMENDADOS -->
+    <div class="rpt-section">
+      <div class="rpt-section-hdr">
+        <div class="rpt-section-num">2</div>
+        <div class="rpt-section-title">Lentes Recomendados</div>
+      </div>
+      <table class="rpt-lens-table">
+        <thead>
+          <tr><th>Característica</th><th>Diseño / Material / Tratamiento</th><th>Atributos</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Diseño</td><td>${getLensDesign(rx)}</td><td rowspan="3" style="vertical-align:middle;color:var(--g1);font-weight:600;font-size:11px">
+            ${rx.maxE > 3 ? 'Alta corrección, máxima nitidez' : rx.astigmatismo ? 'Mayor claridad y menor distorsión' : 'Mejor comodidad visual'}
+          </td></tr>
+          <tr><td>Material</td><td>${(o.poli||o.policarbonato||rx.maxE>4)?'Policarbonato':'CR-39 (Orgánico)'}</td></tr>
+          <tr><td>Tratamiento</td><td>${getTratamiento(o)}</td></tr>
+        </tbody>
+      </table>
+      <div class="rpt-lens-types">
+        <div class="rpt-lens-type ${isMono?'selected':''}">
+          <div class="rpt-lens-type-icon">○</div>
+          <div class="rpt-lens-type-name">Monofocal</div>
+          <div class="rpt-lens-type-desc">Una sola visión</div>
+        </div>
+        <div class="rpt-lens-type ${isBif?'selected':''}">
+          <div class="rpt-lens-type-icon">◑</div>
+          <div class="rpt-lens-type-name">Bifocal</div>
+          <div class="rpt-lens-type-desc">Visión lejana y cercana</div>
+        </div>
+        <div class="rpt-lens-type ${isProg?'selected':''}">
+          <div class="rpt-lens-type-icon">◐</div>
+          <div class="rpt-lens-type-name">Progresivo</div>
+          <div class="rpt-lens-type-desc">Visión gradual lejana, intermedia y cercana</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: ARMAZÓN -->
+    <div class="rpt-section">
+      <div class="rpt-section-hdr">
+        <div class="rpt-section-num">3</div>
+        <div class="rpt-section-title">Armazón Recomendado</div>
+      </div>
+      ${o.armazon ? `<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--dk)">
+        Modelo: ${o.armazon}${o.color||o.color_armazon ? ' · '+( o.color||o.color_armazon) : ''}
+      </div>` : ''}
+      <div class="rpt-frame">
+        <div class="rpt-frame-measure">
+          <div class="rpt-frame-lbl">Varilla</div>
+          <div class="rpt-frame-val">${med.varilla}</div>
+          <div class="rpt-frame-unit">mm</div>
+        </div>
+        <div class="rpt-frame-measure">
+          <div class="rpt-frame-lbl">Aro</div>
+          <div class="rpt-frame-val">${med.aro}</div>
+          <div class="rpt-frame-unit">mm</div>
+        </div>
+        <div class="rpt-frame-measure">
+          <div class="rpt-frame-lbl">Puente</div>
+          <div class="rpt-frame-val">${med.puente}</div>
+          <div class="rpt-frame-unit">mm</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: RECOMENDACIONES -->
+    <div class="rpt-section">
+      <div class="rpt-section-hdr">
+        <div class="rpt-section-num">4</div>
+        <div class="rpt-section-title">Recomendaciones de Uso</div>
+      </div>
+      <div class="rpt-usage">
+        ${usages.map(u=>`
+          <div class="rpt-usage-item ${u.active?'active':'inactive'}">
+            <span>${u.active?'✓':'○'}</span> ${u.lbl}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- FIRMA -->
+    <div class="rpt-section" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px">
+      <div style="font-size:11px;color:var(--mu);max-width:280px;line-height:1.5">
+        Se recomienda acudir al optometrista por lo menos una vez al año para revisión.
+      </div>
+      <div class="rpt-sig-block">
+        <div class="rpt-sig-line"></div>
+        <div class="rpt-sig-name">${o.optom||o.optometrista||'Optometrista'}</div>
+        <div class="rpt-sig-title">Salud Visual · Servicios de Salud</div>
+      </div>
+    </div>
+
+    <!-- NOTA -->
+    <div class="rpt-note">
+      NOTA: Los resultados pueden variar por factores como alimentación, medicamentos o ejercicio.
+      Los datos deben ser siempre interpretados por un profesional. · Folio #${o.folio||'—'} · ${new Date().toLocaleDateString('es-MX')}
+    </div>
+  </div>`;
+  document.getElementById('rpt-container').innerHTML = html;
+}
+
+// ─── SEND TO SHEETS ───────────────────────────────────────────────
 async function sendToSheets(data) {
   await fetch(SCRIPT_URL, {
-    method:  'POST',
-    mode:    'no-cors',
-    headers: {'Content-Type':'text/plain'},
-    body:    JSON.stringify(buildPayload(data))
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(buildPayload(data))
   });
 }
 
@@ -530,14 +1196,14 @@ function buildPayload(d) {
     'blanco':d.blanco,'foto':d.foto,'invisible':d.invisible,
     'progresivo':d.prog,'hi_index':d.hi,'policarbonato':d.poli,'diabetes':d.diab,'presion':d.pres,
     'lab':d.lab,'fol_lab':d.fol,'micas':d.micas,'bisel':d.bisel,'maq':d.maq,
-    'armazon2':d.armazon2||'','acc':d.acc||'',
+    'armazon2':'','acc':'',
     'pago_semanal':d.semanal,'dia_entrega':d.entrega,'dia_pago':d.diapago
   };
 }
 
-// ─── FORM ─────────────────────────────────────────────────────────
+// ─── FORM HELPERS ─────────────────────────────────────────────────
 const g  = id => document.getElementById(id)?.value || '';
-const gn = id => parseFloat(document.getElementById(id)?.value) || 0;
+const gn = id => parseFloat(document.getElementById(id)?.value)||0;
 const gc = id => document.getElementById(id)?.checked ? 'SI' : '';
 
 function calcDeuda() {
@@ -548,11 +1214,12 @@ function calcDeuda() {
 }
 
 function getFormData() {
-  const costo = gn('f-costo'), anticipo = gn('f-anticipo');
+  const costo=gn('f-costo'), anticipo=gn('f-anticipo');
   return {
     folio:g('f-folio'),fecha:g('f-fecha'),nombre:g('f-nombre'),prom:g('f-prom'),
     tel:g('f-tel'),calle:g('f-calle'),colonia:g('f-colonia'),municipio:g('f-municipio'),
-    optom:g('f-optom'),costo,fpago:g('f-fpago'),anticipo,deuda:costo-anticipo,
+    optom:g('f-optom'),edad:g('f-edad'),ref:g('f-ref'),entre:g('f-entre'),
+    costo,fpago:g('f-fpago'),anticipo,deuda:costo-anticipo,
     od_esf:g('od-esf'),od_cyl:g('od-cyl'),od_eje:g('od-eje'),od_add:g('od-add'),
     oi_esf:g('oi-esf'),oi_cyl:g('oi-cyl'),oi_eje:g('oi-eje'),oi_add:g('oi-add'),
     dip:g('f-dip'),alt:g('f-alt'),
@@ -574,160 +1241,158 @@ async function saveOrder() {
 
   setSyncing('busy','Enviando...');
   const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="ld"></span><span> Enviando...</span>';
-
+  btn.disabled=true;
+  btn.innerHTML='<span class="ld"></span><span> Enviando...</span>';
   try {
     await sendToSheets(data);
     setSyncing('ok','Sheets');
     showToast('✓ Guardado en Google Sheets');
     clearForm();
-    // Refresh history after short delay so Sheets has time to write
-    setTimeout(() => loadHistory(false), 1500);
+    setTimeout(()=>loadHistory(false), 1500);
     flushQueue();
   } catch {
-    const q = getQueue(); q.push(data); setQueue(q);
+    const q=getQueue(); q.push(data); setQueue(q);
     setSyncing('err','Sin conexión');
     showToast('Sin conexión — se enviará al reconectar','warn');
     updateQueueBanner();
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>☁</span><span> Guardar en Sheets</span>';
+    btn.disabled=false;
+    btn.innerHTML='<span>☁</span><span> Guardar en Sheets</span>';
   }
-}
-
-// ─── OFFLINE QUEUE ────────────────────────────────────────────────
-function updateQueueBanner() {
-  const q = getQueue(), bar = document.getElementById('queue-bar');
-  document.getElementById('queue-msg').textContent =
-    `⚠ ${q.length} orden${q.length>1?'es':''} pendiente${q.length>1?'s':''} de sincronizar`;
-  bar.classList.toggle('show', q.length > 0);
-}
-
-async function retryQueue() {
-  const q = getQueue(); if (!q.length) return;
-  const failed = [];
-  for (const item of q) { try { await sendToSheets(item); } catch { failed.push(item); } }
-  setQueue(failed);
-  updateQueueBanner();
-  if (!failed.length) { setSyncing('ok','Sheets'); showToast('✓ Todas sincronizadas'); loadHistory(false); }
-  else showToast(`${failed.length} aún sin conexión`,'warn');
-}
-
-function flushQueue() { if (getQueue().length) retryQueue(); }
-
-// ─── RENDER CARDS ─────────────────────────────────────────────────
-function renderCards() {
-  const q = (document.getElementById('search-input')?.value||'').toLowerCase();
-  const filt = allRows.filter(o =>
-    (String(o.nombre||'')).toLowerCase().includes(q) ||
-    String(o.folio||'').includes(q) ||
-    (String(o.municipio||'')).toLowerCase().includes(q)
-  ).sort((a,b) => (Number(b.folio)||0) - (Number(a.folio)||0));
-
-  const container = document.getElementById('order-cards');
-  if (!filt.length) {
-    container.innerHTML = `<div class="empty">${q ? 'Sin resultados para "'+q+'"' : 'No hay órdenes aún.'}</div>`;
-    return;
-  }
-
-  container.innerHTML = filt.map(o => {
-    const deuda = parseFloat(o.deuda)||0;
-    const bc    = deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
-    const rx    = [o.od_esf,o.od_cyl,o.od_eje].filter(Boolean).join('/') || '—';
-    const fecha = o.fecha ? (String(o.fecha).includes('-') ?
-      new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX') : o.fecha) : '—';
-    return `
-    <div class="order-card">
-      <div class="card-header">
-        <div>
-          <div class="card-folio">Folio #${o.folio||'—'} · ${fecha}</div>
-          <div class="card-name">${o.nombre||'—'}</div>
-        </div>
-        <span class="badge ${bc}">$${deuda.toLocaleString('es-MX')}</span>
-      </div>
-      <div class="card-body">
-        <div class="card-row"><span class="card-lbl">Municipio</span><span class="card-val">${o.municipio||'—'}</span></div>
-        <div class="card-row"><span class="card-lbl">Costo</span><span class="card-val mono">$${(parseFloat(o.costo)||0).toLocaleString('es-MX')}</span></div>
-        <div class="card-row"><span class="card-lbl">OD Rx</span><span class="card-val mono">${rx}</span></div>
-        <div class="card-row"><span class="card-lbl">Visión</span><span class="card-val">${o.vision||'—'}</span></div>
-        <div class="card-row"><span class="card-lbl">Lab</span><span class="card-val">${o.lab||'—'}</span></div>
-        <div class="card-row"><span class="card-lbl">Forma pago</span><span class="card-val">${o.fpago||'—'}</span></div>
-      </div>
-      <div class="card-footer">
-        <span style="font-size:11px;color:var(--mu)">${o.tel||''}</span>
-        <button class="btn btn-sec" style="padding:6px 14px;min-height:auto;font-size:12px" onclick="viewDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">Ver detalle</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  updateStats();
-}
-
-function filterCards() { renderCards(); }
-
-function updateStats() {
-  const now = new Date();
-  const mes = allRows.filter(o => {
-    if (!o.fecha) return false;
-    const d = new Date(String(o.fecha).includes('-') ? o.fecha+'T12:00:00' : o.fecha);
-    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  });
-  document.getElementById('st-total').textContent = allRows.length;
-  document.getElementById('st-mes').textContent   = mes.length;
-  document.getElementById('st-deuda').textContent = '$'+allRows.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0).toLocaleString('es-MX');
-  document.getElementById('st-costo').textContent = '$'+allRows.reduce((s,o)=>s+(parseFloat(o.costo)||0),0).toLocaleString('es-MX');
-}
-
-function viewDetail(o) {
-  document.getElementById('m-title').textContent = `Orden #${o.folio} — ${o.nombre}`;
-  document.getElementById('m-body').innerHTML = `<div class="dg">${[
-    ['Fecha',o.fecha],['Promotor',o.prom],['Teléfono',o.tel],['Municipio',o.municipio],
-    ['OD Rx',`${o.od_esf||''}/${o.od_cyl||''}/${o.od_eje||''}`],
-    ['OI Rx',`${o.oi_esf||''}/${o.oi_cyl||''}/${o.oi_eje||''}`],
-    ['Visión',o.vision],['Armazón',o.armazon],['Lab',o.lab],['AR',o.ar_lens||o.ar],
-    ['Costo','$'+(parseFloat(o.costo)||0).toLocaleString('es-MX')],
-    ['Anticipo','$'+(parseFloat(o.anticipo)||0).toLocaleString('es-MX')],
-    ['Deuda','$'+(parseFloat(o.deuda)||0).toLocaleString('es-MX')],
-    ['Costo prod.','$'+(parseFloat(o.costo_prod)||0).toLocaleString('es-MX')],
-    ['Utilidad','$'+(parseFloat(o.utilidad)||0).toLocaleString('es-MX')],
-    ['Semanal','$'+(parseFloat(o.semanal)||0).toLocaleString('es-MX')]
-  ].map(([k,v])=>`<div class="di"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('')}</div>`;
-  document.getElementById('modal-ov').classList.add('open');
-}
-
-// ─── NAVIGATION ───────────────────────────────────────────────────
-function switchTab(name, btn) {
-  // Mobile bottom tabs
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tabbtn-'+name)?.classList.add('active');
-  // Desktop nav tabs
-  document.querySelectorAll('.nav-tab-d').forEach(b => b.classList.remove('active'));
-  if (btn?.classList.contains('nav-tab-d')) btn.classList.add('active');
-
-  // Tab indicator
-  const ind = document.getElementById('tab-indicator');
-  ind.style.left = name==='form' ? '0' : '50%';
-
-  document.getElementById('screen-form').classList.toggle('active', name==='form');
-  document.getElementById('screen-history').classList.toggle('active', name==='history');
-
-  if (name==='history') loadHistory(false);
-  // Scroll to top
-  document.querySelector('.scroll-area').scrollTo(0,0);
 }
 
 function clearForm() {
-  document.querySelectorAll('#screen-form input:not([type=checkbox]),#screen-form select')
-    .forEach(el => { if(el.id==='f-fecha'){el.valueAsDate=new Date();return;} el.value=''; });
-  document.querySelectorAll('#screen-form input[type=checkbox]').forEach(el=>el.checked=false);
+  document.querySelectorAll('#screen-nueva input:not([type=checkbox]),#screen-nueva select')
+    .forEach(el=>{if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}el.value='';});
+  document.querySelectorAll('#screen-nueva input[type=checkbox]').forEach(el=>el.checked=false);
   document.getElementById('deuda-el').textContent='$ —';
   document.getElementById('deuda-el').style.color='var(--g1)';
   document.getElementById('folio-display').textContent='—';
 }
 
-function exportCSV() {
-  const d = getFormData();
+// ─── OFFLINE QUEUE ─────────────────────────────────────────────────
+function updateQueueBanner() {
+  const q=getQueue(), bar=document.getElementById('queue-bar');
+  document.getElementById('queue-msg').textContent=
+    `⚠ ${q.length} orden${q.length>1?'es':''} pendiente${q.length>1?'s':''} de sincronizar`;
+  bar.classList.toggle('show',q.length>0);
+}
+async function retryQueue() {
+  const q=getQueue(); if(!q.length)return;
+  const failed=[];
+  for(const item of q){try{await sendToSheets(item);}catch{failed.push(item);}}
+  setQueue(failed); updateQueueBanner();
+  if(!failed.length){setSyncing('ok','Sheets');showToast('✓ Todas sincronizadas');loadHistory(false);}
+  else showToast(`${failed.length} aún sin conexión`,'warn');
+}
+function flushQueue(){if(getQueue().length)retryQueue();}
+
+// ─── HISTORY RENDER ─────────────────────────────────────────────
+function renderCards() {
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  const filt=allRows.filter(o=>
+    (String(o.nombre||'')).toLowerCase().includes(q)||
+    String(o.folio||'').includes(q)||
+    (String(o.municipio||'')).toLowerCase().includes(q)
+  ).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
+
+  const container=document.getElementById('order-cards');
+  if(!filt.length){
+    container.innerHTML=`<div class="empty">${q?'Sin resultados para "'+q+'"':'No hay órdenes aún.'}</div>`;
+    return;
+  }
+  container.innerHTML=filt.map(o=>{
+    const deuda=parseFloat(o.deuda)||0;
+    const bc=deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
+    const rx=[o.od_esf,o.od_cyl,o.od_eje].filter(Boolean).join('/')||'—';
+    const fch=o.fecha?(String(o.fecha).includes('-')?new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX'):o.fecha):'—';
+    const safeO = encodeURIComponent(JSON.stringify(o));
+    return `<div class="order-card">
+      <div class="card-header">
+        <div><div class="card-folio">Folio #${o.folio||'—'} · ${fch}</div>
+        <div class="card-name">${o.nombre||'—'}</div></div>
+        <span class="badge ${bc}">$${deuda.toLocaleString('es-MX')}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-row"><span class="card-lbl">Municipio</span><span class="card-val">${o.municipio||'—'}</span></div>
+        <div class="card-row"><span class="card-lbl">Costo</span><span class="card-val" style="font-family:'DM Mono',monospace">$${(parseFloat(o.costo)||0).toLocaleString('es-MX')}</span></div>
+        <div class="card-row"><span class="card-lbl">OD Rx</span><span class="card-val" style="font-family:'DM Mono',monospace;font-size:11px">${rx}</span></div>
+        <div class="card-row"><span class="card-lbl">Visión</span><span class="card-val">${o.vision||'—'}</span></div>
+      </div>
+      <div class="card-footer">
+        <span style="font-size:11px;color:var(--mu)">${o.tel||''}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sec" style="padding:5px 10px;min-height:auto;font-size:11px" onclick="openModal('${safeO}')">Ver</button>
+          <button class="btn btn-sec" style="padding:5px 10px;min-height:auto;font-size:11px;background:#e8f5ee" onclick="quickForm('${safeO}')">📄</button>
+          <button class="btn btn-sec" style="padding:5px 10px;min-height:auto;font-size:11px;background:#e8f5ee" onclick="quickReport('${safeO}')">📊</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateStats();
+}
+
+function filterCards(){renderCards();}
+
+function quickForm(encoded) {
+  const o = JSON.parse(decodeURIComponent(encoded));
+  selectedOrder=o; renderFormulario(o); renderReporte(o);
+  document.getElementById('fp-select').value=String(o.folio||'');
+  document.getElementById('rp-select').value=String(o.folio||'');
+  switchTab('formulario',document.getElementById('tabbtn-formulario'));
+}
+function quickReport(encoded) {
+  const o = JSON.parse(decodeURIComponent(encoded));
+  selectedOrder=o; renderFormulario(o); renderReporte(o);
+  document.getElementById('rp-select').value=String(o.folio||'');
+  document.getElementById('fp-select').value=String(o.folio||'');
+  switchTab('reporte',document.getElementById('tabbtn-reporte'));
+}
+
+function updateStats(){
+  const now=new Date();
+  const mes=allRows.filter(o=>{if(!o.fecha)return false;const d=new Date(String(o.fecha).includes('-')?o.fecha+'T12:00:00':o.fecha);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  document.getElementById('st-total').textContent=allRows.length;
+  document.getElementById('st-mes').textContent=mes.length;
+  document.getElementById('st-deuda').textContent='$'+allRows.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0).toLocaleString('es-MX');
+  document.getElementById('st-costo').textContent='$'+allRows.reduce((s,o)=>s+(parseFloat(o.costo)||0),0).toLocaleString('es-MX');
+}
+
+function openModal(encoded) {
+  const o = JSON.parse(decodeURIComponent(encoded));
+  _modalOrder=o;
+  document.getElementById('m-title').textContent=`Orden #${o.folio} — ${o.nombre}`;
+  document.getElementById('m-body').innerHTML=`<div class="dg">${[
+    ['Fecha',o.fecha],['Promotor',o.prom],['Teléfono',o.tel],['Municipio',o.municipio],
+    ['OD Rx',`${o.od_esf||''}/${o.od_cyl||''}/${o.od_eje||''}`],
+    ['OI Rx',`${o.oi_esf||''}/${o.oi_cyl||''}/${o.oi_eje||''}`],
+    ['Visión',o.vision],['Armazón',o.armazon],['Lab',o.lab],
+    ['Costo','$'+(parseFloat(o.costo)||0).toLocaleString('es-MX')],
+    ['Deuda','$'+(parseFloat(o.deuda)||0).toLocaleString('es-MX')],
+    ['Semanal','$'+(parseFloat(o.semanal||o.pago_semanal)||0).toLocaleString('es-MX')]
+  ].map(([k,v])=>`<div class="di"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('')}</div>`;
+  document.getElementById('modal-ov').classList.add('open');
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────
+const TAB_POSITIONS={'nueva':'0','historial':'25%','formulario':'50%','reporte':'75%'};
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-dt').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tabbtn-'+name)?.classList.add('active');
+  document.getElementById('ndt-'+name)?.classList.add('active');
+  document.getElementById('tab-indicator').style.left = TAB_POSITIONS[name]||'0';
+  ['nueva','historial','formulario','reporte'].forEach(n=>{
+    document.getElementById('screen-'+n).classList.toggle('active',n===name);
+  });
+  if(name==='historial') loadHistory(false);
+  document.querySelector('.scroll-area').scrollTo(0,0);
+}
+
+// ─── CSV EXPORT ───────────────────────────────────────────────────
+function exportCSV(){
+  const d=getFormData();
   const hdr='Folio,Fecha,Nombre,Prom,Tel,Calle,Colonia,Municipio,Costo,FPago,Anticipo,Deuda,OD ESF,OD CYL,OD EJE,OD ADD,OI ESF,OI CYL,OI EJE,OI ADD,DIP,ALT,Vision,Filtro,AR,Armazon,Medidas,Lab,Micas,Bisel,Maq';
   const row=[d.folio,d.fecha,d.nombre,d.prom,d.tel,d.calle,d.colonia,d.municipio,d.costo,d.fpago,d.anticipo,d.deuda,d.od_esf,d.od_cyl,d.od_eje,d.od_add,d.oi_esf,d.oi_cyl,d.oi_eje,d.oi_add,d.dip,d.alt,d.vision,d.filtro,d.ar,d.armazon,d.medidas,d.lab,d.micas,d.bisel,d.maq].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',');
   const a=document.createElement('a');
@@ -736,15 +1401,16 @@ function exportCSV() {
   showToast('CSV exportado','info');
 }
 
-function setSyncing(state, label) {
-  document.getElementById('sync-dot').className = 'sync-dot '+(state==='busy'?'busy':state==='err'?'err':'ok');
-  document.getElementById('sync-label').textContent = label || 'Sheets';
+// ─── SYNC INDICATOR ──────────────────────────────────────────────
+function setSyncing(state,label){
+  document.getElementById('sync-dot').className='sync-dot '+(state==='busy'?'busy':state==='err'?'err':'ok');
+  document.getElementById('sync-label').textContent=label||'Sheets';
 }
 
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast ${type} show`;
-  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3000);
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 // ─── DATALISTS ────────────────────────────────────────────────────
