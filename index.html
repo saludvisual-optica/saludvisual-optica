@@ -481,6 +481,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <div class="fld s2"><label>Nombre del Paciente</label><input type="text" id="f-nombre" placeholder="Nombre completo" autocomplete="off"></div>
         <div class="fld"><label>Teléfono</label><input type="tel" inputmode="tel" id="f-tel" placeholder="10 dígitos"></div>
         <div class="fld s2"><label>Calle y Número</label><input type="text" id="f-calle" autocomplete="off"></div>
+        <div class="fld"><label>Entre Calles</label><input type="text" id="f-entre" autocomplete="off"></div>
         <div class="fld"><label>Colonia</label><input type="text" id="f-colonia" autocomplete="off"></div>
         <div class="fld"><label>Municipio</label><input type="text" id="f-municipio" placeholder="Escobedo"></div>
         <div class="fld"><label>Optometrista</label><input type="text" id="f-optom"></div>
@@ -530,24 +531,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <div class="fld"><label>Medidas</label><input type="text" id="f-medidas" placeholder="52-18-145"></div>
         <div class="fld"><label>Tipo de Visión</label>
           <select id="f-vision"><option value="">—</option><option>MONO</option><option>BIFOCAL</option><option>PROGRESIVO</option></select></div>
-        <div class="fld"><label>Filtro</label>
-          <select id="f-filtro"><option value="">—</option><option>FOTO</option><option>BLUE</option><option>NINGUNO</option></select></div>
-        <div class="fld"><label>Antireflejante</label>
-          <select id="f-ar"><option value="">—</option><option>AR</option><option>BLUE</option><option>NO</option></select></div>
-        <div class="fld"><label>Distancia (cm)</label><input type="number" inputmode="numeric" id="f-dist" placeholder="66"></div>
-        <div class="fld"><label>Entre Calles</label><input type="text" id="f-entre"></div>
       </div>
 
-      <div class="sec">Extras</div>
-      <div class="checks">
-        <label class="chk"><input type="checkbox" id="ch-blanco"><span>Blanco</span></label>
-        <label class="chk"><input type="checkbox" id="ch-foto"><span>Fotocromático</span></label>
-        <label class="chk"><input type="checkbox" id="ch-invisible"><span>Invisible</span></label>
-        <label class="chk"><input type="checkbox" id="ch-prog"><span>Progresivo</span></label>
-        <label class="chk"><input type="checkbox" id="ch-hi"><span>Hi Index</span></label>
-        <label class="chk"><input type="checkbox" id="ch-poli"><span>Policarbonato</span></label>
-        <label class="chk"><input type="checkbox" id="ch-diab"><span>Diabetes</span></label>
-        <label class="chk"><input type="checkbox" id="ch-pres"><span>Presión</span></label>
+      <!-- hidden fields for payload compatibility -->
+      <input type="hidden" id="f-filtro" value="">
+      <input type="hidden" id="f-ar" value="">
+
+      <div class="sec" style="margin-top:14px;">Tipo de Filtro / Tratamiento</div>
+      <div style="background:var(--g4);border:1px solid #c3e6d4;border-radius:10px;padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Tipo de Lente</div>
+        <div class="checks" style="margin-bottom:12px;">
+          <label class="chk"><input type="checkbox" id="ch-blanco" onchange="syncFiltro()"><span>Blanco</span></label>
+          <label class="chk"><input type="checkbox" id="ch-foto" onchange="syncFiltro()"><span>Fotocromático</span></label>
+          <label class="chk"><input type="checkbox" id="ch-invisible" onchange="syncFiltro()"><span>Invisible</span></label>
+          <label class="chk"><input type="checkbox" id="ch-prog" onchange="syncFiltro()"><span>Progresivo</span></label>
+          <label class="chk"><input type="checkbox" id="ch-hi" onchange="syncFiltro()"><span>Hi Index</span></label>
+          <label class="chk"><input type="checkbox" id="ch-poli" onchange="syncFiltro()"><span>Policarbonato</span></label>
+        </div>
+        <div style="height:1px;background:#c3e6d4;margin-bottom:10px;"></div>
+        <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Filtro y Antireflejante</div>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" id="ch-blue" onchange="syncFiltro()"><span>Blue (Filtro)</span></label>
+          <label class="chk"><input type="checkbox" id="ch-ar" onchange="syncFiltro()"><span>Antireflejante</span></label>
+          <label class="chk"><input type="checkbox" id="ch-ar-blue" onchange="syncFiltro()"><span>AR Blue</span></label>
+          <label class="chk"><input type="checkbox" id="ch-ar-no" onchange="syncFiltro()"><span>Sin AR</span></label>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:14px;">Afectaciones Médicas</div>
+      <div style="background:#fff5f5;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;">
+        <div class="checks">
+          <label class="chk"><input type="checkbox" id="ch-diab"><span>Diabetes</span></label>
+          <label class="chk"><input type="checkbox" id="ch-pres"><span>Presión</span></label>
+        </div>
       </div>
 
       <div class="sec">Pago</div>
@@ -1661,6 +1677,22 @@ const g  = id => document.getElementById(id)?.value || '';
 const gn = id => parseFloat(document.getElementById(id)?.value)||0;
 const gc = id => document.getElementById(id)?.checked ? 'SI' : '';
 
+// syncFiltro — maps checkboxes to hidden legacy fields for payload compat
+function syncFiltro() {
+  // FILTRO hidden field: FOTO if fotocromático, BLUE if blue, else NINGUNO
+  const filtroVal = document.getElementById('ch-foto').checked ? 'FOTO'
+                  : document.getElementById('ch-blue').checked ? 'BLUE'
+                  : 'NINGUNO';
+  document.getElementById('f-filtro').value = filtroVal;
+
+  // AR hidden field: BLUE if ar-blue, AR if ar (plain), NO if ar-no, else NO
+  const arVal = document.getElementById('ch-ar-blue').checked ? 'BLUE'
+              : document.getElementById('ch-ar').checked      ? 'AR'
+              : document.getElementById('ch-ar-no').checked   ? 'NO'
+              : '';
+  document.getElementById('f-ar').value = arVal;
+}
+
 function calcDeuda() {
   const d = gn('f-costo') - gn('f-anticipo');
   const el = document.getElementById('deuda-el');
@@ -1683,6 +1715,7 @@ function getFormData() {
     armazon:g('f-armazon'),color:g('f-color'),medidas:g('f-medidas'),dist:g('f-dist'),
     blanco:gc('ch-blanco'),foto:gc('ch-foto'),invisible:gc('ch-invisible'),
     prog:gc('ch-prog'),hi:gc('ch-hi'),poli:gc('ch-poli'),diab:gc('ch-diab'),pres:gc('ch-pres'),
+    blue:gc('ch-blue'),ar_check:gc('ch-ar'),ar_blue:gc('ch-ar-blue'),ar_no:gc('ch-ar-no'),
     semanal:gn('f-semanal'),entrega:g('f-entrega'),diapago:g('f-diapago'),
     lab:g('f-lab'),fol:g('f-fol'),micas:gn('f-micas'),bisel:gn('f-bisel'),maq:gn('f-maq'),
     ts:new Date().toISOString()
@@ -1717,12 +1750,13 @@ async function saveOrder() {
 }
 
 function clearForm() {
-  document.querySelectorAll('#screen-nueva input:not([type=checkbox]),#screen-nueva select')
+  document.querySelectorAll('#screen-nueva input:not([type=checkbox]):not([type=hidden]),#screen-nueva select')
     .forEach(el=>{if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}el.value='';});
   document.querySelectorAll('#screen-nueva input[type=checkbox]').forEach(el=>el.checked=false);
   document.getElementById('deuda-el').textContent='$ —';
   document.getElementById('deuda-el').style.color='var(--g1)';
   document.getElementById('folio-display').textContent='—';
+  syncFiltro();
 }
 
 // ─── OFFLINE QUEUE ─────────────────────────────────────────────────
