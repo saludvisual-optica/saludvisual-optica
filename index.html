@@ -743,7 +743,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
     </div>
     <div class="search-row">
-      <input type="search" id="search-input" placeholder="Buscar nombre, folio, municipio..." oninput="filterCards()">
+      <input type="search" id="search-input" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterCards()">
       <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
     </div>
     <div id="order-cards" class="order-cards">
@@ -1991,8 +1991,9 @@ function renderCards() {
   const q=(document.getElementById('search-input')?.value||'').toLowerCase();
   const filt=allRows.filter(o=>
     (String(o.nombre||'')).toLowerCase().includes(q)||
-    String(o.folio||'').includes(q)||
-    (String(o.municipio||'')).toLowerCase().includes(q)
+    String(o.folio||'').toLowerCase().includes(q)||
+    (String(o.municipio||'')).toLowerCase().includes(q)||
+    (String(o.tel||'')).includes(q)
   ).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
 
   const container=document.getElementById('order-cards');
