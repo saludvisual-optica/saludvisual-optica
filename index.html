@@ -827,6 +827,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 // ── Injected by GitHub Actions ─────────────────────────────────────
 const SCRIPT_URL = '%%SCRIPT_URL%%';
 
+// ─── DATE HELPERS ─────────────────────────────────────────────────
+// Sheets returns dates in multiple formats:
+//   - 'yyyy-MM-dd' string (formatted by Apps Script)
+//   - JS Date serialized to ISO string
+//   - Number (Excel/Sheets serial date, days since 1899-12-30)
+function parseFecha(f) {
+  if (!f && f !== 0) return null;
+  const s = String(f);
+  // yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s + 'T12:00:00');
+  // ISO string
+  if (s.includes('T') && s.includes('Z')) return new Date(s);
+  // Number: Sheets serial date (days since 1899-12-30)
+  const n = parseFloat(s);
+  if (!isNaN(n) && n > 1000) {
+    // Convert Sheets serial to JS Date
+    return new Date(Math.round((n - 25569) * 86400 * 1000));
+  }
+  // Fallback attempt
+  const d = new Date(f);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtFecha(f) {
+  const d = parseFecha(f);
+  if (!d) return '—';
+  return d.toLocaleDateString('es-MX');
+}
+function fmtFechaLarga(f) {
+  const d = parseFecha(f);
+  if (!d) return '—';
+  return d.toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+}
+
 // ─── STORAGE ──────────────────────────────────────────────────────
 const QUEUE_KEY = 'ss_gs_q';
 const HIST_KEY  = 'ss_gs_hist';
@@ -1523,11 +1556,7 @@ function renderReporte(o) {
   rptEdits = {};
   rptOrder = {};
 
-  var fecha = o.fecha
-    ? (String(o.fecha).includes('-')
-        ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'})
-        : o.fecha)
-    : '';
+  var fecha = fmtFechaLarga(o.fecha);
 
   // AA=Varilla, AB=Aro, AC=Puente, AL=Color Armazón (col medidas)
   var med = {aro:o.aro||'', puente:o.puente||'', varilla:o.varilla||''};
@@ -1958,8 +1987,12 @@ async function saveOrder() {
 }
 
 function clearForm() {
-  document.querySelectorAll('#screen-nueva input:not([type=checkbox]):not([type=hidden]):not(#f-folio),#screen-nueva select')
-    .forEach(el=>{if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}el.value='';});
+  document.querySelectorAll('#screen-nueva input:not([type=checkbox]):not([type=hidden]),#screen-nueva select')
+    .forEach(el=>{
+      if(el.id==='f-folio') return; // keep folio — autoFolio will set it
+      if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}
+      el.value='';
+    });
   document.querySelectorAll('#screen-nueva input[type=checkbox]').forEach(el=>el.checked=false);
   document.querySelectorAll('#screen-nueva input[type=radio]').forEach(el=>el.checked=false);
   syncFiltro(); // reset visual states
@@ -2004,7 +2037,7 @@ function renderCards() {
   container.innerHTML=filt.map(o=>{
     const deuda=parseFloat(o.deuda)||0;
     const bc=deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
-    const fch=o.fecha?(String(o.fecha).includes('-')?new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX'):o.fecha):'—';
+    const fch=fmtFecha(o.fecha);
     const safeO = encodeURIComponent(JSON.stringify(o));
     return `<div class="order-card">
       <div class="card-header">
@@ -2086,7 +2119,7 @@ function quickReport(encoded) {
 
 function updateStats(){
   const now=new Date();
-  const mes=allRows.filter(o=>{if(!o.fecha)return false;const d=new Date(String(o.fecha).includes('-')?o.fecha+'T12:00:00':o.fecha);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const mes=allRows.filter(o=>{if(!o.fecha)return false;const d=parseFecha(o.fecha);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   document.getElementById('st-total').textContent=allRows.length;
   document.getElementById('st-mes').textContent=mes.length;
   document.getElementById('st-deuda').textContent='$'+allRows.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0).toLocaleString('es-MX');
@@ -2097,7 +2130,7 @@ function openModal(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   _modalOrder=o;
   document.getElementById('m-title').textContent=`Orden #${o.folio} — ${o.nombre}`;
-  const fch2 = o.fecha ? (String(o.fecha).includes('-') ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'}) : o.fecha) : '—';
+  const fch2 = fmtFechaLarga(o.fecha);
   document.getElementById('m-body').innerHTML = `
     <!-- RX TABLE -->
     <div style="overflow-x:auto;margin-bottom:12px;">
