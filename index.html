@@ -951,7 +951,7 @@ function nextFolioNum(mes, yy) {
   try {
     const pat = new RegExp('^' + mes + '-(\\d+)-' + yy + '$');
     const queueFolios = getQueue().map(o => o.folio||'');
-    const allFolios   = allRows.map(o => String(o.folio||'').toUpperCase()).concat(queueFolios.map(f => f.toUpperCase()));
+    const allFolios   = allRows.map(o => String(o.folio||'')).filter(f => !looksLikeDate(f)).map(f=>f.toUpperCase()).concat(queueFolios.map(f => f.toUpperCase()));
     const nums = allFolios
       .map(f => { const m = f.match(pat); return m ? parseInt(m[1]) : 0; })
       .filter(n => n > 0);
@@ -982,11 +982,24 @@ function autoFolio() {
   }
 }
 
+
+// Returns true if value looks like a date, not a folio like MAR-1-26
+function looksLikeDate(v) {
+  if (!v) return false;
+  var s = String(v);
+  // ISO timestamp: 2026-03-01T08:00:00.000Z
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return true;
+  // yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return true;
+  // pure number (serial date)
+  if (/^\d+$/.test(s) && parseInt(s) > 40000) return true;
+  return false;
+}
+
 function rebuildFolioSelects() {
   const opts = allRows
-    .filter(o => o.folio)
+    .filter(o => o.folio && !looksLikeDate(o.folio))
     .sort((a,b) => {
-      // Sort by embedded number then prefix — handle both old numeric and new MMM-N-YY
       const parseF = f => { const m = String(f).match(/(\w+)-(\d+)-(\d+)/); return m ? parseInt(m[3])*10000 + parseInt(m[2]) : parseInt(f)||0; };
       return parseF(b.folio) - parseF(a.folio);
     })
@@ -1925,7 +1938,8 @@ function buildPayload(d) {
     'vision':d.vision,'filtro':d.filtro,'ar':d.ar,'armazon':d.armazon,
     'medidas':d.medidas,'distancia':d.dist,
     'blanco':d.blanco,'foto':d.foto,'invisible':d.invisible,
-    'progresivo':d.prog,'hi_index':d.hi,'policarbonato':d.poli,'diabetes':d.diab,'presion':d.pres,
+    'progresivo':d.prog,'hi_index':d.hi,'policarbonato':d.poli,
+    'diabetes':d.diab,'presion':d.pres,
     'lab':d.lab,'fol_lab':d.fol,'micas':d.micas,'bisel':d.bisel,'maq':d.maq,
     'armazon2':'','acc':'',
     'pago_semanal':d.semanal,'dia_entrega':d.entrega,'dia_pago':d.diapago
@@ -2074,12 +2088,13 @@ function flushQueue(){if(getQueue().length)retryQueue();}
 // ─── HISTORY RENDER ─────────────────────────────────────────────
 function renderCards() {
   const q=(document.getElementById('search-input')?.value||'').toLowerCase();
-  const filt=allRows.filter(o=>
-    (String(o.nombre||'')).toLowerCase().includes(q)||
-    String(o.folio||'').toLowerCase().includes(q)||
+  const filt=allRows.filter(o=>{
+    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'');
+    return (String(o.nombre||'')).toLowerCase().includes(q)||
+    fol.toLowerCase().includes(q)||
     (String(o.municipio||'')).toLowerCase().includes(q)||
-    (String(o.tel||'')).includes(q)
-  ).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
+    (String(o.tel||'')).includes(q);
+  }).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
 
   const container=document.getElementById('order-cards');
   if(!filt.length){
