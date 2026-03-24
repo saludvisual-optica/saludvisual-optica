@@ -827,6 +827,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 // ── Injected by GitHub Actions ─────────────────────────────────────
 const SCRIPT_URL = '%%SCRIPT_URL%%';
 
+// Fetch with 12-second timeout so the app never gets stuck syncing
+async function fetchTimeout(url, opts, ms) {
+  ms = ms || 12000;
+  const ctrl = new AbortController();
+  const tid = setTimeout(function(){ ctrl.abort(); }, ms);
+  try {
+    const r = await fetch(url, Object.assign({}, opts, { signal: ctrl.signal }));
+    clearTimeout(tid);
+    return r;
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
 // ─── DATE HELPERS ─────────────────────────────────────────────────
 // Sheets returns dates in multiple formats:
 //   - 'yyyy-MM-dd' string (formatted by Apps Script)
@@ -878,7 +893,7 @@ async function loadHistory(forceRefresh) {
   const cached = getCached();
   if (cached.length) { allRows = cached; renderCards(); rebuildFolioSelects(); autoFolio(); }
   try {
-    const r = await fetch(SCRIPT_URL + '?action=history', {mode:'cors'});
+    const r = await fetchTimeout(SCRIPT_URL + '?action=history', {mode:'cors'});
     const j = await r.json();
     if (j.ok && j.rows) {
       allRows = j.rows; setCached(allRows);
@@ -2272,7 +2287,7 @@ async function loadHistoryForFolio() {
   }
   // Then fetch fresh from Sheets
   try {
-    const r = await fetch(SCRIPT_URL + '?action=history', {mode:'cors'});
+    const r = await fetchTimeout(SCRIPT_URL + '?action=history', {mode:'cors'});
     const j = await r.json();
     if (j.ok && j.rows) {
       allRows = j.rows;
