@@ -713,7 +713,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="sec">Laboratorio</div>
       <div class="grid g5">
         <div class="fld"><label>Lab</label>
-          <select id="f-lab"><option value="">—</option><option>INDIGO</option><option>OPTIMARKET</option><option>OPTIKAL MTY</option><option>FED</option><option>MURANO</option><option>DORSA</option></select></div>
+          <select id="f-lab"><option value="">—</option><option>Indigo</option><option>Optimarket</option><option>Optikal MTY</option><option>FED</option></select></div>
         <div class="fld"><label>Folio Lab</label><input type="text" id="f-fol"></div>
         <div class="fld"><label>Micas $</label><input type="number" inputmode="decimal" id="f-micas" placeholder="0"></div>
         <div class="fld"><label>Bisel $</label><input type="number" inputmode="decimal" id="f-bisel" placeholder="0"></div>
@@ -1728,36 +1728,36 @@ function renderReporte(o) {
   // Rx table + conditions side by side on wider screens
   +'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;">'
 
-    // Rx table
-    +'<div style="flex:1;min-width:260px;overflow-x:auto;">'
-    +'<table style="border-collapse:collapse;width:100%;font-size:11px;">'
+    // Rx table — no overflow-x, compressed to fit
+    +'<div style="flex:1;">'
+    +'<table style="border-collapse:collapse;width:100%;font-size:11px;table-layout:auto;">'
     +'<thead><tr style="background:#1e3a5f;color:#fff;">'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;min-width:26px;">OJO</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ESFERA</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">CILINDRO</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">EJE</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ADICIÓN</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">DIP</th>'
-      +'<th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.4px;">ALT</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">OJO</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">ESF</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">CYL</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">EJE</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">ADD</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">DIP</th>'
+      +'<th style="padding:4px 5px;text-align:center;font-size:9px;">ALT</th>'
     +'</tr></thead>'
     +'<tbody>'
     +'<tr>'
-      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:5px 8px;text-align:center;border:1px solid #d1fae5;">OD</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_esf,{id:'rpt-od-esf',placeholder:'—',mono:true,width:'54px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_cyl,{id:'rpt-od-cyl',placeholder:'—',mono:true,width:'54px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_add,{id:'rpt-od-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.dip,{id:'rpt-dip',placeholder:'—',mono:true,width:'40px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.alt,{id:'rpt-alt',placeholder:'—',mono:true,width:'40px'})+'</td>'
+      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:4px 6px;text-align:center;border:1px solid #d1fae5;font-size:11px;">OD</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_esf,{id:'rpt-od-esf',placeholder:'—',mono:true,width:'46px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_cyl,{id:'rpt-od-cyl',placeholder:'—',mono:true,width:'46px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_eje,{id:'rpt-od-eje',placeholder:'—',mono:true,width:'36px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.od_add,{id:'rpt-od-add',placeholder:'—',mono:true,width:'36px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.dip,{id:'rpt-dip',placeholder:'—',mono:true,width:'34px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.alt,{id:'rpt-alt',placeholder:'—',mono:true,width:'34px'})+'</td>'
     +'</tr>'
     +'<tr>'
-      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:5px 8px;text-align:center;border:1px solid #d1fae5;">OI</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_esf,{id:'rpt-oi-esf',placeholder:'—',mono:true,width:'54px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'—',mono:true,width:'54px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'—',mono:true,width:'44px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'—',mono:true,width:'44px'})+'</td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;"></td>'
-      +'<td style="padding:4px 5px;text-align:center;border:1px solid #d1d5db;"></td>'
+      +'<td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;padding:4px 6px;text-align:center;border:1px solid #d1fae5;font-size:11px;">OI</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_esf,{id:'rpt-oi-esf',placeholder:'—',mono:true,width:'46px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_cyl,{id:'rpt-oi-cyl',placeholder:'—',mono:true,width:'46px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_eje,{id:'rpt-oi-eje',placeholder:'—',mono:true,width:'36px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;">'+rptField(o.oi_add,{id:'rpt-oi-add',placeholder:'—',mono:true,width:'36px'})+'</td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;"></td>'
+      +'<td style="padding:2px 3px;text-align:center;border:1px solid #d1d5db;"></td>'
     +'</tr>'
     +'</tbody></table>'
     +'</div>'
