@@ -1957,7 +1957,6 @@ function renderCards() {
   container.innerHTML=filt.map(o=>{
     const deuda=parseFloat(o.deuda)||0;
     const bc=deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
-    const rx=[o.od_esf,o.od_cyl,o.od_eje].filter(Boolean).join('/')||'—';
     const fch=o.fecha?(String(o.fecha).includes('-')?new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX'):o.fecha):'—';
     const safeO = encodeURIComponent(JSON.stringify(o));
     return `<div class="order-card">
@@ -1966,11 +1965,47 @@ function renderCards() {
         <div class="card-name">${o.nombre||'—'}</div></div>
         <span class="badge ${bc}">$${deuda.toLocaleString('es-MX')}</span>
       </div>
-      <div class="card-body">
-        <div class="card-row"><span class="card-lbl">Municipio</span><span class="card-val">${o.municipio||'—'}</span></div>
-        <div class="card-row"><span class="card-lbl">Costo</span><span class="card-val" style="font-family:'DM Mono',monospace">$${(parseFloat(o.costo)||0).toLocaleString('es-MX')}</span></div>
-        <div class="card-row"><span class="card-lbl">OD Rx</span><span class="card-val" style="font-family:'DM Mono',monospace;font-size:11px">${rx}</span></div>
-        <div class="card-row"><span class="card-lbl">Visión</span><span class="card-val">${o.vision||'—'}</span></div>
+      <div class="card-body" style="display:block;padding:10px 14px;">
+        <!-- Rx table -->
+        <div style="overflow-x:auto;margin-bottom:8px;">
+          <table style="border-collapse:collapse;width:100%;min-width:260px;font-size:11px;">
+            <thead>
+              <tr style="background:#1e3a5f;color:#fff;">
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">OJO</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">ESF</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">CYL</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">EJE</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">ADD</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">DIP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;font-size:10px;text-align:center;padding:4px 7px;border:1px solid #d1fae5;">OD</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_esf||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_cyl||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_eje||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_add||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.dip||'—'}</td>
+              </tr>
+              <tr>
+                <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;font-size:10px;text-align:center;padding:4px 7px;border:1px solid #d1fae5;">OI</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_esf||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_cyl||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_eje||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_add||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Meta row -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px 16px;">
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Municipio</span><span class="card-val">${o.municipio||'—'}</span></div>
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Costo</span><span class="card-val" style="font-family:'DM Mono',monospace">$${(parseFloat(o.costo)||0).toLocaleString('es-MX')}</span></div>
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Visión</span><span class="card-val">${o.vision||'—'}</span></div>
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Lab</span><span class="card-val">${o.lab||'—'}</span></div>
+        </div>
       </div>
       <div class="card-footer">
         <span style="font-size:11px;color:var(--mu)">${o.tel||''}</span>
@@ -2015,15 +2050,74 @@ function openModal(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   _modalOrder=o;
   document.getElementById('m-title').textContent=`Orden #${o.folio} — ${o.nombre}`;
-  document.getElementById('m-body').innerHTML=`<div class="dg">${[
-    ['Fecha',o.fecha],['Promotor',o.prom],['Teléfono',o.tel],['Municipio',o.municipio],
-    ['OD Rx',`${o.od_esf||''}/${o.od_cyl||''}/${o.od_eje||''}`],
-    ['OI Rx',`${o.oi_esf||''}/${o.oi_cyl||''}/${o.oi_eje||''}`],
-    ['Visión',o.vision],['Armazón',o.armazon],['Lab',o.lab],
-    ['Costo','$'+(parseFloat(o.costo)||0).toLocaleString('es-MX')],
-    ['Deuda','$'+(parseFloat(o.deuda)||0).toLocaleString('es-MX')],
-    ['Semanal','$'+(parseFloat(o.semanal||o.pago_semanal)||0).toLocaleString('es-MX')]
-  ].map(([k,v])=>`<div class="di"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('')}</div>`;
+  const fch2 = o.fecha ? (String(o.fecha).includes('-') ? new Date(o.fecha+'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'}) : o.fecha) : '—';
+  document.getElementById('m-body').innerHTML = `
+    <!-- RX TABLE -->
+    <div style="overflow-x:auto;margin-bottom:12px;">
+      <table style="border-collapse:collapse;width:100%;font-size:12px;">
+        <thead>
+          <tr style="background:#1e3a5f;color:#fff;">
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">OJO</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">ESF</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">CYL</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">EJE</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">ADD</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">DIP</th>
+            <th style="padding:5px 10px;font-size:10px;letter-spacing:.4px;text-align:center;">ALT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;text-align:center;padding:6px 10px;border:1px solid #d1fae5;">OD</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_esf||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_cyl||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_eje||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.od_add||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.dip||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.alt||'—'}</td>
+          </tr>
+          <tr>
+            <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;text-align:center;padding:6px 10px;border:1px solid #d1fae5;">OI</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_esf||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_cyl||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_eje||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${o.oi_add||'—'}</td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;"></td>
+            <td style="text-align:center;padding:6px 10px;border:1px solid #e5e7eb;"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- DETAIL GRID -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      ${[
+        ['Fecha', fch2],
+        ['Promotor', o.prom||'—'],
+        ['Teléfono', o.tel||'—'],
+        ['Municipio', o.municipio||'—'],
+        ['Visión', o.vision||'—'],
+        ['Armazón', o.armazon||'—'],
+        ['Color', o.medidas||'—'],
+        ['Lab', o.lab||'—'],
+        ['Costo', '$'+(parseFloat(o.costo)||0).toLocaleString('es-MX')],
+        ['Anticipo', '$'+(parseFloat(o.anticipo)||0).toLocaleString('es-MX')],
+        ['Deuda', '$'+(parseFloat(o.deuda)||0).toLocaleString('es-MX')],
+        ['Pago Semanal', '$'+(parseFloat(o.semanal||o.pago_semanal)||0).toLocaleString('es-MX')],
+        ['F. Entrega', o.entrega||o.dia_entrega||'—'],
+        ['F. Pago', o.fpago||'—'],
+      ].map(([k,v])=>`<div class="di"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
+    </div>
+    ${(o.ant_od||o.act_od)?`
+    <div style="margin-top:10px;background:#f8fafc;border-radius:8px;padding:8px 12px;font-size:12px;">
+      <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Graduación anterior → actual</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <span><span style="color:#6b7280;font-size:10px;">Ant OD:</span> <strong style="font-family:'DM Mono',monospace">${o.ant_od||'—'}</strong></span>
+        <span><span style="color:#6b7280;font-size:10px;">Ant OI:</span> <strong style="font-family:'DM Mono',monospace">${o.ant_oi||'—'}</strong></span>
+        <span><span style="color:#6b7280;font-size:10px;">Act OD:</span> <strong style="font-family:'DM Mono',monospace">${o.act_od||'—'}</strong></span>
+        <span><span style="color:#6b7280;font-size:10px;">Act OI:</span> <strong style="font-family:'DM Mono',monospace">${o.act_oi||'—'}</strong></span>
+      </div>
+    </div>`:''}
+  `;
   document.getElementById('modal-ov').classList.add('open');
 }
 
