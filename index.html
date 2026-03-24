@@ -596,79 +596,99 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="sec" style="margin-top:14px;">Tipo de Filtro / Tratamiento</div>
       <div style="background:var(--g4);border:1px solid #c3e6d4;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;">
 
-        <!-- MATERIAL BASE — radio (solo uno) -->
+        <!-- 1. MATERIAL BASE — radio excluyente -->
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
-            Material base <span style="font-size:9px;font-weight:400;color:var(--mu);">(selecciona uno)</span>
+          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">
+            1 · Material Base
           </div>
+          <div style="font-size:11px;color:var(--mu);margin-bottom:10px;">Elige uno — define el plástico del lente</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-blanco">
-              <input type="radio" name="material" id="ch-blanco" value="BLANCO" onchange="syncFiltro()"><span>Blanco</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-blanco">
+              <input type="radio" name="material" id="ch-blanco" value="BLANCO" onchange="syncFiltro()">
+              <span>Blanco <small style="font-size:10px;color:var(--mu);font-weight:400;">(CR-39, estándar)</small></span>
             </label>
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-poli">
-              <input type="radio" name="material" id="ch-poli" value="POLI" onchange="syncFiltro()"><span>Policarbonato</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-poli">
+              <input type="radio" name="material" id="ch-poli" value="POLI" onchange="syncFiltro()">
+              <span>Policarbonato <small style="font-size:10px;color:var(--mu);font-weight:400;">(resistente a golpes)</small></span>
             </label>
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-hi">
-              <input type="radio" name="material" id="ch-hi" value="HI" onchange="syncFiltro()"><span>Hi Index</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-hi">
+              <input type="radio" name="material" id="ch-hi" value="HI" onchange="syncFiltro()">
+              <span>Hi Index <small style="font-size:10px;color:var(--mu);font-weight:400;">(graduaciones altas)</small></span>
             </label>
           </div>
         </div>
 
         <div style="height:1px;background:#c3e6d4;"></div>
 
-        <!-- DISEÑO — radio (solo uno) -->
+        <!-- 2. DISEÑO DE VISIÓN — radio excluyente -->
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
-            Diseño <span style="font-size:9px;font-weight:400;color:var(--mu);">(selecciona uno)</span>
+          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">
+            2 · Diseño de Visión
           </div>
+          <div style="font-size:11px;color:var(--mu);margin-bottom:10px;">Elige uno — distribución de la graduación</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-invisible">
-              <input type="radio" name="diseno" id="ch-invisible" value="INVISIBLE" onchange="syncFiltro()"><span>Invisible</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-mono">
+              <input type="radio" name="diseno" id="ch-mono" value="MONO" onchange="syncFiltro()">
+              <span>Monofocal <small style="font-size:10px;color:var(--mu);font-weight:400;">(una distancia)</small></span>
             </label>
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-prog">
-              <input type="radio" name="diseno" id="ch-prog" value="PROGRESIVO" onchange="syncFiltro()"><span>Progresivo</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-invisible">
+              <input type="radio" name="diseno" id="ch-invisible" value="INVISIBLE" onchange="syncFiltro()">
+              <span>Invisible <small style="font-size:10px;color:var(--mu);font-weight:400;">(bifocal sin línea)</small></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-prog">
+              <input type="radio" name="diseno" id="ch-prog" value="PROGRESIVO" onchange="syncFiltro()">
+              <span>Progresivo <small style="font-size:10px;color:var(--mu);font-weight:400;">(lejos, inter., cerca)</small></span>
             </label>
           </div>
         </div>
 
         <div style="height:1px;background:#c3e6d4;"></div>
 
-        <!-- EXTRAS — checkboxes (múltiples) -->
+        <!-- 3. EXTRAS — checkboxes combinables -->
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
-            Extras <span style="font-size:9px;font-weight:400;color:var(--mu);">(puedes combinar)</span>
+          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">
+            3 · Extras
           </div>
+          <div style="font-size:11px;color:var(--mu);margin-bottom:10px;">Puedes combinar con cualquier material o diseño</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <label class="chk" style="padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);" id="lbl-foto">
-              <input type="checkbox" id="ch-foto" onchange="syncFiltro()"><span>Fotocromático</span>
-            </label>
-            <label class="chk" style="padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);" id="lbl-blue">
-              <input type="checkbox" id="ch-blue" onchange="syncFiltro()"><span>Blue (Filtro)</span>
+            <label class="chk" style="padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);" id="lbl-foto">
+              <input type="checkbox" id="ch-foto" onchange="syncFiltro()">
+              <span>Fotocromático <small style="font-size:10px;color:var(--mu);font-weight:400;">(se oscurece al sol)</small></span>
             </label>
           </div>
         </div>
 
         <div style="height:1px;background:#c3e6d4;"></div>
 
-        <!-- ANTIREFLEJANTE — radio (solo uno, o ninguno) -->
+        <!-- 4. ANTIRREFLEJANTE — radio excluyente (capa superficial) -->
         <div>
-          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
-            Antireflejante <span style="font-size:9px;font-weight:400;color:var(--mu);">(selecciona uno o ninguno)</span>
+          <div style="font-size:10px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">
+            4 · Antirreflejante
           </div>
+          <div style="font-size:11px;color:var(--mu);margin-bottom:10px;">Elige uno — capa superficial que elimina reflejos</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar">
-              <input type="radio" name="ar" id="ch-ar" value="AR" onchange="syncFiltro()"><span>AR</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar-no">
+              <input type="radio" name="ar" id="ch-ar-no" value="NO" onchange="syncFiltro()">
+              <span>Sin AR <small style="font-size:10px;color:var(--mu);font-weight:400;">(básico)</small></span>
             </label>
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar-blue">
-              <input type="radio" name="ar" id="ch-ar-blue" value="AR_BLUE" onchange="syncFiltro()"><span>AR Blue</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar">
+              <input type="radio" name="ar" id="ch-ar" value="AR" onchange="syncFiltro()">
+              <span>AR Estándar <small style="font-size:10px;color:var(--mu);font-weight:400;">(verde o morado)</small></span>
             </label>
-            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:7px 14px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar-no">
-              <input type="radio" name="ar" id="ch-ar-no" value="NO" onchange="syncFiltro()"><span>Sin AR</span>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;background:var(--wh);transition:all .15s;" id="lbl-ar-blue">
+              <input type="radio" name="ar" id="ch-ar-blue" value="AR_BLUE" onchange="syncFiltro()">
+              <span>AR Blue ✦ <small style="font-size:10px;color:var(--mu);font-weight:400;">(protección digital)</small></span>
             </label>
+          </div>
+          <!-- Nota aclaratoria -->
+          <div style="margin-top:10px;background:#fef9c3;border:1px solid #fde047;border-radius:7px;padding:8px 12px;font-size:11px;color:#713f12;line-height:1.5;">
+            <strong>Nota:</strong> El <em>Filtro Blue</em> está integrado en la masa del lente (capa interna), mientras que el <em>AR Blue</em> es una capa superficial. Ambos protegen de la luz azul por distintos métodos — el laboratorio puede aplicar los dos si se requiere.
           </div>
         </div>
 
       </div>
+      <!-- oculto: para compatibilidad con ch-blue legacy -->
+      <input type="hidden" id="ch-blue-val" value="">
 
       <div class="sec" style="margin-top:14px;">Afectaciones Médicas</div>
       <div style="background:#fff5f5;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;">
@@ -1796,45 +1816,37 @@ const g  = id => document.getElementById(id)?.value || '';
 const gn = id => parseFloat(document.getElementById(id)?.value)||0;
 const gc = id => document.getElementById(id)?.checked ? 'SI' : '';
 
-// syncFiltro — maps radio/checkbox selections to hidden payload fields
-// and updates visual state of selected cards
+// syncFiltro — 4 categorías: Material(radio) · Diseño(radio) · Extras(checkbox) · AR(radio)
 function syncFiltro() {
-  // Material radio → blanco field
-  const mat = document.querySelector('input[name="material"]:checked');
-  document.getElementById('ch-poli-val') && null; // no hidden for poli needed
-  // FILTRO: FOTO if foto checked, BLUE if blue checked, else NINGUNO
+  // ── Filtro payload: FOTO si fotocromático, else NINGUNO ──
   const fotoEl = document.getElementById('ch-foto');
-  const blueEl = document.getElementById('ch-blue');
-  const filtroVal = (fotoEl&&fotoEl.checked) ? 'FOTO'
-                  : (blueEl&&blueEl.checked) ? 'BLUE'
-                  : 'NINGUNO';
-  document.getElementById('f-filtro').value = filtroVal;
+  document.getElementById('f-filtro').value = (fotoEl&&fotoEl.checked) ? 'FOTO' : 'NINGUNO';
 
-  // AR radio → AR, BLUE, NO or empty
+  // ── AR payload: mapa de radio ar ──
   const arSel = document.querySelector('input[name="ar"]:checked');
   const arVal = arSel ? arSel.value : '';
   document.getElementById('f-ar').value = arVal === 'AR_BLUE' ? 'BLUE'
                                          : arVal === 'AR'     ? 'AR'
                                          : arVal === 'NO'     ? 'NO' : '';
 
-  // Visual: highlight selected radio labels
-  ['blanco','poli','hi','invisible','prog','ar','ar-blue','ar-no'].forEach(function(id) {
-    var el = document.getElementById('lbl-'+id);
-    var inp = document.getElementById('ch-'+id);
+  // ── Visual highlight: radios ──
+  ['blanco','poli','hi','mono','invisible','prog','ar-no','ar','ar-blue'].forEach(function(id) {
+    const el = document.getElementById('lbl-'+id);
+    const inp = document.getElementById('ch-'+id);
     if (!el || !inp) return;
-    var on = inp.checked;
-    el.style.borderColor  = on ? 'var(--g2)' : 'var(--bd)';
-    el.style.background   = on ? 'var(--g3)' : 'var(--wh)';
-    el.style.color        = on ? 'var(--g1)' : '';
+    const on = inp.checked;
+    el.style.borderColor = on ? 'var(--g2)' : 'var(--bd)';
+    el.style.background  = on ? 'var(--g3)' : 'var(--wh)';
+    el.style.fontWeight  = on ? '700' : '500';
+    el.style.color       = on ? 'var(--g1)' : '';
   });
-  // Checkboxes too
-  ['foto','blue'].forEach(function(id) {
-    var el = document.getElementById('lbl-'+id);
-    var inp = document.getElementById('ch-'+id);
-    if (!el || !inp) return;
-    el.style.borderColor  = inp.checked ? 'var(--g2)' : 'var(--bd)';
-    el.style.background   = inp.checked ? 'var(--g3)' : 'var(--wh)';
-  });
+  // ── Visual highlight: checkbox ──
+  const fotoLbl = document.getElementById('lbl-foto');
+  if (fotoLbl && fotoEl) {
+    fotoLbl.style.borderColor = fotoEl.checked ? 'var(--g2)' : 'var(--bd)';
+    fotoLbl.style.background  = fotoEl.checked ? 'var(--g3)' : 'var(--wh)';
+    fotoLbl.style.fontWeight  = fotoEl.checked ? '700' : '500';
+  }
 }
 
 function calcDeuda() {
@@ -1859,12 +1871,13 @@ function getFormData() {
     vision:g('f-vision'),filtro:g('f-filtro'),ar:g('f-ar'),
     armazon:g('f-armazon'),color:g('f-medidas'),medidas:g('f-medidas'),dist:'',
     blanco:(()=>{const m=document.querySelector('input[name="material"]:checked');return m&&m.value==='BLANCO'?'SI':''})(),
-    foto:gc('ch-foto'),invisible:(()=>{const d=document.querySelector('input[name="diseno"]:checked');return d&&d.value==='INVISIBLE'?'SI':''})(),
-    prog:(()=>{const d=document.querySelector('input[name="diseno"]:checked');return d&&d.value==='PROGRESIVO'?'SI':''})(),
-    hi:(()=>{const m=document.querySelector('input[name="material"]:checked');return m&&m.value==='HI'?'SI':''})(),
     poli:(()=>{const m=document.querySelector('input[name="material"]:checked');return m&&m.value==='POLI'?'SI':''})(),
+    hi:(()=>{const m=document.querySelector('input[name="material"]:checked');return m&&m.value==='HI'?'SI':''})(),
+    foto:gc('ch-foto'),
+    invisible:(()=>{const d=document.querySelector('input[name="diseno"]:checked');return d&&d.value==='INVISIBLE'?'SI':''})(),
+    prog:(()=>{const d=document.querySelector('input[name="diseno"]:checked');return d&&d.value==='PROGRESIVO'?'SI':''})(),
     diab:gc('ch-diab'),pres:gc('ch-pres'),
-    blue:gc('ch-blue'),ar_check:gc('ch-ar'),ar_blue:gc('ch-ar-blue'),ar_no:gc('ch-ar-no'),
+    blue:'',ar_check:gc('ch-ar'),ar_blue:gc('ch-ar-blue'),ar_no:gc('ch-ar-no'),
     semanal:gn('f-semanal'),entrega:g('f-entrega'),diapago:g('f-diapago'),
     lab:g('f-lab'),fol:g('f-fol'),micas:gn('f-micas'),bisel:gn('f-bisel'),maq:gn('f-maq'),
     ts:new Date().toISOString()
@@ -1903,6 +1916,7 @@ function clearForm() {
     .forEach(el=>{if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}el.value='';});
   document.querySelectorAll('#screen-nueva input[type=checkbox]').forEach(el=>el.checked=false);
   document.querySelectorAll('#screen-nueva input[type=radio]').forEach(el=>el.checked=false);
+  syncFiltro(); // reset visual states
   document.getElementById('deuda-el').textContent='$ —';
   document.getElementById('deuda-el').style.color='var(--g1)';
   document.getElementById('folio-display').textContent='—';
