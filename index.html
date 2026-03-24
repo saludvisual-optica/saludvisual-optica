@@ -474,7 +474,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
     <div class="form-card">
       <div class="sec">Datos del Cliente</div>
       <div class="grid g3">
-        <div class="fld"><label>Folio</label><input type="number" inputmode="numeric" id="f-folio" placeholder="101" oninput="document.getElementById('folio-display').textContent=this.value||'—'"></div>
+        <div class="fld"><label>Folio</label><input type="text" id="f-folio" placeholder="MAR-1-26" readonly style="font-family:'DM Mono',monospace;background:var(--g3);color:var(--g1);cursor:default;" oninput="document.getElementById('folio-display').textContent=this.value||'—'"></div>
         <div class="fld"><label>Fecha</label><input type="date" id="f-fecha"></div>
         <div class="fld"><label>Promotor</label>
           <select id="f-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select></div>
@@ -843,13 +843,13 @@ let _modalOrder   = null; // order currently shown in modal
 async function loadHistory(forceRefresh) {
   setSyncing('busy','Sincronizando...');
   const cached = getCached();
-  if (cached.length) { allRows = cached; renderCards(); rebuildFolioSelects(); }
+  if (cached.length) { allRows = cached; renderCards(); rebuildFolioSelects(); autoFolio(); }
   try {
     const r = await fetch(SCRIPT_URL + '?action=history', {mode:'cors'});
     const j = await r.json();
     if (j.ok && j.rows) {
       allRows = j.rows; setCached(allRows);
-      renderCards(); updateStats(); rebuildFolioSelects();
+      renderCards(); updateStats(); rebuildFolioSelects(); autoFolio();
       setSyncing('ok','Sheets');
       if (forceRefresh) showToast('Historial actualizado');
     } else throw new Error(j.error||'Error');
@@ -861,11 +861,49 @@ async function loadHistory(forceRefresh) {
   }
 }
 
+// ─── AUTO FOLIO ───────────────────────────────────────────────────
+const MESES = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+function genFolioPrefix(date) {
+  const d = date || new Date();
+  const mes = MESES[d.getMonth()];
+  const yy  = String(d.getFullYear()).slice(-2);
+  return { mes, yy, prefix: mes + '-' };
+}
+
+function nextFolioNum(mes, yy) {
+  // Look through allRows for folios matching MMM-#-YY pattern this month/year
+  const pat = new RegExp('^' + mes + '-(\d+)-' + yy + '$');
+  const nums = allRows
+    .map(o => { const m = String(o.folio||'').match(pat); return m ? parseInt(m[1]) : 0; })
+    .filter(n => n > 0);
+  return nums.length ? Math.max(...nums) + 1 : 1;
+}
+
+function autoFolio() {
+  const d   = new Date();
+  const mes = MESES[d.getMonth()];
+  const yy  = String(d.getFullYear()).slice(-2);
+  const num = nextFolioNum(mes, yy);
+  const folio = mes + '-' + num + '-' + yy;
+  const el = document.getElementById('f-folio');
+  if (el) {
+    el.value = folio;
+    const disp = document.getElementById('folio-display');
+    if (disp) disp.textContent = folio;
+  }
+  return folio;
+}
+
 function rebuildFolioSelects() {
   const opts = allRows
     .filter(o => o.folio)
-    .sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0))
-    .map(o => `<option value="${o.folio}">#${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
+    .sort((a,b) => {
+      // Sort by embedded number then prefix — handle both old numeric and new MMM-N-YY
+      const parseF = f => { const m = String(f).match(/(\w+)-(\d+)-(\d+)/); return m ? parseInt(m[3])*10000 + parseInt(m[2]) : parseInt(f)||0; };
+      return parseF(b.folio) - parseF(a.folio);
+    })
+    .map(o => `<option value="${o.folio}">${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
     .join('');
   const base = '<option value="">— Selecciona un folio —</option>';
   document.getElementById('fp-select').innerHTML = base + opts;
@@ -1919,7 +1957,7 @@ function clearForm() {
   syncFiltro(); // reset visual states
   document.getElementById('deuda-el').textContent='$ —';
   document.getElementById('deuda-el').style.color='var(--g1)';
-  document.getElementById('folio-display').textContent='—';
+  autoFolio(); // regenerate next folio after save
   syncFiltro();
 }
 
@@ -2177,6 +2215,7 @@ function showToast(msg,type='success'){
 
 // ─── INIT ─────────────────────────────────────────────────────────
 document.getElementById('f-fecha').valueAsDate = new Date();
+autoFolio(); // set initial folio (may update after loadHistory)
 updateQueueBanner();
 window.addEventListener('online', flushQueue);
 </script>
