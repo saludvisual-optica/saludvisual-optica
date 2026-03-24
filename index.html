@@ -875,7 +875,7 @@ function nextFolioNum(mes, yy) {
   const pat = new RegExp('^' + mes + '-(\\d+)-' + yy + '$');
   // Check both allRows (Sheets) and offline queue for existing folios this month
   const queueFolios = getQueue().map(o => o.folio||'');
-  const allFolios   = allRows.map(o => String(o.folio||'')).concat(queueFolios);
+  const allFolios   = allRows.map(o => String(o.folio||'').toUpperCase()).concat(queueFolios.map(f => f.toUpperCase()));
   const nums = allFolios
     .map(f => { const m = f.match(pat); return m ? parseInt(m[1]) : 0; })
     .filter(n => n > 0);
@@ -2223,9 +2223,35 @@ function showToast(msg,type='success'){
 
 // ─── INIT ─────────────────────────────────────────────────────────
 document.getElementById('f-fecha').valueAsDate = new Date();
-autoFolio(); // set initial folio (may update after loadHistory)
 updateQueueBanner();
 window.addEventListener('online', flushQueue);
+// Load history silently on startup so autoFolio has real data from Sheets
+loadHistoryForFolio();
+// Silent load on startup — only needed to compute next folio number
+// Does not update UI cards (user starts on Nueva tab)
+async function loadHistoryForFolio() {
+  // First apply cached rows so folio is correct instantly
+  const cached = getCached();
+  if (cached.length) {
+    allRows = cached;
+    autoFolio();
+  }
+  // Then fetch fresh from Sheets
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=history', {mode:'cors'});
+    const j = await r.json();
+    if (j.ok && j.rows) {
+      allRows = j.rows;
+      setCached(allRows);
+      autoFolio(); // recalculate with fresh data
+      rebuildFolioSelects();
+    }
+  } catch(e) {
+    // Offline — cached data already applied above
+    if (!getCached().length) autoFolio(); // still set folio = MMM-1-YY
+  }
+}
+
 </script>
 </body>
 </html>
