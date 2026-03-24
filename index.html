@@ -872,10 +872,12 @@ function genFolioPrefix(date) {
 }
 
 function nextFolioNum(mes, yy) {
-  // Look through allRows for folios matching MMM-#-YY pattern this month/year
-  const pat = new RegExp('^' + mes + '-(\d+)-' + yy + '$');
-  const nums = allRows
-    .map(o => { const m = String(o.folio||'').match(pat); return m ? parseInt(m[1]) : 0; })
+  const pat = new RegExp('^' + mes + '-(\\d+)-' + yy + '$');
+  // Check both allRows (Sheets) and offline queue for existing folios this month
+  const queueFolios = getQueue().map(o => o.folio||'');
+  const allFolios   = allRows.map(o => String(o.folio||'')).concat(queueFolios);
+  const nums = allFolios
+    .map(f => { const m = f.match(pat); return m ? parseInt(m[1]) : 0; })
     .filter(n => n > 0);
   return nums.length ? Math.max(...nums) + 1 : 1;
 }
@@ -1935,6 +1937,12 @@ async function saveOrder() {
     await sendToSheets(data);
     setSyncing('ok','Sheets');
     showToast('✓ Guardado en Google Sheets');
+    // Push to allRows immediately so autoFolio computes the correct next number
+    allRows.push({ folio: data.folio, nombre: data.nombre, fecha: data.fecha,
+      municipio: data.municipio, costo: data.costo, deuda: data.deuda,
+      od_esf: data.od_esf, od_cyl: data.od_cyl, od_eje: data.od_eje,
+      oi_esf: data.oi_esf, oi_cyl: data.oi_cyl, od_add: data.od_add,
+      vision: data.vision, lab: data.lab, tel: data.tel, prom: data.prom });
     clearForm();
     setTimeout(()=>loadHistory(false), 1500);
     flushQueue();
@@ -1950,7 +1958,7 @@ async function saveOrder() {
 }
 
 function clearForm() {
-  document.querySelectorAll('#screen-nueva input:not([type=checkbox]):not([type=hidden]),#screen-nueva select')
+  document.querySelectorAll('#screen-nueva input:not([type=checkbox]):not([type=hidden]):not(#f-folio),#screen-nueva select')
     .forEach(el=>{if(el.id==='f-fecha'){el.valueAsDate=new Date();return;}el.value='';});
   document.querySelectorAll('#screen-nueva input[type=checkbox]').forEach(el=>el.checked=false);
   document.querySelectorAll('#screen-nueva input[type=radio]').forEach(el=>el.checked=false);
