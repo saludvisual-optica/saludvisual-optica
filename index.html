@@ -887,25 +887,53 @@ let allRows       = [];
 let selectedOrder = null;
 let _modalOrder   = null; // order currently shown in modal
 
+// ─── SHARED FETCH HELPER FOR HISTORY ─────────────────────────────
+async function fetchHistory() {
+  // Apps Script GET can return redirects or HTML error pages.
+  // We read as text first, then parse — never call .json() directly.
+  const r = await fetchTimeout(SCRIPT_URL + '?action=history', {mode:'cors'}, 15000);
+  const text = await r.text();
+  // If the response starts with '<' it's an HTML page (login redirect / error)
+  const trimmed = text.trim();
+  if (trimmed.startsWith('<')) {
+    throw new Error('Apps Script devolvió HTML — verifica que el deployment sea público');
+  }
+  const j = JSON.parse(trimmed);
+  if (!j || !j.ok || !Array.isArray(j.rows)) {
+    throw new Error(j && j.error ? j.error : 'Respuesta inesperada del servidor');
+  }
+  return j.rows;
+}
+
 // ─── HISTORY FROM SHEETS ──────────────────────────────────────────
 async function loadHistory(forceRefresh) {
-  setSyncing('busy','Sincronizando...');
+  // Show cached immediately
   const cached = getCached();
-  if (cached.length) { allRows = cached; renderCards(); rebuildFolioSelects(); autoFolio(); }
+  if (cached.length) { allRows = cached; renderCards(); updateStats(); rebuildFolioSelects(); autoFolio(); }
+
+  if (!SCRIPT_URL || SCRIPT_URL.includes('%%')) {
+    setSyncing('err','URL no configurada');
+    return;
+  }
+
+  setSyncing('busy','Sincronizando...');
   try {
-    const r = await fetchTimeout(SCRIPT_URL + '?action=history', {mode:'cors'});
-    const j = await r.json();
-    if (j.ok && j.rows) {
-      allRows = j.rows; setCached(allRows);
-      renderCards(); updateStats(); rebuildFolioSelects(); autoFolio();
-      setSyncing('ok','Sheets');
-      if (forceRefresh) showToast('Historial actualizado');
-    } else throw new Error(j.error||'Error');
+    const rows = await fetchHistory();
+    allRows = rows;
+    setCached(allRows);
+    renderCards();
+    updateStats();
+    rebuildFolioSelects();
+    autoFolio();
+    setSyncing('ok','Sheets');
+    if (forceRefresh) showToast('Historial actualizado');
   } catch(e) {
-    setSyncing('err','Sin conexión');
-    if (!cached.length)
-      document.getElementById('order-cards').innerHTML =
-        '<div class="empty">Sin conexión. Conéctate para cargar el historial.</div>';
+    setSyncing('err','Error: '+( e.message||'Sin conexión'));
+    console.warn('loadHistory error:', e.message);
+    if (!cached.length) {
+      const el = document.getElementById('order-cards');
+      if (el) el.innerHTML = '<div class="empty">Sin conexión. Toca ↻ para reintentar.</div>';
+    }
   }
 }
 
@@ -920,29 +948,38 @@ function genFolioPrefix(date) {
 }
 
 function nextFolioNum(mes, yy) {
-  const pat = new RegExp('^' + mes + '-(\\d+)-' + yy + '$');
-  // Check both allRows (Sheets) and offline queue for existing folios this month
-  const queueFolios = getQueue().map(o => o.folio||'');
-  const allFolios   = allRows.map(o => String(o.folio||'').toUpperCase()).concat(queueFolios.map(f => f.toUpperCase()));
-  const nums = allFolios
-    .map(f => { const m = f.match(pat); return m ? parseInt(m[1]) : 0; })
-    .filter(n => n > 0);
-  return nums.length ? Math.max(...nums) + 1 : 1;
+  try {
+    const pat = new RegExp('^' + mes + '-(\\d+)-' + yy + '$');
+    const queueFolios = getQueue().map(o => o.folio||'');
+    const allFolios   = allRows.map(o => String(o.folio||'').toUpperCase()).concat(queueFolios.map(f => f.toUpperCase()));
+    const nums = allFolios
+      .map(f => { const m = f.match(pat); return m ? parseInt(m[1]) : 0; })
+      .filter(n => n > 0);
+    return nums.length ? Math.max(...nums) + 1 : 1;
+  } catch(e) {
+    console.warn('nextFolioNum error:', e.message);
+    return 1;
+  }
 }
 
 function autoFolio() {
-  const d   = new Date();
-  const mes = MESES[d.getMonth()];
-  const yy  = String(d.getFullYear()).slice(-2);
-  const num = nextFolioNum(mes, yy);
-  const folio = mes + '-' + num + '-' + yy;
-  const el = document.getElementById('f-folio');
-  if (el) {
-    el.value = folio;
-    const disp = document.getElementById('folio-display');
-    if (disp) disp.textContent = folio;
+  try {
+    const d   = new Date();
+    const mes = MESES[d.getMonth()];
+    const yy  = String(d.getFullYear()).slice(-2);
+    const num = nextFolioNum(mes, yy);
+    const folio = mes + '-' + num + '-' + yy;
+    const el = document.getElementById('f-folio');
+    if (el) {
+      el.value = folio;
+      const disp = document.getElementById('folio-display');
+      if (disp) disp.textContent = folio;
+    }
+    return folio;
+  } catch(e) {
+    console.warn('autoFolio error:', e.message);
+    return '';
   }
-  return folio;
 }
 
 function rebuildFolioSelects() {
@@ -2052,7 +2089,7 @@ function renderCards() {
   container.innerHTML=filt.map(o=>{
     const deuda=parseFloat(o.deuda)||0;
     const bc=deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
-    const fch=fmtFecha(o.fecha);
+    const fch=o.fecha?fmtFecha(o.fecha):'—';
     const safeO = encodeURIComponent(JSON.stringify(o));
     return `<div class="order-card">
       <div class="card-header">
@@ -2133,12 +2170,23 @@ function quickReport(encoded) {
 }
 
 function updateStats(){
-  const now=new Date();
-  const mes=allRows.filter(o=>{if(!o.fecha)return false;const d=parseFecha(o.fecha);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  document.getElementById('st-total').textContent=allRows.length;
-  document.getElementById('st-mes').textContent=mes.length;
-  document.getElementById('st-deuda').textContent='$'+allRows.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0).toLocaleString('es-MX');
-  document.getElementById('st-costo').textContent='$'+allRows.reduce((s,o)=>s+(parseFloat(o.costo)||0),0).toLocaleString('es-MX');
+  try {
+    const now=new Date();
+    const mes=allRows.filter(o=>{
+      if(!o.fecha) return false;
+      const d=parseFecha(o.fecha);
+      if(!d || isNaN(d.getTime())) return false;
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    });
+    const stTotal = document.getElementById('st-total');
+    const stMes   = document.getElementById('st-mes');
+    const stDeuda = document.getElementById('st-deuda');
+    const stCosto = document.getElementById('st-costo');
+    if(stTotal) stTotal.textContent = allRows.length;
+    if(stMes)   stMes.textContent   = mes.length;
+    if(stDeuda) stDeuda.textContent = '$'+allRows.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0).toLocaleString('es-MX');
+    if(stCosto) stCosto.textContent = '$'+allRows.reduce((s,o)=>s+(parseFloat(o.costo)||0),0).toLocaleString('es-MX');
+  } catch(e) { console.warn('updateStats error:',e.message); }
 }
 
 function openModal(encoded) {
@@ -2277,27 +2325,26 @@ window.addEventListener('online', flushQueue);
 // Load history silently on startup so autoFolio has real data from Sheets
 loadHistoryForFolio();
 // Silent load on startup — only needed to compute next folio number
-// Does not update UI cards (user starts on Nueva tab)
 async function loadHistoryForFolio() {
-  // First apply cached rows so folio is correct instantly
+  // Apply cache first for instant folio
   const cached = getCached();
-  if (cached.length) {
-    allRows = cached;
+  if (cached.length) { allRows = cached; autoFolio(); }
+
+  if (!SCRIPT_URL || SCRIPT_URL.includes('%%')) {
     autoFolio();
+    return;
   }
-  // Then fetch fresh from Sheets
+
   try {
-    const r = await fetchTimeout(SCRIPT_URL + '?action=history', {mode:'cors'});
-    const j = await r.json();
-    if (j.ok && j.rows) {
-      allRows = j.rows;
-      setCached(allRows);
-      autoFolio(); // recalculate with fresh data
-      rebuildFolioSelects();
-    }
+    const rows = await fetchHistory();
+    allRows = rows;
+    setCached(allRows);
+    autoFolio();
+    rebuildFolioSelects();
   } catch(e) {
-    // Offline — cached data already applied above
-    if (!getCached().length) autoFolio(); // still set folio = MMM-1-YY
+    // Offline or error — cached already applied, just ensure folio is set
+    autoFolio();
+    console.warn('loadHistoryForFolio error:', e.message);
   }
 }
 
