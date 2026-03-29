@@ -28,6 +28,10 @@ jobs:
         run: |
           sed -i "s|%%SCRIPT_URL%%|${{ secrets.SCRIPT_URL }}|g" index.html
 
+      - name: Inject GEMINI_API_KEY secret into index.html
+        run: |
+          sed -i "s|%%GEMINI_API_KEY%%|${{ secrets.GEMINI_API_KEY }}|g" index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
