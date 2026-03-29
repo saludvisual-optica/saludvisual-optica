@@ -57,7 +57,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .tab-btn.active{color:var(--g1);}
 .tab-btn svg{width:20px;height:20px;stroke-width:2;}
 .tab-indicator{position:absolute;top:0;height:2px;background:var(--g1);
-  border-radius:0 0 2px 2px;width:25%;transition:left .2s;}
+  border-radius:0 0 2px 2px;width:20%;transition:left .2s;}
 
 /* ── SCREENS ── */
 .screen{display:none;padding:16px;}
@@ -178,40 +178,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .b-red{background:#fee2e2;color:var(--rd);}
 .empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px;}
 .loading-row{text-align:center;padding:32px 16px;color:var(--mu);font-size:14px;}
-
-/* ── SMART SEARCH PICKER (Formulario / Reporte) ── */
-.spicker-wrap{position:relative;flex:1;}
-.spicker-input{width:100%;border:1.5px solid var(--bd);border-radius:10px;
-  padding:10px 36px 10px 14px;font-size:15px;font-family:'DM Sans',sans-serif;
-  color:var(--dk);background:var(--wh);-webkit-appearance:none;height:40px;}
-.spicker-input:focus{outline:none;border-color:var(--g2);
-  box-shadow:0 0 0 3px rgba(45,158,98,.15);}
-.spicker-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  pointer-events:none;color:var(--mu);}
-.spicker-results{position:absolute;top:calc(100% + 6px);left:0;right:0;
-  background:var(--wh);border:1.5px solid var(--g2);border-radius:12px;
-  box-shadow:0 10px 28px rgba(0,0,0,.14);z-index:150;max-height:280px;
-  overflow-y:auto;display:none;}
-.spicker-results.open{display:block;}
-.spicker-item{padding:10px 14px;cursor:pointer;
-  border-bottom:1px solid var(--g3);display:flex;
-  align-items:center;justify-content:space-between;gap:8px;
-  transition:background .1s;}
-.spicker-item:last-child{border-bottom:none;}
-.spicker-item:hover,.spicker-item:active{background:var(--g4);}
-.spicker-item-left{display:flex;flex-direction:column;gap:1px;min-width:0;}
-.spk-folio{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--mu);}
-.spk-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.spk-meta{font-size:11px;color:var(--mu);}
-.spicker-empty{padding:18px 14px;text-align:center;color:var(--mu);font-size:13px;}
-/* search result highlight */
-.spk-hl{background:#d1fae5;color:#065f46;border-radius:2px;padding:0 2px;}
-/* search-row hint chips */
-.sh-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:4px;}
-.sh-chip{background:var(--g3);color:var(--g1);border-radius:20px;
-  padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;
-  border:none;font-family:'DM Sans',sans-serif;transition:background .1s;}
-.sh-chip:hover{background:#c3e6d4;}
 
 /* ══════════════════════════════════════════════
    FORMULARIO (Orden de Pedido visual)
@@ -386,6 +352,59 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .rpt-note{background:#fffbeb;border-top:1px solid #fcd34d;
   padding:10px 16px;font-size:10px;color:#92400e;line-height:1.5;}
 
+/* ══════════════════════════════════════════════
+   EXTRACTOR IA (Gemini Vision)
+   ══════════════════════════════════════════════ */
+.ext-upload-zone{border:2px dashed var(--g2);border-radius:14px;background:var(--g4);
+  padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;}
+.ext-upload-zone:hover,.ext-upload-zone.drag{border-color:var(--g1);background:var(--g3);}
+.ext-upload-icon{font-size:36px;margin-bottom:8px;}
+.ext-upload-label{font-size:14px;font-weight:600;color:var(--md);margin-bottom:10px;}
+.ext-upload-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.ext-preview-wrap{display:none;position:relative;margin-bottom:14px;border-radius:12px;overflow:hidden;
+  border:1.5px solid var(--bd);background:#000;max-height:260px;}
+.ext-preview-wrap.show{display:block;}
+.ext-preview-img{width:100%;max-height:260px;object-fit:contain;display:block;border-radius:11px;}
+.ext-clear-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;
+  border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;}
+.ext-state{padding:18px;text-align:center;border-radius:12px;margin-bottom:14px;}
+.ext-state.loading{background:var(--g4);border:1px solid var(--g3);}
+.ext-state.error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+.ext-review{display:none;margin-top:8px;}
+.ext-review.show{display:block;}
+.ext-confidence{display:inline-flex;align-items:center;gap:5px;background:var(--g3);
+  border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--g1);margin-bottom:12px;}
+.ext-field-group{background:var(--wh);border:1px solid var(--bd);border-radius:10px;
+  overflow:hidden;margin-bottom:10px;}
+.ext-field-group-hdr{background:var(--g3);padding:8px 12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--g1);}
+.ext-field-grid{display:grid;gap:10px;padding:12px;grid-template-columns:1fr 1fr;}
+.ext-field-grid.g1{grid-template-columns:1fr;}
+.ext-field-grid.g3{grid-template-columns:1fr 1fr 1fr;}
+.ext-fld{display:flex;flex-direction:column;gap:3px;}
+.ext-fld label{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.4px;text-transform:uppercase;}
+.ext-fld input,.ext-fld select{border:1.5px solid var(--bd);border-radius:8px;padding:9px 10px;
+  font-family:'DM Sans',sans-serif;font-size:15px;color:var(--dk);background:var(--wh);
+  -webkit-appearance:none;width:100%;}
+.ext-fld input.filled{border-color:var(--g2);background:var(--g4);}
+.ext-fld input:focus,.ext-fld select:focus{outline:none;border-color:var(--g1);
+  box-shadow:0 0 0 3px rgba(45,158,98,.15);}
+.ext-rx-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ext-rx-table th{background:var(--g3);color:var(--g1);font-size:10px;font-weight:700;
+  text-align:center;padding:7px 4px;border:1px solid #c3e6d4;letter-spacing:.4px;}
+.ext-rx-table td{border:1px solid var(--bd);padding:3px 3px;}
+.ext-rx-table .eye{background:var(--g1);color:#fff;font-weight:700;font-size:11px;
+  text-align:center;width:34px;}
+.ext-rx-table input{width:100%;border:none;text-align:center;font-family:'DM Mono',monospace;
+  font-size:13px;padding:7px 2px;background:transparent;color:var(--dk);}
+.ext-rx-table input.filled{background:var(--g4);}
+.ext-rx-table input:focus{outline:2px solid var(--g2);outline-offset:-2px;border-radius:3px;}
+.ext-actions{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--bd);flex-wrap:wrap;}
+.ext-actions .btn{flex:1;min-width:140px;}
+.gemini-spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(26,122,74,.2);
+  border-top-color:var(--g1);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+
 /* ══ PRINT STYLES ══ */
 @media print {
   :root{--nav-h:0;--tab-h:0;}
@@ -479,6 +498,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
     <div class="nav-dtabs">
       <button class="nav-dt active" id="ndt-nueva" onclick="switchTab('nueva',this)">+ Nueva</button>
       <button class="nav-dt" id="ndt-historial" onclick="switchTab('historial',this)">Historial</button>
+      <button class="nav-dt" id="ndt-escaner" onclick="switchTab('escaner',this)">📷 Escáner IA</button>
       <button class="nav-dt" id="ndt-formulario" onclick="switchTab('formulario',this)">Formulario</button>
       <button class="nav-dt" id="ndt-reporte" onclick="switchTab('reporte',this)">Reporte</button>
     </div>
@@ -767,6 +787,170 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   </div>
 </div>
 
+<!-- ═══════════ ESCÁNER IA ═══════════ -->
+<div id="screen-escaner" class="screen">
+  <div class="screen-max">
+    <div class="form-header">
+      <div>
+        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Gemini Vision · IA</div>
+        <h1>EXTRACTOR DE RECETAS</h1>
+      </div>
+      <div style="font-size:26px;line-height:1">📷</div>
+    </div>
+    <div class="form-card">
+
+      <!-- ── UPLOAD ZONE ── -->
+      <div class="ext-upload-zone" id="ext-drop-zone"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="extHandleDrop(event)">
+        <div class="ext-upload-icon">🔍</div>
+        <div class="ext-upload-label">Sube o toma una foto de la receta óptica, orden o ID del cliente</div>
+        <div style="font-size:12px;color:var(--mu);margin-bottom:12px;">Soporta: JPG, PNG, WEBP, HEIC · Recetas impresas, manuscritas o mixtas</div>
+        <div class="ext-upload-btns">
+          <label class="btn btn-primary" style="cursor:pointer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Cámara
+            <input type="file" accept="image/*" capture="environment" style="display:none" id="ext-input-camera" onchange="extHandleFile(this.files[0])">
+          </label>
+          <label class="btn btn-sec" style="cursor:pointer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Galería
+            <input type="file" accept="image/*" style="display:none" id="ext-input-gallery" onchange="extHandleFile(this.files[0])">
+          </label>
+        </div>
+      </div>
+
+      <!-- ── PREVIEW ── -->
+      <div class="ext-preview-wrap" id="ext-preview-wrap">
+        <img id="ext-preview-img" src="" alt="Vista previa">
+        <button class="ext-clear-btn" onclick="extClearImage()" title="Quitar imagen">✕</button>
+        <div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;
+          font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;" id="ext-filename"></div>
+      </div>
+
+      <!-- ── EXTRACT BUTTON ── -->
+      <div style="text-align:center;margin-bottom:6px;">
+        <button class="btn btn-primary" id="ext-btn" onclick="extExtract()" disabled
+          style="font-size:14px;padding:13px 28px;min-width:200px;">
+          ✨ Extraer con Gemini IA
+        </button>
+      </div>
+
+      <!-- ── STATE MESSAGES ── -->
+      <div class="ext-state loading" id="ext-loading" style="display:none;">
+        <div class="gemini-spinner"></div>
+        <div style="margin-top:10px;font-weight:600;color:var(--g1)" id="ext-loading-msg">Analizando imagen con Gemini...</div>
+        <div style="font-size:11px;color:var(--mu);margin-top:4px;">Esto puede tomar unos segundos</div>
+      </div>
+      <div class="ext-state error" id="ext-error" style="display:none;">
+        <div style="font-size:20px;margin-bottom:6px;">⚠️</div>
+        <div style="font-weight:700;margin-bottom:4px;">Error al extraer</div>
+        <div style="font-size:12px;" id="ext-error-msg"></div>
+      </div>
+
+      <!-- ── REVIEW PANEL ── -->
+      <div class="ext-review" id="ext-review">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--dk);">Información extraída — Revisa y edita</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px;">Los campos en verde fueron detectados. Puedes corregir antes de guardar.</div>
+          </div>
+          <div class="ext-confidence" id="ext-confidence-badge">✓ Extracción completa</div>
+        </div>
+
+        <!-- DATOS DEL PACIENTE -->
+        <div class="ext-field-group">
+          <div class="ext-field-group-hdr">👤 Datos del Paciente</div>
+          <div class="ext-field-grid g1" style="grid-template-columns:1fr;">
+            <div class="ext-fld"><label>Nombre del Paciente</label><input type="text" id="ext-nombre" placeholder="Nombre completo" autocomplete="off"></div>
+          </div>
+          <div class="ext-field-grid">
+            <div class="ext-fld"><label>Teléfono</label><input type="tel" id="ext-tel" placeholder="10 dígitos"></div>
+            <div class="ext-fld"><label>Edad</label><input type="text" id="ext-edad" placeholder="años"></div>
+            <div class="ext-fld"><label>Calle y Número</label><input type="text" id="ext-calle" placeholder="Calle y número"></div>
+            <div class="ext-fld"><label>Colonia</label><input type="text" id="ext-colonia" placeholder="Colonia"></div>
+            <div class="ext-fld"><label>Municipio</label><input type="text" id="ext-municipio" placeholder="Municipio / Ciudad"></div>
+            <div class="ext-fld"><label>Optometrista / Médico</label><input type="text" id="ext-optom" placeholder="Nombre del profesional"></div>
+          </div>
+        </div>
+
+        <!-- GRADUACIÓN RX -->
+        <div class="ext-field-group">
+          <div class="ext-field-group-hdr">👁 Graduación Óptica (Rx)</div>
+          <div style="padding:12px;">
+            <div class="rx-wrap">
+              <table class="ext-rx-table">
+                <thead>
+                  <tr>
+                    <th style="width:34px;">OJO</th>
+                    <th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th><th>DIP</th><th>ALT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="eye">OD</td>
+                    <td><input id="ext-od-esf" placeholder="—" list="l-esf"></td>
+                    <td><input id="ext-od-cyl" placeholder="—" list="l-cyl"></td>
+                    <td><input id="ext-od-eje" placeholder="—" list="l-eje"></td>
+                    <td><input id="ext-od-add" placeholder="—" list="l-add"></td>
+                    <td><input id="ext-dip" placeholder="—"></td>
+                    <td><input id="ext-alt" placeholder="—"></td>
+                  </tr>
+                  <tr>
+                    <td class="eye">OI</td>
+                    <td><input id="ext-oi-esf" placeholder="—" list="l-esf"></td>
+                    <td><input id="ext-oi-cyl" placeholder="—" list="l-cyl"></td>
+                    <td><input id="ext-oi-eje" placeholder="—" list="l-eje"></td>
+                    <td><input id="ext-oi-add" placeholder="—" list="l-add"></td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DATOS DEL PEDIDO -->
+        <div class="ext-field-group">
+          <div class="ext-field-group-hdr">🔬 Datos del Pedido / Lente</div>
+          <div class="ext-field-grid">
+            <div class="ext-fld"><label>Tipo de Visión</label>
+              <select id="ext-vision"><option value="">—</option><option>MONO</option><option>BIFOCAL</option><option>PROGRESIVO</option></select>
+            </div>
+            <div class="ext-fld"><label>Armazón / Modelo</label><input type="text" id="ext-armazon" placeholder="Modelo armazón"></div>
+            <div class="ext-fld"><label>Color / Medidas</label><input type="text" id="ext-medidas" placeholder="Color o medidas"></div>
+            <div class="ext-fld"><label>Filtro / Tratamiento</label><input type="text" id="ext-filtro" placeholder="AR, FOTO, BLUE…"></div>
+            <div class="ext-fld"><label>Costo $</label><input type="number" inputmode="decimal" id="ext-costo" placeholder="0"></div>
+            <div class="ext-fld"><label>Anticipo $</label><input type="number" inputmode="decimal" id="ext-anticipo" placeholder="0"></div>
+            <div class="ext-fld"><label>Lab</label>
+              <select id="ext-lab"><option value="">—</option><option>Indigo</option><option>Optimarket</option><option>Optikal MTY</option><option>FED</option></select>
+            </div>
+            <div class="ext-fld"><label>Promotor</label>
+              <select id="ext-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="ext-actions">
+          <button class="btn btn-primary" onclick="extLoadToForm()">
+            📝 Cargar en Nueva Orden
+          </button>
+          <button class="btn btn-sec" onclick="extSaveToSheets()">
+            ☁ Guardar directo en Sheets
+          </button>
+        </div>
+
+        <div style="font-size:11px;color:var(--mu);margin-top:8px;text-align:center;">
+          "Cargar en Nueva Orden" te permite revisar todos los detalles y completar los campos faltantes antes de guardar.
+        </div>
+      </div><!-- /ext-review -->
+
+    </div><!-- /form-card -->
+  </div><!-- /screen-max -->
+</div>
+
 <!-- ═══════════ HISTORIAL ═══════════ -->
 <div id="screen-historial" class="screen">
   <div class="screen-max">
@@ -777,12 +961,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
     </div>
     <div class="search-row">
-      <input type="search" id="search-input"
-        placeholder="Nombre, folio (MAR-1-26), mes (mar), fecha (mar 15)..."
-        oninput="filterCards()" autocomplete="off">
-      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)" title="Actualizar">↻</button>
+      <input type="search" id="search-input" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterCards()">
+      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
     </div>
-
     <div id="order-cards" class="order-cards">
       <div class="loading-row">Cargando historial...</div>
     </div>
@@ -793,18 +974,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-formulario" class="screen">
   <div class="screen-max">
     <div class="folio-picker no-print">
-      <label>Buscar:</label>
-      <div class="spicker-wrap">
-        <input type="search" id="fp-input" class="spicker-input"
-          placeholder="Nombre, folio, mes (mar), fecha (mar 15)..."
-          oninput="spickerSearch('fp')"
-          onfocus="spickerOpen('fp')"
-          autocomplete="off">
-        <svg class="spicker-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <div id="fp-results" class="spicker-results"></div>
-      </div>
-      <select id="fp-select" style="display:none" onchange="selectOrderByFolio(this.value)">
-        <option value="">—</option>
+      <label>Folio:</label>
+      <select id="fp-select" onchange="selectOrderByFolio(this.value)">
+        <option value="">— Selecciona un folio —</option>
       </select>
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
@@ -818,18 +990,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-reporte" class="screen">
   <div class="screen-max">
     <div class="folio-picker no-print">
-      <label>Buscar:</label>
-      <div class="spicker-wrap">
-        <input type="search" id="rp-input" class="spicker-input"
-          placeholder="Nombre, folio, mes (mar), fecha (mar 15)..."
-          oninput="spickerSearch('rp')"
-          onfocus="spickerOpen('rp')"
-          autocomplete="off">
-        <svg class="spicker-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <div id="rp-results" class="spicker-results"></div>
-      </div>
-      <select id="rp-select" style="display:none" onchange="selectOrderByFolio(this.value)">
-        <option value="">—</option>
+      <label>Folio:</label>
+      <select id="rp-select" onchange="selectOrderByFolio(this.value)">
+        <option value="">— Selecciona un folio —</option>
       </select>
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
@@ -851,6 +1014,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   <button class="tab-btn" id="tabbtn-historial" onclick="switchTab('historial',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg>
     Historial
+  </button>
+  <button class="tab-btn" id="tabbtn-escaner" onclick="switchTab('escaner',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Escáner
   </button>
   <button class="tab-btn" id="tabbtn-formulario" onclick="switchTab('formulario',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
@@ -881,6 +1048,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <script>
 // ── Injected by GitHub Actions ─────────────────────────────────────
 const SCRIPT_URL = '%%SCRIPT_URL%%';
+const GEMINI_API_KEY = '%%GEMINI_API_KEY%%';
 
 // Fetch with 12-second timeout so the app never gets stuck syncing
 async function fetchTimeout(url, opts, ms) {
@@ -1060,16 +1228,9 @@ function rebuildFolioSelects() {
     })
     .map(o => `<option value="${o.folio}">${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
     .join('');
-  const base = '<option value="">—</option>';
-  const fpSel = document.getElementById('fp-select');
-  const rpSel = document.getElementById('rp-select');
-  if (fpSel) fpSel.innerHTML = base + opts;
-  if (rpSel) rpSel.innerHTML = base + opts;
-  // Si hay una orden seleccionada, restaurar su valor en los selects ocultos
-  if (selectedOrder && selectedOrder.folio) {
-    if (fpSel) fpSel.value = String(selectedOrder.folio);
-    if (rpSel) rpSel.value = String(selectedOrder.folio);
-  }
+  const base = '<option value="">— Selecciona un folio —</option>';
+  document.getElementById('fp-select').innerHTML = base + opts;
+  document.getElementById('rp-select').innerHTML = base + opts;
 }
 
 // ─── SELECT ORDER ─────────────────────────────────────────────────
@@ -1103,14 +1264,8 @@ function viewDetailForm() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  const folio = String(_modalOrder.folio||'');
-  const label = folio + ' — ' + (_modalOrder.nombre||'');
-  document.getElementById('fp-select').value = folio;
-  document.getElementById('rp-select').value = folio;
-  const fpIn = document.getElementById('fp-input');
-  const rpIn = document.getElementById('rp-input');
-  if (fpIn) fpIn.value = label;
-  if (rpIn) rpIn.value = label;
+  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('formulario', document.getElementById('tabbtn-formulario'));
 }
@@ -1120,14 +1275,8 @@ function viewDetailReport() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  const folio = String(_modalOrder.folio||'');
-  const label = folio + ' — ' + (_modalOrder.nombre||'');
-  document.getElementById('rp-select').value = folio;
-  document.getElementById('fp-select').value = folio;
-  const fpIn = document.getElementById('fp-input');
-  const rpIn = document.getElementById('rp-input');
-  if (rpIn) rpIn.value = label;
-  if (fpIn) fpIn.value = label;
+  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
+  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('reporte', document.getElementById('tabbtn-reporte'));
 }
@@ -2159,140 +2308,16 @@ async function retryQueue() {
 }
 function flushQueue(){if(getQueue().length)retryQueue();}
 
-// ─── SMART SEARCH ENGINE ──────────────────────────────────────────
-// Mapeo mes-nombre → número de mes '01'-'12'
-const MESES_ES = (function(){
-  var m = {};
-  [['ene','enero','jan'],['feb','febrero'],['mar','marzo'],
-   ['abr','abril','apr'],['may','mayo'],['jun','junio'],
-   ['jul','julio'],['ago','agosto','aug'],
-   ['sep','sept','septiembre'],['oct','octubre'],
-   ['nov','noviembre'],['dic','diciembre','dec']]
-  .forEach(function(names, i) {
-    var mm = String(i+1).padStart(2,'0');
-    names.forEach(function(n){ m[n] = mm; });
-  });
-  return m;
-})();
-
-// Mapeo abreviatura-folio → número de mes
-const FOLIO_MM = {
-  'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
-  'JUL':'07','AGO':'08','SEP':'09','OCT':'10','NOV':'11','DIC':'12'
-};
-
-// Devuelve "este mes" → mes actual
-function resolveEstesMes() {
-  return String(new Date().getMonth()+1).padStart(2,'0');
-}
-
-function smartSearch(raw, rows) {
-  if (!raw || !raw.trim()) return rows;
-  var q   = raw.trim();
-  var ql  = q.toLowerCase();
-
-  // ── 1. Folio exacto/prefijo: MAR-1  o  MAR-1-26 ──────────────────
-  var folioRe = /^([A-Za-záéíóú]{2,4})-(\d+)(?:-(\d+))?$/;
-  var fm = q.toUpperCase().match(folioRe);
-  if (fm) {
-    var mon=fm[1], num=fm[2], yr=fm[3];
-    return rows.filter(function(o){
-      var fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toUpperCase();
-      if (yr) return fol === mon+'-'+num+'-'+yr;
-      return fol.startsWith(mon+'-'+num+'-') || fol === mon+'-'+num;
-    });
-  }
-
-  // ── 2. Atajos especiales ──────────────────────────────────────────
-  var especialMes = null;
-  if (ql === 'este mes') especialMes = resolveEstesMes();
-  if (especialMes) {
-    return rows.filter(function(o){
-      var d = parseFecha(o.fecha);
-      if (!d) return false;
-      var mm = String(d.getMonth()+1).padStart(2,'0');
-      return mm === especialMes;
-    });
-  }
-
-  // ── 3. Detectar nombre de mes en la consulta ──────────────────────
-  var mm = null, remainText = ql;
-  // Ordenar por longitud desc para evitar match parcial (ej. "sept" antes de "sep")
-  var sortedKeys = Object.keys(MESES_ES).sort(function(a,b){ return b.length-a.length; });
-  for (var ki=0; ki<sortedKeys.length; ki++) {
-    var key = sortedKeys[ki];
-    var re  = new RegExp('(?:^|[\\s\\-/])' + key + '(?:[\\s\\-/]|$)');
-    if (re.test(ql) || ql === key) {
-      mm = MESES_ES[key];
-      remainText = ql.replace(new RegExp('(^|[\\s\\-/])' + key + '([\\s\\-/]|$)','g'), ' ').trim();
-      break;
-    }
-  }
-
-  if (mm) {
-    // Extraer números del texto restante → día y/o año
-    var nums = (remainText.match(/\d+/g)||[]).map(Number).filter(function(n){return n>0;});
-    var day=null, yr2=null;
-    nums.forEach(function(n){
-      if (n>=1 && n<=31 && !day) { day=String(n).padStart(2,'0'); }
-      else if ((n>=24&&n<=99)||(n>=2024&&n<=2099)) {
-        yr2 = n<100 ? String(n).padStart(2,'0') : String(n).slice(-2);
-      }
-    });
-
-    return rows.filter(function(o){
-      // Coincidencia por fecha
-      var fechaOk = (function(){
-        var d = parseFecha(o.fecha);
-        if (!d) return false;
-        var fmm = String(d.getMonth()+1).padStart(2,'0');
-        if (fmm !== mm) return false;
-        if (day && String(d.getDate()).padStart(2,'0') !== day) return false;
-        if (yr2 && String(d.getFullYear()).slice(-2) !== yr2) return false;
-        return true;
-      })();
-      // Coincidencia por mes del folio
-      var folioOk = (function(){
-        if (looksLikeDate(o.folio)) return false;
-        var fol   = String(o.folio||'').toUpperCase();
-        var parts = fol.match(/^([A-Z]+)-(\d+)-(\d+)$/);
-        if (!parts) return false;
-        var folMM = FOLIO_MM[parts[1]];
-        if (folMM !== mm) return false;
-        if (yr2 && parts[3] !== yr2) return false;
-        return true;
-      })();
-      return fechaOk || folioOk;
-    });
-  }
-
-  // ── 4. Búsqueda general de texto ──────────────────────────────────
-  return rows.filter(function(o){
-    var fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
-    return String(o.nombre||'').toLowerCase().includes(ql)  ||
-           fol.includes(ql)                                  ||
-           String(o.municipio||'').toLowerCase().includes(ql)||
-           String(o.tel||'').includes(ql)                    ||
-           String(o.prom||'').toLowerCase().includes(ql)     ||
-           fmtFecha(o.fecha).toLowerCase().includes(ql);
-  });
-}
-
-// Atajo para chips de Historial
-function setSearch(term) {
-  var el = document.getElementById('search-input');
-  if (el) { el.value = term; filterCards(); }
-}
-
 // ─── HISTORY RENDER ─────────────────────────────────────────────
 function renderCards() {
-  var q = (document.getElementById('search-input')?.value || '').trim();
-  var filt = smartSearch(q, allRows)
-    .filter(function(o){ return !looksLikeDate(o.folio); })
-    .sort(function(a,b){
-      var pF=function(f){var m=String(f).match(/(\w+)-(\d+)-(\d+)/);return m?parseInt(m[3])*10000+parseInt(m[2]):parseInt(f)||0;};
-      return pF(b.folio)-pF(a.folio);
-    });
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  const filt=allRows.filter(o=>{
+    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'');
+    return (String(o.nombre||'')).toLowerCase().includes(q)||
+    fol.toLowerCase().includes(q)||
+    (String(o.municipio||'')).toLowerCase().includes(q)||
+    (String(o.tel||'')).includes(q);
+  }).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
 
   const container=document.getElementById('order-cards');
   if(!filt.length){
@@ -2365,98 +2390,20 @@ function renderCards() {
   updateStats();
 }
 
-function filterCards(){ renderCards(); }
-
-// ─── SMART PICKER (Formulario / Reporte) ──────────────────────────
-function spickerSearch(prefix) {
-  var input   = document.getElementById(prefix+'-input');
-  var results = document.getElementById(prefix+'-results');
-  if (!results) return;
-  var q       = (input ? input.value : '').trim();
-  var matches = smartSearch(q, allRows)
-    .filter(function(o){ return o.folio && !looksLikeDate(o.folio); })
-    .sort(function(a,b){
-      var pF=function(f){var m=String(f).match(/(\w+)-(\d+)-(\d+)/);return m?parseInt(m[3])*10000+parseInt(m[2]):0;};
-      return pF(b.folio)-pF(a.folio);
-    })
-    .slice(0, 15);
-
-  if (!matches.length) {
-    results.innerHTML = '<div class="spicker-empty">'+(q ? 'Sin resultados para "'+q+'"' : 'Escribe para buscar...')+'</div>';
-  } else {
-    results.innerHTML = matches.map(function(o){
-      var fch    = fmtFecha(o.fecha);
-      var deuda  = parseFloat(o.deuda)||0;
-      var bc     = deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
-      var safeF  = String(o.folio||'').replace(/'/g,"\\'");
-      return '<div class="spicker-item" onclick="spickerSelect(\''+prefix+'\',\''+safeF+'\')">'+
-        '<div class="spicker-item-left">'+
-          '<span class="spk-folio">Folio #'+( o.folio||'—' )+' · '+fch+'</span>'+
-          '<span class="spk-name">'+(o.nombre||'Sin nombre')+'</span>'+
-          '<span class="spk-meta">'+(o.municipio||'')+( o.tel ? ' · '+o.tel : '' )+'</span>'+
-        '</div>'+
-        '<span class="badge '+bc+'">$'+deuda.toLocaleString('es-MX')+'</span>'+
-      '</div>';
-    }).join('');
-  }
-  results.classList.add('open');
-}
-
-function spickerOpen(prefix) { spickerSearch(prefix); }
-
-function spickerSelect(prefix, folio) {
-  var input   = document.getElementById(prefix+'-input');
-  var results = document.getElementById(prefix+'-results');
-  var o = allRows.find(function(x){ return String(x.folio) === String(folio); });
-  if (!o) { showToast('Folio no encontrado','warn'); return; }
-  if (input)   input.value = o.folio + ' — ' + (o.nombre||'');
-  if (results) results.classList.remove('open');
-  // Sync hidden selects
-  var fpSel = document.getElementById('fp-select');
-  var rpSel = document.getElementById('rp-select');
-  if (fpSel) fpSel.value = String(folio);
-  if (rpSel) rpSel.value = String(folio);
-  selectedOrder = o;
-  renderFormulario(o);
-  renderReporte(o);
-}
-
-// Cerrar pickers al hacer click fuera
-document.addEventListener('click', function(e) {
-  ['fp','rp'].forEach(function(prefix) {
-    var wrap    = document.getElementById(prefix+'-input') ?
-                  document.getElementById(prefix+'-input').closest('.spicker-wrap') : null;
-    var results = document.getElementById(prefix+'-results');
-    if (results && wrap && !wrap.contains(e.target)) {
-      results.classList.remove('open');
-    }
-  });
-});
+function filterCards(){renderCards();}
 
 function quickForm(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  const folio = String(o.folio||'');
-  const label = folio + ' — ' + (o.nombre||'');
-  document.getElementById('fp-select').value=folio;
-  document.getElementById('rp-select').value=folio;
-  const fpIn=document.getElementById('fp-input');
-  const rpIn=document.getElementById('rp-input');
-  if(fpIn) fpIn.value=label;
-  if(rpIn) rpIn.value=label;
+  document.getElementById('fp-select').value=String(o.folio||'');
+  document.getElementById('rp-select').value=String(o.folio||'');
   switchTab('formulario',document.getElementById('tabbtn-formulario'));
 }
 function quickReport(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  const folio = String(o.folio||'');
-  const label = folio + ' — ' + (o.nombre||'');
-  document.getElementById('rp-select').value=folio;
-  document.getElementById('fp-select').value=folio;
-  const fpIn=document.getElementById('fp-input');
-  const rpIn=document.getElementById('rp-input');
-  if(rpIn) rpIn.value=label;
-  if(fpIn) fpIn.value=label;
+  document.getElementById('rp-select').value=String(o.folio||'');
+  document.getElementById('fp-select').value=String(o.folio||'');
   switchTab('reporte',document.getElementById('tabbtn-reporte'));
 }
 
@@ -2556,7 +2503,7 @@ function openModal(encoded) {
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────
-const TAB_POSITIONS={'nueva':'0','historial':'25%','formulario':'50%','reporte':'75%'};
+const TAB_POSITIONS={'nueva':'0','historial':'20%','escaner':'40%','formulario':'60%','reporte':'80%'};
 
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -2564,11 +2511,346 @@ function switchTab(name, btn) {
   document.getElementById('tabbtn-'+name)?.classList.add('active');
   document.getElementById('ndt-'+name)?.classList.add('active');
   document.getElementById('tab-indicator').style.left = TAB_POSITIONS[name]||'0';
-  ['nueva','historial','formulario','reporte'].forEach(n=>{
+  ['nueva','historial','escaner','formulario','reporte'].forEach(n=>{
     document.getElementById('screen-'+n).classList.toggle('active',n===name);
   });
   if(name==='historial') loadHistory(false);
   document.querySelector('.scroll-area').scrollTo(0,0);
+}
+
+// ─── EXTRACTOR IA (Gemini Vision) ────────────────────────────────
+let extImageBase64 = null;
+let extImageMime   = 'image/jpeg';
+
+function extHandleFile(file) {
+  if (!file) return;
+  const mime = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    extImageBase64 = dataUrl.split(',')[1];
+    extImageMime   = mime;
+    // Show preview
+    const img = document.getElementById('ext-preview-img');
+    img.src = dataUrl;
+    document.getElementById('ext-preview-wrap').classList.add('show');
+    document.getElementById('ext-filename').textContent = file.name || 'imagen';
+    // Enable extract button
+    document.getElementById('ext-btn').disabled = false;
+    // Hide previous results
+    extHideReview();
+    extHideState();
+  };
+  reader.readAsDataURL(file);
+}
+
+function extHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('ext-drop-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) extHandleFile(file);
+  else showToast('Solo se aceptan imágenes', 'warn');
+}
+
+function extClearImage() {
+  extImageBase64 = null;
+  document.getElementById('ext-preview-wrap').classList.remove('show');
+  document.getElementById('ext-preview-img').src = '';
+  document.getElementById('ext-btn').disabled = true;
+  document.getElementById('ext-input-camera').value = '';
+  document.getElementById('ext-input-gallery').value = '';
+  extHideReview();
+  extHideState();
+}
+
+function extHideReview() {
+  document.getElementById('ext-review').classList.remove('show');
+}
+function extHideState() {
+  document.getElementById('ext-loading').style.display = 'none';
+  document.getElementById('ext-error').style.display = 'none';
+}
+
+async function extExtract() {
+  if (!extImageBase64) { showToast('Sube una imagen primero', 'warn'); return; }
+
+  const key = GEMINI_API_KEY;
+  if (!key || key.includes('%%')) {
+    showToast('API Key de Gemini no configurada', 'error');
+    document.getElementById('ext-error-msg').textContent =
+      'Configura GEMINI_API_KEY en los secrets de GitHub Actions.';
+    document.getElementById('ext-error').style.display = 'block';
+    return;
+  }
+
+  // Show loading
+  extHideReview();
+  document.getElementById('ext-error').style.display = 'none';
+  document.getElementById('ext-loading').style.display = 'block';
+  document.getElementById('ext-btn').disabled = true;
+
+  const loadingMsgs = [
+    'Analizando imagen con Gemini...','Detectando graduación óptica...',
+    'Extrayendo datos del paciente...','Procesando tabla de Rx...'
+  ];
+  let msgIdx = 0;
+  const msgEl = document.getElementById('ext-loading-msg');
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMsgs.length;
+    msgEl.textContent = loadingMsgs[msgIdx];
+  }, 1800);
+
+  const prompt = `Eres un experto en óptica clínica. Analiza esta imagen que puede ser:
+- Una receta óptica impresa, manuscrita, o mixta (tabla + checks + texto a mano)
+- Una orden de pedido de lentes
+- Una identificación o documento del cliente
+
+Extrae TODA la información visible y devuelve ÚNICAMENTE un objeto JSON válido con esta estructura exacta.
+Usa "" (cadena vacía) para campos no encontrados. NO incluyas texto fuera del JSON.
+
+{
+  "nombre": "nombre completo del paciente",
+  "tel": "teléfono",
+  "edad": "edad en años",
+  "calle": "calle y número",
+  "colonia": "colonia o barrio",
+  "municipio": "ciudad o municipio",
+  "optom": "nombre del optometrista o médico",
+  "od_esf": "esfera ojo derecho (ej: -1.50 o +2.00)",
+  "od_cyl": "cilindro ojo derecho (ej: -0.75)",
+  "od_eje": "eje ojo derecho (ej: 90)",
+  "od_add": "adición ojo derecho (ej: +1.50)",
+  "oi_esf": "esfera ojo izquierdo",
+  "oi_cyl": "cilindro ojo izquierdo",
+  "oi_eje": "eje ojo izquierdo",
+  "oi_add": "adición ojo izquierdo",
+  "dip": "distancia interpupilar en mm",
+  "alt": "altura de montaje en mm",
+  "vision": "tipo de visión: MONO, BIFOCAL o PROGRESIVO",
+  "armazon": "modelo o descripción del armazón",
+  "medidas": "medidas o color del armazón",
+  "filtro": "tratamiento: NINGUNO, FOTO, AR, BLUE u otro",
+  "costo": "costo total en números sin símbolo",
+  "anticipo": "anticipo o enganche en números",
+  "lab": "laboratorio óptico"
+}
+
+NOTAS IMPORTANTES:
+- OD = Ojo Derecho = Right Eye = RE
+- OI = Ojo Izquierdo = Left Eye = LE  
+- ESF = Esfera = SPH, CYL = Cilindro = CYL, EJE = Eje = Axis = AX
+- Incluye el signo + o - en valores de graduación
+- Si hay checks marcados en el documento, extrae lo que corresponda
+- Para campos no legibles o no presentes, usa ""`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inline_data: { mime_type: extImageMime, data: extImageBase64 } }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 1024
+          }
+        })
+      }
+    );
+
+    clearInterval(msgTimer);
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData?.error?.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Parse JSON — strip markdown fences if any
+    let clean = rawText.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    // Extract first {...} block
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Gemini no devolvió JSON válido. Intenta con otra imagen más clara.');
+
+    const extracted = JSON.parse(jsonMatch[0]);
+    extPopulateReview(extracted);
+    document.getElementById('ext-loading').style.display = 'none';
+
+  } catch(e) {
+    clearInterval(msgTimer);
+    document.getElementById('ext-loading').style.display = 'none';
+    document.getElementById('ext-error-msg').textContent = e.message || 'Error desconocido';
+    document.getElementById('ext-error').style.display = 'block';
+    showToast('Error al extraer — ver mensaje', 'error');
+  } finally {
+    document.getElementById('ext-btn').disabled = false;
+  }
+}
+
+function extPopulateReview(d) {
+  const fields = {
+    'ext-nombre': d.nombre, 'ext-tel': d.tel, 'ext-edad': d.edad,
+    'ext-calle': d.calle, 'ext-colonia': d.colonia, 'ext-municipio': d.municipio,
+    'ext-optom': d.optom,
+    'ext-od-esf': d.od_esf, 'ext-od-cyl': d.od_cyl, 'ext-od-eje': d.od_eje, 'ext-od-add': d.od_add,
+    'ext-oi-esf': d.oi_esf, 'ext-oi-cyl': d.oi_cyl, 'ext-oi-eje': d.oi_eje, 'ext-oi-add': d.oi_add,
+    'ext-dip': d.dip, 'ext-alt': d.alt,
+    'ext-vision': d.vision, 'ext-armazon': d.armazon, 'ext-medidas': d.medidas,
+    'ext-filtro': d.filtro, 'ext-costo': d.costo, 'ext-anticipo': d.anticipo
+  };
+
+  const selectFields = ['ext-vision', 'ext-lab', 'ext-prom'];
+  let filledCount = 0;
+
+  for (const [id, val] of Object.entries(fields)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const v = (val || '').toString().trim();
+    el.value = v;
+    if (v) {
+      el.classList.add('filled');
+      filledCount++;
+    } else {
+      el.classList.remove('filled');
+    }
+  }
+
+  // Set lab select if detected
+  if (d.lab) {
+    const labEl = document.getElementById('ext-lab');
+    const labLow = (d.lab||'').toLowerCase();
+    if (labEl) {
+      const opts = Array.from(labEl.options);
+      const match = opts.find(o => o.value.toLowerCase().includes(labLow) || labLow.includes(o.value.toLowerCase()));
+      if (match) { labEl.value = match.value; labEl.classList.add('filled'); filledCount++; }
+    }
+  }
+
+  // Confidence badge
+  const total = Object.keys(fields).length;
+  const pct = Math.round((filledCount / total) * 100);
+  const badge = document.getElementById('ext-confidence-badge');
+  if (pct >= 70) {
+    badge.textContent = `✓ ${pct}% de campos detectados`;
+    badge.style.background = 'var(--g3)'; badge.style.color = 'var(--g1)';
+  } else if (pct >= 40) {
+    badge.textContent = `⚠ ${pct}% detectado — revisa campos vacíos`;
+    badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
+  } else {
+    badge.textContent = `⚠ ${pct}% detectado — imagen poco clara`;
+    badge.style.background = '#fee2e2'; badge.style.color = '#991b1b';
+  }
+
+  document.getElementById('ext-review').classList.add('show');
+  // Scroll to review panel
+  setTimeout(() => document.getElementById('ext-review').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  showToast(`✓ ${filledCount} campos extraídos`, 'success');
+}
+
+function extGetReviewData() {
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  return {
+    nombre:   g('ext-nombre'), tel:       g('ext-tel'),     edad:      g('ext-edad'),
+    calle:    g('ext-calle'),  colonia:   g('ext-colonia'), municipio: g('ext-municipio'),
+    optom:    g('ext-optom'),
+    od_esf:   g('ext-od-esf'), od_cyl:    g('ext-od-cyl'), od_eje:    g('ext-od-eje'), od_add:    g('ext-od-add'),
+    oi_esf:   g('ext-oi-esf'), oi_cyl:    g('ext-oi-cyl'), oi_eje:    g('ext-oi-eje'), oi_add:    g('ext-oi-add'),
+    dip:      g('ext-dip'),    alt:        g('ext-alt'),
+    vision:   g('ext-vision'), armazon:   g('ext-armazon'), medidas:   g('ext-medidas'),
+    filtro:   g('ext-filtro'), costo:     g('ext-costo'),  anticipo:  g('ext-anticipo'),
+    lab:      g('ext-lab'),    prom:      g('ext-prom')
+  };
+}
+
+function extLoadToForm() {
+  const d = extGetReviewData();
+  // Helper to set a value on a form element
+  function sv(id, val) {
+    const el = document.getElementById(id);
+    if (!el || !val) return;
+    el.value = val;
+  }
+  sv('f-nombre', d.nombre); sv('f-tel', d.tel); sv('f-edad', d.edad || '');
+  sv('f-calle', d.calle); sv('f-colonia', d.colonia);
+  // Try to match municipio in select
+  const munSel = document.getElementById('f-municipio');
+  if (munSel && d.municipio) {
+    const opts = Array.from(munSel.options);
+    const mLow = d.municipio.toLowerCase();
+    const match = opts.find(o => o.text.toLowerCase().includes(mLow) || mLow.includes(o.text.toLowerCase()));
+    if (match) munSel.value = match.value;
+    else munSel.value = '';
+  }
+  // Rx fields
+  sv('od-esf', d.od_esf); sv('od-cyl', d.od_cyl); sv('od-eje', d.od_eje); sv('od-add', d.od_add);
+  sv('oi-esf', d.oi_esf); sv('oi-cyl', d.oi_cyl); sv('oi-eje', d.oi_eje); sv('oi-add', d.oi_add);
+  sv('f-dip', d.dip); sv('f-alt', d.alt);
+  // Vision select
+  const visEl = document.getElementById('f-vision');
+  if (visEl && d.vision) {
+    const vOpts = Array.from(visEl.options);
+    const vMatch = vOpts.find(o => o.value.toUpperCase() === (d.vision||'').toUpperCase());
+    if (vMatch) visEl.value = vMatch.value;
+  }
+  sv('f-armazon', d.armazon); sv('f-medidas', d.medidas);
+  if (d.filtro) sv('f-filtro', d.filtro);
+  if (d.costo) { sv('f-costo', d.costo); }
+  if (d.anticipo) { sv('f-anticipo', d.anticipo); }
+  // Lab select
+  const labEl = document.getElementById('f-lab');
+  if (labEl && d.lab) {
+    const lOpts = Array.from(labEl.options);
+    const lLow = d.lab.toLowerCase();
+    const lMatch = lOpts.find(o => o.text.toLowerCase().includes(lLow) || lLow.includes(o.text.toLowerCase()));
+    if (lMatch) labEl.value = lMatch.value;
+  }
+  // Prom select
+  const promEl = document.getElementById('f-prom');
+  if (promEl && d.prom) {
+    const pOpts = Array.from(promEl.options);
+    const pMatch = pOpts.find(o => o.value === d.prom);
+    if (pMatch) promEl.value = pMatch.value;
+  }
+  calcDeuda();
+  syncFiltro();
+  showToast('✓ Datos cargados en Nueva Orden', 'success');
+  switchTab('nueva', document.getElementById('tabbtn-nueva'));
+}
+
+async function extSaveToSheets() {
+  const d = extGetReviewData();
+  if (!d.nombre) { showToast('Agrega el nombre del paciente antes de guardar', 'warn'); return; }
+  if (!SCRIPT_URL || SCRIPT_URL.includes('%%')) {
+    showToast('SCRIPT_URL no configurada', 'error'); return;
+  }
+  // Build a minimal order object using current folio
+  const folio = autoFolio();
+  const fecha = new Date().toISOString().split('T')[0];
+  const fullData = Object.assign({ folio, fecha, fpago: '', deuda: (parseFloat(d.costo)||0) - (parseFloat(d.anticipo)||0) }, d);
+  setSyncing('busy', 'Enviando...');
+  try {
+    await sendToSheets(fullData);
+    allRows.push({ folio, nombre: d.nombre, fecha, municipio: d.municipio,
+      costo: d.costo, deuda: fullData.deuda, od_esf: d.od_esf, oi_esf: d.oi_esf });
+    setCached(allRows);
+    autoFolio();
+    setSyncing('ok', 'Sheets');
+    showToast('✓ Guardado en Google Sheets', 'success');
+    setTimeout(() => loadHistory(false), 1500);
+  } catch(e) {
+    const q = getQueue(); q.push(fullData); setQueue(q);
+    setSyncing('err', 'Sin conexión');
+    showToast('Sin conexión — se enviará al reconectar', 'warn');
+    updateQueueBanner();
+  }
 }
 
 // ─── CSV EXPORT ───────────────────────────────────────────────────
