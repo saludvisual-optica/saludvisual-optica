@@ -179,6 +179,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:14px;}
 .loading-row{text-align:center;padding:32px 16px;color:var(--mu);font-size:14px;}
 
+/* ── SMART SEARCH PICKER (Formulario / Reporte) ── */
+.spicker-wrap{position:relative;flex:1;}
+.spicker-input{width:100%;border:1.5px solid var(--bd);border-radius:10px;
+  padding:10px 36px 10px 14px;font-size:15px;font-family:'DM Sans',sans-serif;
+  color:var(--dk);background:var(--wh);-webkit-appearance:none;height:40px;}
+.spicker-input:focus{outline:none;border-color:var(--g2);
+  box-shadow:0 0 0 3px rgba(45,158,98,.15);}
+.spicker-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  pointer-events:none;color:var(--mu);}
+.spicker-results{position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:var(--wh);border:1.5px solid var(--g2);border-radius:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,.14);z-index:150;max-height:280px;
+  overflow-y:auto;display:none;}
+.spicker-results.open{display:block;}
+.spicker-item{padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--g3);display:flex;
+  align-items:center;justify-content:space-between;gap:8px;
+  transition:background .1s;}
+.spicker-item:last-child{border-bottom:none;}
+.spicker-item:hover,.spicker-item:active{background:var(--g4);}
+.spicker-item-left{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.spk-folio{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--mu);}
+.spk-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.spk-meta{font-size:11px;color:var(--mu);}
+.spicker-empty{padding:18px 14px;text-align:center;color:var(--mu);font-size:13px;}
+/* search result highlight */
+.spk-hl{background:#d1fae5;color:#065f46;border-radius:2px;padding:0 2px;}
+/* search-row hint chips */
+.sh-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:4px;}
+.sh-chip{background:var(--g3);color:var(--g1);border-radius:20px;
+  padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;
+  border:none;font-family:'DM Sans',sans-serif;transition:background .1s;}
+.sh-chip:hover{background:#c3e6d4;}
+
 /* ══════════════════════════════════════════════
    FORMULARIO (Orden de Pedido visual)
    ══════════════════════════════════════════════ */
@@ -743,9 +777,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
     </div>
     <div class="search-row">
-      <input type="search" id="search-input" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterCards()">
-      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
+      <input type="search" id="search-input"
+        placeholder="Nombre, folio (MAR-1-26), mes (mar), fecha (mar 15)..."
+        oninput="filterCards()" autocomplete="off">
+      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)" title="Actualizar">↻</button>
     </div>
+
     <div id="order-cards" class="order-cards">
       <div class="loading-row">Cargando historial...</div>
     </div>
@@ -756,9 +793,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-formulario" class="screen">
   <div class="screen-max">
     <div class="folio-picker no-print">
-      <label>Folio:</label>
-      <select id="fp-select" onchange="selectOrderByFolio(this.value)">
-        <option value="">— Selecciona un folio —</option>
+      <label>Buscar:</label>
+      <div class="spicker-wrap">
+        <input type="search" id="fp-input" class="spicker-input"
+          placeholder="Nombre, folio, mes (mar), fecha (mar 15)..."
+          oninput="spickerSearch('fp')"
+          onfocus="spickerOpen('fp')"
+          autocomplete="off">
+        <svg class="spicker-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <div id="fp-results" class="spicker-results"></div>
+      </div>
+      <select id="fp-select" style="display:none" onchange="selectOrderByFolio(this.value)">
+        <option value="">—</option>
       </select>
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
@@ -772,9 +818,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-reporte" class="screen">
   <div class="screen-max">
     <div class="folio-picker no-print">
-      <label>Folio:</label>
-      <select id="rp-select" onchange="selectOrderByFolio(this.value)">
-        <option value="">— Selecciona un folio —</option>
+      <label>Buscar:</label>
+      <div class="spicker-wrap">
+        <input type="search" id="rp-input" class="spicker-input"
+          placeholder="Nombre, folio, mes (mar), fecha (mar 15)..."
+          oninput="spickerSearch('rp')"
+          onfocus="spickerOpen('rp')"
+          autocomplete="off">
+        <svg class="spicker-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <div id="rp-results" class="spicker-results"></div>
+      </div>
+      <select id="rp-select" style="display:none" onchange="selectOrderByFolio(this.value)">
+        <option value="">—</option>
       </select>
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
@@ -1005,9 +1060,16 @@ function rebuildFolioSelects() {
     })
     .map(o => `<option value="${o.folio}">${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
     .join('');
-  const base = '<option value="">— Selecciona un folio —</option>';
-  document.getElementById('fp-select').innerHTML = base + opts;
-  document.getElementById('rp-select').innerHTML = base + opts;
+  const base = '<option value="">—</option>';
+  const fpSel = document.getElementById('fp-select');
+  const rpSel = document.getElementById('rp-select');
+  if (fpSel) fpSel.innerHTML = base + opts;
+  if (rpSel) rpSel.innerHTML = base + opts;
+  // Si hay una orden seleccionada, restaurar su valor en los selects ocultos
+  if (selectedOrder && selectedOrder.folio) {
+    if (fpSel) fpSel.value = String(selectedOrder.folio);
+    if (rpSel) rpSel.value = String(selectedOrder.folio);
+  }
 }
 
 // ─── SELECT ORDER ─────────────────────────────────────────────────
@@ -1041,8 +1103,14 @@ function viewDetailForm() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
-  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
+  const folio = String(_modalOrder.folio||'');
+  const label = folio + ' — ' + (_modalOrder.nombre||'');
+  document.getElementById('fp-select').value = folio;
+  document.getElementById('rp-select').value = folio;
+  const fpIn = document.getElementById('fp-input');
+  const rpIn = document.getElementById('rp-input');
+  if (fpIn) fpIn.value = label;
+  if (rpIn) rpIn.value = label;
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('formulario', document.getElementById('tabbtn-formulario'));
 }
@@ -1052,8 +1120,14 @@ function viewDetailReport() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
-  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
+  const folio = String(_modalOrder.folio||'');
+  const label = folio + ' — ' + (_modalOrder.nombre||'');
+  document.getElementById('rp-select').value = folio;
+  document.getElementById('fp-select').value = folio;
+  const fpIn = document.getElementById('fp-input');
+  const rpIn = document.getElementById('rp-input');
+  if (rpIn) rpIn.value = label;
+  if (fpIn) fpIn.value = label;
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('reporte', document.getElementById('tabbtn-reporte'));
 }
@@ -2085,16 +2159,140 @@ async function retryQueue() {
 }
 function flushQueue(){if(getQueue().length)retryQueue();}
 
+// ─── SMART SEARCH ENGINE ──────────────────────────────────────────
+// Mapeo mes-nombre → número de mes '01'-'12'
+const MESES_ES = (function(){
+  var m = {};
+  [['ene','enero','jan'],['feb','febrero'],['mar','marzo'],
+   ['abr','abril','apr'],['may','mayo'],['jun','junio'],
+   ['jul','julio'],['ago','agosto','aug'],
+   ['sep','sept','septiembre'],['oct','octubre'],
+   ['nov','noviembre'],['dic','diciembre','dec']]
+  .forEach(function(names, i) {
+    var mm = String(i+1).padStart(2,'0');
+    names.forEach(function(n){ m[n] = mm; });
+  });
+  return m;
+})();
+
+// Mapeo abreviatura-folio → número de mes
+const FOLIO_MM = {
+  'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
+  'JUL':'07','AGO':'08','SEP':'09','OCT':'10','NOV':'11','DIC':'12'
+};
+
+// Devuelve "este mes" → mes actual
+function resolveEstesMes() {
+  return String(new Date().getMonth()+1).padStart(2,'0');
+}
+
+function smartSearch(raw, rows) {
+  if (!raw || !raw.trim()) return rows;
+  var q   = raw.trim();
+  var ql  = q.toLowerCase();
+
+  // ── 1. Folio exacto/prefijo: MAR-1  o  MAR-1-26 ──────────────────
+  var folioRe = /^([A-Za-záéíóú]{2,4})-(\d+)(?:-(\d+))?$/;
+  var fm = q.toUpperCase().match(folioRe);
+  if (fm) {
+    var mon=fm[1], num=fm[2], yr=fm[3];
+    return rows.filter(function(o){
+      var fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toUpperCase();
+      if (yr) return fol === mon+'-'+num+'-'+yr;
+      return fol.startsWith(mon+'-'+num+'-') || fol === mon+'-'+num;
+    });
+  }
+
+  // ── 2. Atajos especiales ──────────────────────────────────────────
+  var especialMes = null;
+  if (ql === 'este mes') especialMes = resolveEstesMes();
+  if (especialMes) {
+    return rows.filter(function(o){
+      var d = parseFecha(o.fecha);
+      if (!d) return false;
+      var mm = String(d.getMonth()+1).padStart(2,'0');
+      return mm === especialMes;
+    });
+  }
+
+  // ── 3. Detectar nombre de mes en la consulta ──────────────────────
+  var mm = null, remainText = ql;
+  // Ordenar por longitud desc para evitar match parcial (ej. "sept" antes de "sep")
+  var sortedKeys = Object.keys(MESES_ES).sort(function(a,b){ return b.length-a.length; });
+  for (var ki=0; ki<sortedKeys.length; ki++) {
+    var key = sortedKeys[ki];
+    var re  = new RegExp('(?:^|[\\s\\-/])' + key + '(?:[\\s\\-/]|$)');
+    if (re.test(ql) || ql === key) {
+      mm = MESES_ES[key];
+      remainText = ql.replace(new RegExp('(^|[\\s\\-/])' + key + '([\\s\\-/]|$)','g'), ' ').trim();
+      break;
+    }
+  }
+
+  if (mm) {
+    // Extraer números del texto restante → día y/o año
+    var nums = (remainText.match(/\d+/g)||[]).map(Number).filter(function(n){return n>0;});
+    var day=null, yr2=null;
+    nums.forEach(function(n){
+      if (n>=1 && n<=31 && !day) { day=String(n).padStart(2,'0'); }
+      else if ((n>=24&&n<=99)||(n>=2024&&n<=2099)) {
+        yr2 = n<100 ? String(n).padStart(2,'0') : String(n).slice(-2);
+      }
+    });
+
+    return rows.filter(function(o){
+      // Coincidencia por fecha
+      var fechaOk = (function(){
+        var d = parseFecha(o.fecha);
+        if (!d) return false;
+        var fmm = String(d.getMonth()+1).padStart(2,'0');
+        if (fmm !== mm) return false;
+        if (day && String(d.getDate()).padStart(2,'0') !== day) return false;
+        if (yr2 && String(d.getFullYear()).slice(-2) !== yr2) return false;
+        return true;
+      })();
+      // Coincidencia por mes del folio
+      var folioOk = (function(){
+        if (looksLikeDate(o.folio)) return false;
+        var fol   = String(o.folio||'').toUpperCase();
+        var parts = fol.match(/^([A-Z]+)-(\d+)-(\d+)$/);
+        if (!parts) return false;
+        var folMM = FOLIO_MM[parts[1]];
+        if (folMM !== mm) return false;
+        if (yr2 && parts[3] !== yr2) return false;
+        return true;
+      })();
+      return fechaOk || folioOk;
+    });
+  }
+
+  // ── 4. Búsqueda general de texto ──────────────────────────────────
+  return rows.filter(function(o){
+    var fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
+    return String(o.nombre||'').toLowerCase().includes(ql)  ||
+           fol.includes(ql)                                  ||
+           String(o.municipio||'').toLowerCase().includes(ql)||
+           String(o.tel||'').includes(ql)                    ||
+           String(o.prom||'').toLowerCase().includes(ql)     ||
+           fmtFecha(o.fecha).toLowerCase().includes(ql);
+  });
+}
+
+// Atajo para chips de Historial
+function setSearch(term) {
+  var el = document.getElementById('search-input');
+  if (el) { el.value = term; filterCards(); }
+}
+
 // ─── HISTORY RENDER ─────────────────────────────────────────────
 function renderCards() {
-  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
-  const filt=allRows.filter(o=>{
-    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'');
-    return (String(o.nombre||'')).toLowerCase().includes(q)||
-    fol.toLowerCase().includes(q)||
-    (String(o.municipio||'')).toLowerCase().includes(q)||
-    (String(o.tel||'')).includes(q);
-  }).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
+  var q = (document.getElementById('search-input')?.value || '').trim();
+  var filt = smartSearch(q, allRows)
+    .filter(function(o){ return !looksLikeDate(o.folio); })
+    .sort(function(a,b){
+      var pF=function(f){var m=String(f).match(/(\w+)-(\d+)-(\d+)/);return m?parseInt(m[3])*10000+parseInt(m[2]):parseInt(f)||0;};
+      return pF(b.folio)-pF(a.folio);
+    });
 
   const container=document.getElementById('order-cards');
   if(!filt.length){
@@ -2167,20 +2365,98 @@ function renderCards() {
   updateStats();
 }
 
-function filterCards(){renderCards();}
+function filterCards(){ renderCards(); }
+
+// ─── SMART PICKER (Formulario / Reporte) ──────────────────────────
+function spickerSearch(prefix) {
+  var input   = document.getElementById(prefix+'-input');
+  var results = document.getElementById(prefix+'-results');
+  if (!results) return;
+  var q       = (input ? input.value : '').trim();
+  var matches = smartSearch(q, allRows)
+    .filter(function(o){ return o.folio && !looksLikeDate(o.folio); })
+    .sort(function(a,b){
+      var pF=function(f){var m=String(f).match(/(\w+)-(\d+)-(\d+)/);return m?parseInt(m[3])*10000+parseInt(m[2]):0;};
+      return pF(b.folio)-pF(a.folio);
+    })
+    .slice(0, 15);
+
+  if (!matches.length) {
+    results.innerHTML = '<div class="spicker-empty">'+(q ? 'Sin resultados para "'+q+'"' : 'Escribe para buscar...')+'</div>';
+  } else {
+    results.innerHTML = matches.map(function(o){
+      var fch    = fmtFecha(o.fecha);
+      var deuda  = parseFloat(o.deuda)||0;
+      var bc     = deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
+      var safeF  = String(o.folio||'').replace(/'/g,"\\'");
+      return '<div class="spicker-item" onclick="spickerSelect(\''+prefix+'\',\''+safeF+'\')">'+
+        '<div class="spicker-item-left">'+
+          '<span class="spk-folio">Folio #'+( o.folio||'—' )+' · '+fch+'</span>'+
+          '<span class="spk-name">'+(o.nombre||'Sin nombre')+'</span>'+
+          '<span class="spk-meta">'+(o.municipio||'')+( o.tel ? ' · '+o.tel : '' )+'</span>'+
+        '</div>'+
+        '<span class="badge '+bc+'">$'+deuda.toLocaleString('es-MX')+'</span>'+
+      '</div>';
+    }).join('');
+  }
+  results.classList.add('open');
+}
+
+function spickerOpen(prefix) { spickerSearch(prefix); }
+
+function spickerSelect(prefix, folio) {
+  var input   = document.getElementById(prefix+'-input');
+  var results = document.getElementById(prefix+'-results');
+  var o = allRows.find(function(x){ return String(x.folio) === String(folio); });
+  if (!o) { showToast('Folio no encontrado','warn'); return; }
+  if (input)   input.value = o.folio + ' — ' + (o.nombre||'');
+  if (results) results.classList.remove('open');
+  // Sync hidden selects
+  var fpSel = document.getElementById('fp-select');
+  var rpSel = document.getElementById('rp-select');
+  if (fpSel) fpSel.value = String(folio);
+  if (rpSel) rpSel.value = String(folio);
+  selectedOrder = o;
+  renderFormulario(o);
+  renderReporte(o);
+}
+
+// Cerrar pickers al hacer click fuera
+document.addEventListener('click', function(e) {
+  ['fp','rp'].forEach(function(prefix) {
+    var wrap    = document.getElementById(prefix+'-input') ?
+                  document.getElementById(prefix+'-input').closest('.spicker-wrap') : null;
+    var results = document.getElementById(prefix+'-results');
+    if (results && wrap && !wrap.contains(e.target)) {
+      results.classList.remove('open');
+    }
+  });
+});
 
 function quickForm(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  document.getElementById('fp-select').value=String(o.folio||'');
-  document.getElementById('rp-select').value=String(o.folio||'');
+  const folio = String(o.folio||'');
+  const label = folio + ' — ' + (o.nombre||'');
+  document.getElementById('fp-select').value=folio;
+  document.getElementById('rp-select').value=folio;
+  const fpIn=document.getElementById('fp-input');
+  const rpIn=document.getElementById('rp-input');
+  if(fpIn) fpIn.value=label;
+  if(rpIn) rpIn.value=label;
   switchTab('formulario',document.getElementById('tabbtn-formulario'));
 }
 function quickReport(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  document.getElementById('rp-select').value=String(o.folio||'');
-  document.getElementById('fp-select').value=String(o.folio||'');
+  const folio = String(o.folio||'');
+  const label = folio + ' — ' + (o.nombre||'');
+  document.getElementById('rp-select').value=folio;
+  document.getElementById('fp-select').value=folio;
+  const fpIn=document.getElementById('fp-input');
+  const rpIn=document.getElementById('rp-input');
+  if(rpIn) rpIn.value=label;
+  if(fpIn) fpIn.value=label;
   switchTab('reporte',document.getElementById('tabbtn-reporte'));
 }
 
