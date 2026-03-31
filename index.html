@@ -511,7 +511,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="sec">Datos del Cliente</div>
       <div class="grid g3">
         <div class="fld"><label>Folio</label><input type="text" id="f-folio" placeholder="MAR-1-26" readonly style="font-family:'DM Mono',monospace;background:var(--g3);color:var(--g1);cursor:default;" oninput="document.getElementById('folio-display').textContent=this.value||'—'"></div>
-        <div class="fld"><label>Fecha</label><input type="date" id="f-fecha"></div>
+        <div class="fld"><label>Fecha</label><input type="date" id="f-fecha" onchange="autoFolio()"></div>
         <div class="fld"><label>Promotor</label>
           <select id="f-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select></div>
         <div class="fld s2"><label>Nombre del Paciente</label><input type="text" id="f-nombre" placeholder="Nombre completo" autocomplete="off"></div>
@@ -881,15 +881,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <!-- ═══════════ FORMULARIO (Orden de Pedido visual) ═══════════ -->
 <div id="screen-formulario" class="screen">
   <div class="screen-max">
-    <div class="folio-picker no-print">
-      <label>Folio:</label>
-      <select id="fp-select" onchange="selectOrderByFolio(this.value)">
-        <option value="">— Selecciona un folio —</option>
-      </select>
+    <div class="search-row no-print">
+      <input type="search" id="fp-search" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterFolioSearch('fp')">
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
+    <div id="fp-results" class="order-cards no-print" style="display:none;margin-bottom:12px;"></div>
     <div id="of-container">
-      <div class="empty">Selecciona un folio para ver el formulario.</div>
+      <div class="empty">Busca una orden para ver el formulario.</div>
     </div>
   </div>
 </div>
@@ -897,15 +895,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <!-- ═══════════ REPORTE CLIENTE ═══════════ -->
 <div id="screen-reporte" class="screen">
   <div class="screen-max">
-    <div class="folio-picker no-print">
-      <label>Folio:</label>
-      <select id="rp-select" onchange="selectOrderByFolio(this.value)">
-        <option value="">— Selecciona un folio —</option>
-      </select>
+    <div class="search-row no-print">
+      <input type="search" id="rp-search" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterFolioSearch('rp')">
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
+    <div id="rp-results" class="order-cards no-print" style="display:none;margin-bottom:12px;"></div>
     <div id="rpt-container">
-      <div class="empty">Selecciona un folio para ver el reporte del cliente.</div>
+      <div class="empty">Busca una orden para ver el reporte del cliente.</div>
     </div>
   </div>
 </div>
@@ -1095,7 +1091,10 @@ function nextFolioNum(mes, yy) {
 
 function autoFolio() {
   try {
-    const d   = new Date();
+    const fechaEl = document.getElementById('f-fecha');
+    const fechaVal = fechaEl ? fechaEl.value : '';
+    // Use the date from the form field; fall back to today if empty
+    const d = fechaVal ? new Date(fechaVal + 'T12:00:00') : new Date();
     const mes = MESES[d.getMonth()];
     const yy  = String(d.getFullYear()).slice(-2);
     const num = nextFolioNum(mes, yy);
@@ -1128,20 +1127,68 @@ function looksLikeDate(v) {
 }
 
 function rebuildFolioSelects() {
-  const opts = allRows
-    .filter(o => o.folio && !looksLikeDate(o.folio))
-    .sort((a,b) => {
-      const parseF = f => { const m = String(f).match(/(\w+)-(\d+)-(\d+)/); return m ? parseInt(m[3])*10000 + parseInt(m[2]) : parseInt(f)||0; };
-      return parseF(b.folio) - parseF(a.folio);
-    })
-    .map(o => `<option value="${o.folio}">${o.folio} — ${o.nombre||'Sin nombre'}</option>`)
-    .join('');
-  const base = '<option value="">— Selecciona un folio —</option>';
-  document.getElementById('fp-select').innerHTML = base + opts;
-  document.getElementById('rp-select').innerHTML = base + opts;
+  // No-op: search bars don't need population
 }
 
-// ─── SELECT ORDER ─────────────────────────────────────────────────
+function filterFolioSearch(prefix) {
+  const q = (document.getElementById(prefix + '-search')?.value || '').trim().toLowerCase();
+  const resultsEl = document.getElementById(prefix + '-results');
+  if (!q) { resultsEl.style.display = 'none'; resultsEl.innerHTML = ''; return; }
+
+  const MESES_BUSQ = {ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12'};
+  const mesNum = MESES_BUSQ[q.slice(0,3)];
+
+  const filt = allRows.filter(o => {
+    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
+    const nom = String(o.nombre||'').toLowerCase();
+    const mun = String(o.municipio||'').toLowerCase();
+    const fch = String(o.fecha||'');
+    if (mesNum && fch.slice(5,7) === mesNum) return true;
+    return nom.includes(q) || fol.includes(q) || mun.includes(q);
+  }).slice(0, 8);
+
+  if (!filt.length) {
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = '<div class="empty" style="padding:16px">Sin resultados</div>';
+    return;
+  }
+
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = filt.map(o => {
+    const fch = fmtFecha(o.fecha);
+    const deuda = parseFloat(o.deuda)||0;
+    const badge = deuda > 0
+      ? `<span class="badge b-red">Debe $${deuda.toLocaleString('es-MX')}</span>`
+      : `<span class="badge b-green">Pagado</span>`;
+    return `<div class="order-card" style="cursor:pointer" onclick="selectOrderForView('${o.folio}','${prefix}')">
+      <div class="card-header">
+        <div>
+          <div class="card-folio">${looksLikeDate(o.folio)?'—':o.folio}</div>
+          <div class="card-name">${o.nombre||'Sin nombre'}</div>
+        </div>
+        ${badge}
+      </div>
+      <div class="card-body">
+        <div class="card-row"><span class="card-lbl">Fecha</span><span class="card-val">${fch}</span></div>
+        <div class="card-row"><span class="card-lbl">Municipio</span><span class="card-val">${o.municipio||'—'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectOrderForView(folio, prefix) {
+  const o = allRows.find(x => String(x.folio) === String(folio));
+  if (!o) { showToast('Folio no encontrado','warn'); return; }
+  selectedOrder = o;
+  renderFormulario(o);
+  renderReporte(o);
+  // Hide results and clear search
+  const resultsEl = document.getElementById(prefix + '-results');
+  if (resultsEl) { resultsEl.style.display = 'none'; resultsEl.innerHTML = ''; }
+  const searchEl = document.getElementById(prefix + '-search');
+  if (searchEl) searchEl.value = '';
+}
+
 function selectOrderByFolio(folio) {
   if (!folio) return;
   const o = allRows.find(x => String(x.folio) === String(folio));
@@ -1172,8 +1219,6 @@ function viewDetailForm() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
-  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('formulario', document.getElementById('tabbtn-formulario'));
 }
@@ -1183,8 +1228,6 @@ function viewDetailReport() {
   selectedOrder = _modalOrder;
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  document.getElementById('rp-select').value = String(_modalOrder.folio||'');
-  document.getElementById('fp-select').value = String(_modalOrder.folio||'');
   document.getElementById('modal-ov').classList.remove('open');
   switchTab('reporte', document.getElementById('tabbtn-reporte'));
 }
@@ -2163,14 +2206,13 @@ async function saveOrder() {
     await sendToSheets(data);
     setSyncing('ok','Sheets');
     showToast('✓ Guardado en Google Sheets');
-    // Push to allRows immediately so autoFolio computes the correct next number
-    allRows.push({ folio: data.folio, nombre: data.nombre, fecha: data.fecha,
-      municipio: data.municipio, costo: data.costo, deuda: data.deuda,
-      od_esf: data.od_esf, od_cyl: data.od_cyl, od_eje: data.od_eje,
-      oi_esf: data.oi_esf, oi_cyl: data.oi_cyl, od_add: data.od_add,
-      vision: data.vision, lab: data.lab, tel: data.tel, prom: data.prom });
     clearForm();
-    setTimeout(()=>loadHistory(false), 1500);
+    // Refresh history from server so allRows is up-to-date with the
+    // server-assigned folio, then recalculate the next folio preview.
+    setTimeout(async () => {
+      await loadHistory(false);
+      autoFolio();
+    }, 1500);
     flushQueue();
   } catch {
     const q=getQueue(); q.push(data); setQueue(q);
@@ -2303,15 +2345,11 @@ function filterCards(){renderCards();}
 function quickForm(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  document.getElementById('fp-select').value=String(o.folio||'');
-  document.getElementById('rp-select').value=String(o.folio||'');
   switchTab('formulario',document.getElementById('tabbtn-formulario'));
 }
 function quickReport(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  document.getElementById('rp-select').value=String(o.folio||'');
-  document.getElementById('fp-select').value=String(o.folio||'');
   switchTab('reporte',document.getElementById('tabbtn-reporte'));
 }
 
