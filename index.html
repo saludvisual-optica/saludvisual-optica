@@ -353,16 +353,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   padding:10px 16px;font-size:10px;color:#92400e;line-height:1.5;}
 
 /* ══════════════════════════════════════════════
-   EXTRACTOR IA (Gemini Vision) — adaptado al tema del sitio
+   EXTRACTOR IA (Gemini Vision)
    ══════════════════════════════════════════════ */
-/* Config card */
-.ext-cfg-card{background:var(--g4);border:1.5px solid #c3e6d4;border-radius:12px;padding:16px;margin-bottom:14px;}
-.ext-cfg-card .sec{margin-top:0;}
-.ext-cfg-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
-.ext-cfg-row .fld{flex:1;min-width:200px;}
-.ext-cfg-hint{font-size:11px;color:var(--mu);margin-top:5px;line-height:1.5;}
-.ext-cfg-hint a{color:var(--g1);}
-
 /* Upload zone */
 .ext-upload-zone{border:2px dashed var(--g2);border-radius:14px;background:var(--g4);
   padding:32px 16px;text-align:center;transition:all .2s;margin-bottom:14px;position:relative;}
@@ -394,69 +386,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .ext-err-title{font-weight:700;color:var(--rd);margin-bottom:4px;font-size:14px;}
 .ext-err-msg{font-size:12px;color:#7f1d1d;line-height:1.5;}
 .ext-err-msg a{color:var(--rd);}
-
-/* Review banner */
-.ext-review-banner{background:var(--g3);border:1.5px solid #c3e6d4;border-radius:10px;
-  padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:8px;}
-.ext-confidence{display:inline-flex;align-items:center;gap:5px;border-radius:20px;
-  padding:4px 10px;font-size:11px;font-weight:700;}
-
-/* Section groups */
-.ext-section{background:var(--wh);border:1px solid var(--bd);border-radius:12px;
-  overflow:hidden;margin-bottom:10px;}
-.ext-section-hdr{background:var(--g3);padding:9px 14px;font-size:10px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.8px;color:var(--g1);}
-.ext-section-body{padding:14px;}
-
-/* Chips */
-.ext-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
-.ext-chip{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:100px;
-  border:1.5px solid var(--bd);cursor:pointer;font-size:13px;font-weight:500;
-  transition:all .15s;color:var(--md);background:var(--wh);user-select:none;}
-.ext-chip input[type="checkbox"]{display:none;}
-.ext-chip:hover{border-color:var(--g2);color:var(--g1);}
-.ext-chip.on{background:var(--g3);border-color:var(--g2);color:var(--g1);font-weight:700;}
-
-/* Radio pago */
-.ext-radio-group{display:flex;gap:8px;flex-wrap:wrap;}
-.ext-radio-btn{flex:1;min-width:80px;padding:9px 8px;text-align:center;border:1.5px solid var(--bd);
-  border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;
-  color:var(--mu);background:var(--wh);}
-.ext-radio-btn input{display:none;}
-.ext-radio-btn:hover{border-color:var(--g2);color:var(--g1);}
-.ext-radio-btn.on{background:var(--g3);border-color:var(--g2);color:var(--g1);}
-
-/* RX table within extractor */
-.ext-rx-tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.ext-rx-tbl th{background:var(--g3);color:var(--g1);font-size:10px;font-weight:700;
-  text-align:center;padding:7px 4px;border:1px solid #c3e6d4;letter-spacing:.4px;}
-.ext-rx-tbl td{border:1px solid var(--bd);padding:3px;}
-.ext-rx-tbl .eye{background:var(--g1);color:#fff;font-weight:700;font-size:11px;
-  text-align:center;width:34px;padding:0 4px;}
-.ext-rx-tbl input{width:100%;border:none;text-align:center;font-family:'DM Mono',monospace;
-  font-size:13px;padding:8px 2px;background:transparent;color:var(--dk);}
-.ext-rx-tbl input.hi{background:var(--g4);}
-.ext-rx-tbl input:focus{outline:2px solid var(--g2);outline-offset:-2px;border-radius:3px;}
-
-/* Field grid inside extractor */
-.ext-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
-.ext-grid.g1{grid-template-columns:1fr;}
-.ext-grid.g3{grid-template-columns:1fr 1fr 1fr;}
-.ext-fld{display:flex;flex-direction:column;gap:3px;}
-.ext-fld label{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.4px;text-transform:uppercase;}
-.ext-fld input,.ext-fld select{border:1.5px solid var(--bd);border-radius:8px;padding:9px 10px;
-  font-family:'DM Sans',sans-serif;font-size:15px;color:var(--dk);background:var(--wh);
-  -webkit-appearance:none;width:100%;height:44px;}
-.ext-fld input.hi,.ext-fld select.hi{border-color:var(--g2);background:var(--g4);}
-.ext-fld input:focus,.ext-fld select:focus{outline:none;border-color:var(--g1);box-shadow:0 0 0 3px rgba(45,158,98,.15);}
-.ext-fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
-.ext-divider{height:1px;background:var(--bd);margin:14px 0;}
-
-/* Action bar */
-.ext-action-bar{display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:4px;}
-.ext-action-bar .btn{flex:1;min-width:140px;}
 
 /* ══ PRINT STYLES ══ */
 @media print {
@@ -846,31 +775,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
     <div class="form-header">
       <div>
         <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Gemini Vision · IA</div>
-        <h1>EXTRACTOR DE RECETAS</h1>
+        <h1>ESCÁNER DE RECETAS</h1>
       </div>
       <div style="font-size:26px;line-height:1">📷</div>
     </div>
     <div class="form-card">
 
-      <!-- ── CONFIG API KEY (solo si no está inyectada) ── -->
-      <div class="ext-cfg-card" id="ext-cfg-panel" style="display:none">
-        <div class="sec">🔑 API Key de Gemini</div>
-        <div class="ext-cfg-row">
+      <!-- CONFIG API KEY -->
+      <div id="ext-cfg-panel" style="display:none;background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div class="sec" style="margin-top:0">🔑 API Key de Gemini</div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
           <div class="fld" style="flex:1;min-width:180px">
             <label>API Key</label>
             <input type="password" id="ext-apikey-input" placeholder="AIzaSy..." autocomplete="off"
-              style="font-family:'DM Mono',monospace;font-size:13px;height:44px;">
+              style="font-family:'DM Mono',monospace;font-size:13px;">
           </div>
-          <button class="btn btn-sec" style="height:44px;white-space:nowrap" onclick="extSaveKey()">Guardar</button>
+          <button class="btn btn-sec" style="height:46px;white-space:nowrap" onclick="extSaveKey()">Guardar</button>
         </div>
-        <div class="ext-cfg-hint">
-          API key gratuita (1,500 análisis/día) en
-          <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>.
+        <div style="font-size:11px;color:var(--mu);margin-top:6px;line-height:1.5;">
+          API key gratuita (1,500/día) en
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--g1)">aistudio.google.com</a>.
           Se guarda localmente en tu navegador.
         </div>
       </div>
 
-      <!-- ── UPLOAD ZONE ── -->
+      <!-- UPLOAD ZONE -->
       <div id="ext-upload-section">
         <div class="ext-upload-zone" id="ext-drop-zone"
              ondragover="event.preventDefault();this.classList.add('drag')"
@@ -898,214 +827,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <!-- Preview -->
         <div class="ext-preview-wrap" id="ext-preview-wrap">
           <img id="ext-preview-img" src="" alt="Vista previa">
-          <button class="ext-clear-btn" onclick="extResetUpload()" title="Cambiar imagen">✕</button>
+          <button class="ext-clear-btn" onclick="extResetUpload()" title="Cambiar">✕</button>
         </div>
 
         <!-- Analyze button -->
-        <div id="ext-analyze-wrap" style="display:none;margin-bottom:14px">
+        <div id="ext-analyze-wrap" style="display:none;margin-bottom:10px;">
           <button class="btn btn-primary" id="ext-btn" onclick="extAnalyze()"
-            style="width:100%;font-size:15px;padding:14px">
+            style="width:100%;font-size:15px;padding:14px;">
             🔍 Analizar con Gemini IA
           </button>
         </div>
 
         <!-- Error -->
-        <div class="ext-err" id="ext-err">
-          <div class="ext-err-title" id="ext-err-title">Error al analizar</div>
-          <div class="ext-err-msg" id="ext-err-msg"></div>
+        <div id="ext-err" style="display:none;background:#fee2e2;border:1.5px solid #fca5a5;
+          border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+          <div style="font-weight:700;color:var(--rd);margin-bottom:4px;font-size:13px;" id="ext-err-title">Error</div>
+          <div style="font-size:12px;color:#7f1d1d;line-height:1.5;" id="ext-err-msg"></div>
         </div>
       </div>
 
-      <!-- ── PROCESSING ── -->
-      <div id="ext-processing-section" style="display:none">
-        <div class="ext-processing">
-          <div class="ext-ring"></div>
-          <h3 id="ext-proc-msg">Analizando receta...</h3>
-          <p>Gemini está leyendo los campos de la orden de pedido.<br>Tarda entre 3 y 10 segundos.</p>
-        </div>
+      <!-- PROCESSING -->
+      <div id="ext-processing-section" style="display:none;text-align:center;padding:50px 16px;">
+        <div style="width:52px;height:52px;border:3px solid var(--g3);border-top-color:var(--g1);
+          border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 20px;"></div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:6px;" id="ext-proc-msg">Analizando receta...</div>
+        <div style="font-size:13px;color:var(--mu);">Gemini está leyendo los campos.<br>Tarda entre 3 y 10 segundos.</div>
       </div>
-
-      <!-- ── REVIEW FORM ── -->
-      <div id="ext-review-section" style="display:none">
-
-        <div class="ext-review-banner">
-          <div>
-            <div style="font-size:13px;font-weight:700">✏️ Revisa y corrige antes de guardar</div>
-            <div style="font-size:11px;color:var(--mu);margin-top:2px;">Los campos detectados aparecen resaltados en verde.</div>
-          </div>
-          <div class="ext-confidence" id="ext-conf-badge">✓ 0 campos</div>
-        </div>
-
-        <!-- Datos del cliente -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">👤 Datos del cliente</div>
-          <div class="ext-section-body">
-            <div class="ext-grid g1" style="margin-bottom:10px">
-              <div class="ext-fld"><label>Nombre</label><input type="text" id="ef-nombre" autocomplete="off"></div>
-            </div>
-            <div class="ext-grid">
-              <div class="ext-fld"><label>Fecha</label><input type="text" id="ef-fecha" placeholder="dd/mm/aaaa"></div>
-              <div class="ext-fld"><label>Municipio</label><input type="text" id="ef-municipio"></div>
-              <div class="ext-fld"><label>Dirección / Calle</label><input type="text" id="ef-direccion"></div>
-              <div class="ext-fld"><label>Colonia</label><input type="text" id="ef-colonia"></div>
-              <div class="ext-fld"><label>Entre calles</label><input type="text" id="ef-entre_calles"></div>
-              <div class="ext-fld"><label>Teléfono</label><input type="tel" id="ef-telefono"></div>
-              <div class="ext-fld"><label>Edad</label><input type="text" id="ef-edad"></div>
-              <div class="ext-fld"><label>Referencia</label><input type="text" id="ef-referencia"></div>
-              <div class="ext-fld"><label>Optometrista</label><input type="text" id="ef-optometrista"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Graduación Rx -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">👁 Prescripción óptica</div>
-          <div class="ext-section-body">
-            <div class="rx-wrap">
-              <table class="ext-rx-tbl">
-                <thead><tr>
-                  <th style="width:34px"></th>
-                  <th>ESF</th><th>CYL</th><th>EJE</th><th>ADD</th>
-                </tr></thead>
-                <tbody>
-                  <tr>
-                    <td class="eye">OD</td>
-                    <td><input id="ef-od_esf" placeholder="+0.00" list="l-esf"></td>
-                    <td><input id="ef-od_cyl" placeholder="0.00" list="l-cyl"></td>
-                    <td><input id="ef-od_eje" placeholder="0°" list="l-eje"></td>
-                    <td><input id="ef-od_add" placeholder="+0.00" list="l-add"></td>
-                  </tr>
-                  <tr>
-                    <td class="eye">OI</td>
-                    <td><input id="ef-oi_esf" placeholder="+0.00" list="l-esf"></td>
-                    <td><input id="ef-oi_cyl" placeholder="0.00" list="l-cyl"></td>
-                    <td><input id="ef-oi_eje" placeholder="0°" list="l-eje"></td>
-                    <td><input id="ef-oi_add" placeholder="+0.00" list="l-add"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="ext-grid g3" style="margin-top:12px">
-              <div class="ext-fld"><label>Tipo de visión</label>
-                <select id="ef-tipo_vision">
-                  <option value="">—</option>
-                  <option>Monofocal</option><option>Bifocal</option>
-                  <option>Progresivo</option><option>Ocupacional</option>
-                </select>
-              </div>
-              <div class="ext-fld"><label>Distancia (mm)</label><input type="text" id="ef-distancia" placeholder="63"></div>
-              <div class="ext-fld"><label>Altura (mm)</label><input type="text" id="ef-altura" placeholder="26"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cristales -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">🔬 Cristales y tratamientos</div>
-          <div class="ext-section-body">
-            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Tratamientos</div>
-            <div class="ext-chips" id="ext-chips-wrap">
-              <label class="ext-chip" id="echip-blanco"><input type="checkbox" id="ef-blanco"> Blanco</label>
-              <label class="ext-chip" id="echip-fotocromatico"><input type="checkbox" id="ef-fotocromatico"> Fotocromático</label>
-              <label class="ext-chip" id="echip-antirreflejante"><input type="checkbox" id="ef-antirreflejante"> Antirreflejante</label>
-              <label class="ext-chip" id="echip-invisible"><input type="checkbox" id="ef-invisible"> Invisible</label>
-              <label class="ext-chip" id="echip-progresivo"><input type="checkbox" id="ef-progresivo"> Progresivo</label>
-              <label class="ext-chip" id="echip-hi_index"><input type="checkbox" id="ef-hi_index"> Hi Index</label>
-              <label class="ext-chip" id="echip-policarbonato"><input type="checkbox" id="ef-policarbonato"> Policarbonato</label>
-            </div>
-            <div class="ext-divider"></div>
-            <div class="ext-grid">
-              <div class="ext-fld"><label>Desvanecido — Nivel</label>
-                <select id="ef-desvanecido_nivel"><option value="">—</option><option>1</option><option>2</option><option>3</option></select>
-              </div>
-              <div class="ext-fld"><label>Desvanecido — Color</label>
-                <select id="ef-desvanecido_color"><option value="">—</option><option>NEGRO</option><option>CAFÉ</option><option>GRIS</option></select>
-              </div>
-              <div class="ext-fld"><label>Tinte — Nivel</label>
-                <select id="ef-tinte_nivel"><option value="">—</option><option>1</option><option>2</option><option>3</option></select>
-              </div>
-              <div class="ext-fld"><label>Tinte — Color</label>
-                <select id="ef-tinte_color"><option value="">—</option><option>NEGRO</option><option>CAFÉ</option><option>GRIS</option></select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Armazón -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">🕶 Armazón</div>
-          <div class="ext-section-body">
-            <div class="ext-grid g3">
-              <div class="ext-fld"><label>Modelo</label><input type="text" id="ef-armazon"></div>
-              <div class="ext-fld"><label>Color</label><input type="text" id="ef-color_armazon"></div>
-              <div class="ext-fld"><label>Tamaño</label><input type="text" id="ef-tamanio"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Historial -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">📋 Historial médico</div>
-          <div class="ext-section-body">
-            <div class="ext-grid">
-              <div class="ext-fld"><label>Anterior OD</label><input type="text" id="ef-anterior_od" style="font-family:'DM Mono',monospace;font-size:13px"></div>
-              <div class="ext-fld"><label>Anterior OI</label><input type="text" id="ef-anterior_oi" style="font-family:'DM Mono',monospace;font-size:13px"></div>
-              <div class="ext-fld"><label>Actual OD</label><input type="text" id="ef-actual_od" style="font-family:'DM Mono',monospace;font-size:13px"></div>
-              <div class="ext-fld"><label>Actual OI</label><input type="text" id="ef-actual_oi" style="font-family:'DM Mono',monospace;font-size:13px"></div>
-            </div>
-            <div class="ext-chips" style="margin-top:12px">
-              <label class="ext-chip" id="echip-diabetes"><input type="checkbox" id="ef-diabetes"> Diabetes</label>
-              <label class="ext-chip" id="echip-presion"><input type="checkbox" id="ef-presion"> Presión</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pago y entrega -->
-        <div class="ext-section">
-          <div class="ext-section-hdr">💳 Pago y entrega</div>
-          <div class="ext-section-body">
-            <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Forma de pago</div>
-            <div class="ext-radio-group" id="ef-radio-pago">
-              <label class="ext-radio-btn" data-val="CONTADO"><input type="radio" name="ef-pago" value="CONTADO"> Contado</label>
-              <label class="ext-radio-btn" data-val="CREDITO"><input type="radio" name="ef-pago" value="CREDITO"> Crédito</label>
-              <label class="ext-radio-btn" data-val="ENGANCHE"><input type="radio" name="ef-pago" value="ENGANCHE"> Enganche</label>
-            </div>
-            <div class="ext-grid g3" style="margin-top:12px">
-              <div class="ext-fld"><label>Día de pago</label><input type="text" id="ef-dia_pago"></div>
-              <div class="ext-fld"><label>Día de entrega</label><input type="text" id="ef-dia_entrega"></div>
-              <div class="ext-fld"><label>Pago semanal / Enganche</label><input type="text" id="ef-pago_semanal" placeholder="$0.00"></div>
-            </div>
-            <div class="ext-grid" style="margin-top:10px">
-              <div class="ext-fld"><label>Costo lente $</label><input type="number" inputmode="decimal" id="ef-costo" placeholder="0"></div>
-              <div class="ext-fld"><label>Anticipo $</label><input type="number" inputmode="decimal" id="ef-anticipo" placeholder="0"></div>
-              <div class="ext-fld"><label>Promotor</label>
-                <select id="ef-prom"><option value="">—</option><option>BH</option><option>AM</option><option>JR</option><option>VR</option><option>MG</option><option>LM</option><option>SL</option><option>CP</option></select>
-              </div>
-              <div class="ext-fld"><label>Lab</label>
-                <select id="ef-lab"><option value="">—</option><option>Indigo</option><option>Optimarket</option><option>Optikal MTY</option><option>FED</option></select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botones de acción -->
-        <div class="ext-action-bar">
-          <button class="btn btn-primary" onclick="extLoadToForm()">📝 Cargar en Nueva Orden</button>
-          <button class="btn btn-sec" onclick="extSaveToSheets()" id="ext-save-btn">☁ Guardar en Sheets</button>
-        </div>
-        <div style="font-size:11px;color:var(--mu);margin-top:8px;text-align:center;padding-bottom:8px">
-          "Cargar en Nueva Orden" te lleva al formulario para completar datos y generar folio antes de guardar.
-        </div>
-        <div style="margin-top:6px">
-          <button class="btn btn-out" style="width:100%;font-size:13px" onclick="extResetToUpload()">← Analizar otra imagen</button>
-        </div>
-
-      </div><!-- /ext-review-section -->
 
     </div><!-- /form-card -->
   </div><!-- /screen-max -->
 </div>
 
+<!-- ═══════════ HISTORIAL ═══════════ -->
 <!-- ═══════════ HISTORIAL ═══════════ -->
 <div id="screen-historial" class="screen">
   <div class="screen-max">
@@ -2676,15 +2429,14 @@ function switchTab(name, btn) {
 
 // ─── EXTRACTOR IA (Gemini Vision) ────────────────────────────────
 const EXT_KEY_STORE = 'sv_gemini_key_v1';
-
 let extBase64 = null;
 let extMime   = 'image/jpeg';
 
-// Resolve API key: injected constant first, then localStorage fallback
 function extGetKey() {
   if (GEMINI_API_KEY && !GEMINI_API_KEY.includes('%%')) return GEMINI_API_KEY;
   try { return localStorage.getItem(EXT_KEY_STORE) || ''; } catch { return ''; }
 }
+
 function extSaveKey() {
   const v = document.getElementById('ext-apikey-input').value.trim();
   if (!v) { showToast('Ingresa una API key válida', 'warn'); return; }
@@ -2693,30 +2445,30 @@ function extSaveKey() {
   showToast('API key guardada', 'success');
 }
 
-// Show/hide config panel based on whether key is available
 function extInitPanel() {
   const hasKey = !!extGetKey();
   document.getElementById('ext-cfg-panel').style.display = hasKey ? 'none' : 'block';
-  const stored = extGetKey();
-  if (stored && !GEMINI_API_KEY.includes('%%')) return;
+  if (!hasKey) return;
+  const stored = localStorage.getItem(EXT_KEY_STORE) || '';
   if (stored) document.getElementById('ext-apikey-input').value = stored;
 }
 
-// ── Image compression (same logic as functional version) ──
+function extOnTabEnter() { extInitPanel(); }
+
+// Image compression
 function extCompressImage(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        const maxPx = 1400;
-        const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
-        const canvas = document.createElement('canvas');
-        canvas.width  = Math.round(img.width  * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
-        resolve({ base64: dataUrl.split(',')[1], mime: 'image/jpeg', dataUrl });
+        const scale = Math.min(1, 1400 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width  = Math.round(img.width  * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        const dataUrl = c.toDataURL('image/jpeg', 0.88);
+        resolve({ base64: dataUrl.split(',')[1], dataUrl });
       };
       img.src = e.target.result;
     };
@@ -2726,9 +2478,9 @@ function extCompressImage(file) {
 
 function extHandleFile(file) {
   if (!file) return;
-  extCompressImage(file).then(({ base64, mime, dataUrl }) => {
+  extCompressImage(file).then(({ base64, dataUrl }) => {
     extBase64 = base64;
-    extMime   = mime;
+    extMime   = 'image/jpeg';
     document.getElementById('ext-preview-img').src = dataUrl;
     document.getElementById('ext-preview-wrap').classList.add('show');
     document.getElementById('ext-analyze-wrap').style.display = 'block';
@@ -2754,15 +2506,6 @@ function extResetUpload() {
   document.getElementById('ext-err').style.display = 'none';
 }
 
-function extResetToUpload() {
-  extResetUpload();
-  document.getElementById('ext-upload-section').style.display = 'block';
-  document.getElementById('ext-processing-section').style.display = 'none';
-  document.getElementById('ext-review-section').style.display = 'none';
-  document.querySelector('.scroll-area').scrollTo(0, 0);
-}
-
-// ── Gemini API call ──
 async function extAnalyze() {
   if (!extBase64) { showToast('Sube una imagen primero', 'warn'); return; }
 
@@ -2771,50 +2514,44 @@ async function extAnalyze() {
     document.getElementById('ext-cfg-panel').style.display = 'block';
     document.getElementById('ext-err-title').textContent = 'Configura tu API key de Gemini';
     document.getElementById('ext-err-msg').innerHTML =
-      'Ingresa tu API key gratuita de <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> arriba.';
+      'Ingresa tu API key gratuita de <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a> arriba.';
     document.getElementById('ext-err').style.display = 'block';
     return;
   }
 
-  // Transition to processing
   document.getElementById('ext-upload-section').style.display = 'none';
-  document.getElementById('ext-review-section').style.display = 'none';
   document.getElementById('ext-processing-section').style.display = 'block';
 
-  const msgs = [
-    'Analizando receta...','Detectando graduación óptica...',
-    'Extrayendo datos del cliente...','Procesando checkboxes y firma...'
-  ];
+  const msgs = ['Analizando receta...','Detectando graduación óptica...','Extrayendo datos del cliente...','Procesando checkboxes...'];
   let mi = 0;
   const msgEl = document.getElementById('ext-proc-msg');
-  const t = setInterval(() => { msgEl.textContent = msgs[++mi % msgs.length]; }, 1800);
+  const ticker = setInterval(() => { msgEl.textContent = msgs[++mi % msgs.length]; }, 1800);
 
-  const prompt = `Eres un sistema de extracción de datos especializado en órdenes de pedido ópticas de México.
+  const prompt = `Eres un sistema de extracción de datos de órdenes de pedido ópticas de México.
 
-Analiza la imagen y extrae TODOS los campos de la orden de pedido con precisión.
+Analiza esta imagen (puede ser receta impresa, manuscrita, mixta con checkboxes y texto a mano).
+Extrae TODOS los campos visibles y responde ÚNICAMENTE con JSON válido, sin markdown ni texto adicional.
 
-IMPORTANTE:
-- Los valores de ESF pueden ser positivos (+2.00) o negativos (-1.50). Conserva el signo.
-- CYL puede ser "/" si no aplica — escríbelo como "/".
-- EJE es un número de 0-180.
-- ADD es la adición para progresivo/bifocal.
-- Los checkboxes marcados son true, los vacíos son false.
-- Para tipo_vision usa: Monofocal, Bifocal, Progresivo u Ocupacional.
-- forma_pago: escribe exactamente CONTADO, CREDITO o ENGANCHE según el cuadro marcado.
-
-Responde ÚNICAMENTE con JSON válido. Sin markdown, sin backticks, sin texto adicional.
+Reglas:
+- ESF/CYL conserva el signo + o - (ej: -1.50, +2.00). CYL puede ser "/" si no aplica.
+- EJE es número 0-180.
+- ADD es adición para progresivo/bifocal.
+- Checkboxes marcados = true, vacíos = false.
+- tipo_vision: "MONO", "BIFOCAL" o "PROGRESIVO".
+- forma_pago: "CONTADO", "CREDITO" o "" si no se ve.
+- material: "BLANCO", "POLI" o "HI" según el checkbox marcado, o "" si no se ve.
+- diseno: "MONO", "INVISIBLE" o "PROGRESIVO" según checkbox de diseño, o "" si no se ve.
 
 {
   "nombre": "",
-  "direccion": "",
-  "colonia": "",
-  "telefono": "",
-  "referencia": "",
+  "tel": "",
   "edad": "",
-  "fecha": "",
+  "calle": "",
+  "entre": "",
+  "colonia": "",
   "municipio": "",
-  "entre_calles": "",
-  "optometrista": "",
+  "optom": "",
+  "ref": "",
   "od_esf": "",
   "od_cyl": "",
   "od_eje": "",
@@ -2823,35 +2560,29 @@ Responde ÚNICAMENTE con JSON válido. Sin markdown, sin backticks, sin texto ad
   "oi_cyl": "",
   "oi_eje": "",
   "oi_add": "",
-  "tipo_vision": "",
-  "distancia": "",
-  "altura": "",
+  "dip": "",
+  "alt": "",
+  "ant_od": "",
+  "ant_oi": "",
+  "act_od": "",
+  "act_oi": "",
   "armazon": "",
-  "color_armazon": "",
-  "tamanio": "",
-  "desvanecido_nivel": "",
-  "desvanecido_color": "",
-  "tinte_nivel": "",
-  "tinte_color": "",
-  "blanco": false,
-  "fotocromatico": false,
-  "antirreflejante": false,
-  "invisible": false,
-  "progresivo": false,
-  "hi_index": false,
-  "policarbonato": false,
-  "anterior_od": "",
-  "anterior_oi": "",
-  "actual_od": "",
-  "actual_oi": "",
-  "diabetes": false,
-  "presion": false,
-  "forma_pago": "",
-  "dia_pago": "",
-  "dia_entrega": "",
-  "pago_semanal": "",
+  "medidas": "",
+  "tipo_vision": "",
+  "material": "",
+  "diseno": "",
+  "foto": false,
+  "ar": "",
+  "diab": false,
+  "pres": false,
   "costo": "",
-  "anticipo": ""
+  "anticipo": "",
+  "fpago": "",
+  "semanal": "",
+  "entrega": "",
+  "diapago": "",
+  "lab": "",
+  "prom": ""
 }`;
 
   try {
@@ -2861,272 +2592,179 @@ Responde ÚNICAMENTE con JSON válido. Sin markdown, sin backticks, sin texto ad
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: extMime, data: extBase64 } },
-              { text: prompt }
-            ]
-          }],
+          contents: [{ parts: [
+            { inline_data: { mime_type: extMime, data: extBase64 } },
+            { text: prompt }
+          ]}],
           generationConfig: { temperature: 0.05, topP: 0.9 }
         })
       }
     );
 
-    clearInterval(t);
+    clearInterval(ticker);
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err?.error?.message || `HTTP ${res.status}`);
     }
 
-    const data    = await res.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const jsonStr = rawText.replace(/```json|```/gi, '').trim();
-    const extracted = JSON.parse(jsonStr);
+    const data = await res.json();
+    const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const json = JSON.parse(raw.replace(/```json|```/gi, '').trim());
 
-    extPopulateReview(extracted);
-    document.getElementById('ext-processing-section').style.display = 'none';
-    document.getElementById('ext-upload-section').style.display = 'block';
-    document.getElementById('ext-review-section').style.display = 'block';
-    setTimeout(() => document.getElementById('ext-review-section')
-      .scrollIntoView({ behavior:'smooth', block:'start' }), 80);
+    extFillNuevaForm(json);
 
   } catch(err) {
-    clearInterval(t);
+    clearInterval(ticker);
     document.getElementById('ext-processing-section').style.display = 'none';
     document.getElementById('ext-upload-section').style.display = 'block';
 
     const msg = err.message || '';
-    let hint;
-    if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota')) {
-      hint = '⚠️ <strong>Cuota agotada.</strong> Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>, crea un nuevo API key y actualízalo arriba.';
-    } else if (msg.includes('API_KEY') || msg.includes('not valid') || msg.includes('invalid')) {
-      hint = '🔑 <strong>API Key inválida.</strong> Revisa que la copiaste correctamente desde <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>.';
-    } else if (msg.includes('not found') || msg.includes('not supported')) {
-      hint = '🤖 Modelo no disponible en tu región o proyecto. Detalle: ' + msg;
-    } else {
-      hint = '❌ ' + msg;
-    }
+    let hint = '❌ ' + msg;
+    if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota'))
+      hint = '⚠️ <strong>Cuota agotada.</strong> Crea un nuevo key en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
+    else if (msg.includes('API_KEY') || msg.includes('not valid') || msg.includes('invalid'))
+      hint = '🔑 <strong>API Key inválida.</strong> Revísala en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
+
     document.getElementById('ext-err-title').textContent = 'Error al analizar';
     document.getElementById('ext-err-msg').innerHTML = hint;
     document.getElementById('ext-err').style.display = 'block';
-    showToast('Error — ver mensaje en pantalla', 'error');
+    showToast('Error al analizar — ver mensaje', 'error');
   }
 }
 
-// ── Populate review form ──
-function extPopulateReview(d) {
-  const textFields = [
-    'nombre','direccion','colonia','telefono','referencia','edad','fecha','municipio',
-    'entre_calles','optometrista','od_esf','od_cyl','od_eje','od_add',
-    'oi_esf','oi_cyl','oi_eje','oi_add','tipo_vision','distancia','altura',
-    'armazon','color_armazon','tamanio','desvanecido_nivel','desvanecido_color',
-    'tinte_nivel','tinte_color','anterior_od','anterior_oi','actual_od','actual_oi',
-    'dia_pago','dia_entrega','pago_semanal','costo','anticipo'
-  ];
-
-  let filled = 0;
-  textFields.forEach(k => {
-    const el = document.getElementById('ef-' + k);
-    if (!el) return;
-    const v = (d[k] || '').toString().trim();
-    el.value = v;
-    if (v) { el.classList.add('hi'); filled++; } else el.classList.remove('hi');
-  });
-
-  // Selects
-  ['tipo_vision','desvanecido_nivel','desvanecido_color','tinte_nivel','tinte_color'].forEach(k => {
-    extSetSelect('ef-' + k, d[k]);
-    if (d[k]) filled++;
-  });
-
-  // Checkboxes / chips
-  ['blanco','fotocromatico','antirreflejante','invisible','progresivo','hi_index','policarbonato','diabetes','presion']
-  .forEach(k => {
-    const cb = document.getElementById('ef-' + k);
-    if (!cb) return;
-    cb.checked = !!d[k];
-    const chip = document.getElementById('echip-' + k);
-    if (chip) chip.classList.toggle('on', !!d[k]);
-    if (d[k]) filled++;
-  });
-
-  // Radio pago
-  const forma = (d.forma_pago || '').toUpperCase();
-  document.querySelectorAll('#ef-radio-pago .ext-radio-btn').forEach(btn => {
-    const active = btn.dataset.val === forma;
-    btn.classList.toggle('on', active);
-    const inp = btn.querySelector('input');
-    if (inp) inp.checked = active;
-    if (active) filled++;
-  });
-
-  // Lab / prom selects
-  extSetSelect('ef-lab', d.lab);
-  extSetSelect('ef-prom', d.prom);
-
-  // Badge
-  const badge = document.getElementById('ext-conf-badge');
-  if (filled >= 12) {
-    badge.textContent = `✓ ${filled} campos detectados`;
-    badge.style.background = 'var(--g3)'; badge.style.color = 'var(--g1)';
-  } else if (filled >= 6) {
-    badge.textContent = `⚠ ${filled} campos — revisa los vacíos`;
-    badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
-  } else {
-    badge.textContent = `⚠ Pocos campos — imagen poco clara`;
-    badge.style.background = '#fee2e2'; badge.style.color = '#991b1b';
-  }
-
-  showToast(`✓ ${filled} campos extraídos`, 'success');
-}
-
-function extSetSelect(id, val) {
-  const el = document.getElementById(id);
-  if (!el || !val) return;
-  const v = String(val).toLowerCase();
-  Array.from(el.options).forEach(opt => {
-    if (opt.value.toLowerCase() === v || opt.text.toLowerCase() === v) el.value = opt.value;
-  });
-}
-
-// ── Collect review data ──
-function extCollect() {
-  const g  = id => (document.getElementById(id)?.value || '').trim();
-  const gc = id => !!(document.getElementById(id)?.checked);
-  const gr = () => document.querySelector('#ef-radio-pago input:checked')?.value || '';
-  return {
-    nombre:g('ef-nombre'), fecha:g('ef-fecha'), municipio:g('ef-municipio'),
-    calle:g('ef-direccion'), colonia:g('ef-colonia'), entre:g('ef-entre_calles'),
-    tel:g('ef-telefono'), edad:g('ef-edad'), ref:g('ef-referencia'), optom:g('ef-optometrista'),
-    od_esf:g('ef-od_esf'), od_cyl:g('ef-od_cyl'), od_eje:g('ef-od_eje'), od_add:g('ef-od_add'),
-    oi_esf:g('ef-oi_esf'), oi_cyl:g('ef-oi_cyl'), oi_eje:g('ef-oi_eje'), oi_add:g('ef-oi_add'),
-    vision:g('ef-tipo_vision'), dip:g('ef-distancia'), alt:g('ef-altura'),
-    armazon:g('ef-armazon'), medidas:g('ef-color_armazon'), tamanio:g('ef-tamanio'),
-    blanco: gc('ef-blanco')?'SI':'', foto: gc('ef-fotocromatico')?'SI':'',
-    ar: gc('ef-antirreflejante')?'AR':'NO', invisible: gc('ef-invisible')?'SI':'',
-    prog: gc('ef-progresivo')?'SI':'', hi: gc('ef-hi_index')?'SI':'',
-    poli: gc('ef-policarbonato')?'SI':'', diab: gc('ef-diabetes')?'SI':'', pres: gc('ef-presion')?'SI':'',
-    ant_od:g('ef-anterior_od'), ant_oi:g('ef-anterior_oi'), act_od:g('ef-actual_od'), act_oi:g('ef-actual_oi'),
-    fpago:gr(), diapago:g('ef-dia_pago'), entrega:g('ef-dia_entrega'), semanal:g('ef-pago_semanal'),
-    costo:g('ef-costo'), anticipo:g('ef-anticipo'), lab:g('ef-lab'), prom:g('ef-prom'),
-    desv_nivel:g('ef-desvanecido_nivel'), desv_color:g('ef-desvanecido_color'),
-    tinte_nivel:g('ef-tinte_nivel'), tinte_color:g('ef-tinte_color')
+// Fill the Nueva Orden form fields directly
+function extFillNuevaForm(d) {
+  const sv = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null && String(val).trim() !== '') el.value = String(val).trim();
   };
-}
 
-// ── Load into Nueva Orden form ──
-function extLoadToForm() {
-  const d = extCollect();
-  const sv = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-  sv('f-nombre', d.nombre); sv('f-tel', d.tel); sv('f-edad', d.edad);
-  sv('f-calle', d.calle); sv('f-colonia', d.colonia); sv('f-entre', d.entre);
-  sv('f-optom', d.optom); sv('f-ref', d.ref);
-  // Municipio select fuzzy match
-  const munSel = document.getElementById('f-municipio');
-  if (munSel && d.municipio) {
+  // Datos del cliente
+  sv('f-nombre', d.nombre);
+  sv('f-tel',    d.tel);
+  sv('f-edad',   d.edad);
+  sv('f-calle',  d.calle);
+  sv('f-entre',  d.entre);
+  sv('f-colonia',d.colonia);
+  sv('f-optom',  d.optom);
+  sv('f-ref',    d.ref);
+
+  // Municipio — fuzzy match in select
+  if (d.municipio) {
+    const sel = document.getElementById('f-municipio');
     const mLow = d.municipio.toLowerCase();
-    const match = Array.from(munSel.options).find(o =>
+    const match = Array.from(sel.options).find(o =>
       o.text.toLowerCase().includes(mLow) || mLow.includes(o.text.toLowerCase())
     );
-    if (match) munSel.value = match.value;
+    if (match) sel.value = match.value;
   }
-  // Rx
-  sv('od-esf', d.od_esf); sv('od-cyl', d.od_cyl); sv('od-eje', d.od_eje); sv('od-add', d.od_add);
-  sv('oi-esf', d.oi_esf); sv('oi-cyl', d.oi_cyl); sv('oi-eje', d.oi_eje); sv('oi-add', d.oi_add);
-  sv('f-dip', d.dip); sv('f-alt', d.alt);
-  // Vision
-  const visEl = document.getElementById('f-vision');
-  if (visEl && d.vision) {
-    const vv = d.vision.toLowerCase();
-    const vm = Array.from(visEl.options).find(o => o.value.toLowerCase().includes(vv) || vv.includes(o.value.toLowerCase()));
+
+  // Graduación Rx
+  sv('od-esf', d.od_esf); sv('od-cyl', d.od_cyl);
+  sv('od-eje', d.od_eje); sv('od-add', d.od_add);
+  sv('oi-esf', d.oi_esf); sv('oi-cyl', d.oi_cyl);
+  sv('oi-eje', d.oi_eje); sv('oi-add', d.oi_add);
+  sv('f-dip',  d.dip);
+  sv('f-alt',  d.alt);
+
+  // Anterior / Actual
+  sv('ant-od', d.ant_od); sv('ant-oi', d.ant_oi);
+  sv('act-od', d.act_od); sv('act-oi', d.act_oi);
+
+  // Armazón
+  sv('f-armazon', d.armazon);
+  sv('f-medidas', d.medidas);
+
+  // Tipo de visión
+  if (d.tipo_vision) {
+    const visEl = document.getElementById('f-vision');
+    const vv = d.tipo_vision.toUpperCase();
+    const vm = Array.from(visEl.options).find(o => o.value.toUpperCase() === vv);
     if (vm) visEl.value = vm.value;
   }
-  sv('f-armazon', d.armazon); sv('f-medidas', d.medidas);
-  if (d.costo) sv('f-costo', d.costo);
-  if (d.anticipo) sv('f-anticipo', d.anticipo);
-  sv('f-semanal', d.semanal); sv('f-entrega', d.entrega); sv('f-diapago', d.diapago);
-  // Lab fuzzy
-  const labEl = document.getElementById('f-lab');
-  if (labEl && d.lab) {
-    const lLow = d.lab.toLowerCase();
-    const lm = Array.from(labEl.options).find(o => o.text.toLowerCase().includes(lLow) || lLow.includes(o.text.toLowerCase()));
-    if (lm) labEl.value = lm.value;
+
+  // Material (radio: BLANCO, POLI, HI)
+  if (d.material) {
+    const matMap = { BLANCO:'ch-blanco', POLI:'ch-poli', HI:'ch-hi' };
+    const radioId = matMap[d.material.toUpperCase()];
+    if (radioId) {
+      const r = document.getElementById(radioId);
+      if (r) r.checked = true;
+    }
   }
-  // Prom
-  const promEl = document.getElementById('f-prom');
-  if (promEl && d.prom) {
-    const pm = Array.from(promEl.options).find(o => o.value === d.prom);
-    if (pm) promEl.value = pm.value;
+
+  // Diseño (radio: MONO, INVISIBLE, PROGRESIVO)
+  if (d.diseno) {
+    const diMap = { MONO:'ch-mono', INVISIBLE:'ch-invisible', PROGRESIVO:'ch-prog' };
+    const radioId = diMap[d.diseno.toUpperCase()];
+    if (radioId) {
+      const r = document.getElementById(radioId);
+      if (r) r.checked = true;
+    }
   }
-  // Fpago select
-  const fpEl = document.getElementById('f-fpago');
-  if (fpEl && d.fpago) {
+
+  // Fotocromático (checkbox)
+  const fotoEl = document.getElementById('ch-foto');
+  if (fotoEl && d.foto) fotoEl.checked = true;
+
+  // AR (radio: AR, AR_BLUE, NO)
+  if (d.ar) {
+    const arMap = { AR:'ch-ar', BLUE:'ch-ar-blue', AR_BLUE:'ch-ar-blue', NO:'ch-ar-no' };
+    const arId = arMap[d.ar.toUpperCase()] || (d.ar.toUpperCase().includes('BLUE') ? 'ch-ar-blue' : null);
+    if (arId) {
+      const r = document.getElementById(arId);
+      if (r) r.checked = true;
+    }
+  }
+
+  // Médicas
+  if (d.diab) { const el = document.getElementById('ch-diab'); if (el) el.checked = true; }
+  if (d.pres) { const el = document.getElementById('ch-pres'); if (el) el.checked = true; }
+
+  // Pago
+  sv('f-costo',    d.costo);
+  sv('f-anticipo', d.anticipo);
+  sv('f-semanal',  d.semanal);
+  sv('f-diapago',  d.diapago);
+  if (d.entrega) sv('f-entrega', d.entrega);
+
+  // Forma de pago select
+  if (d.fpago) {
+    const fpEl = document.getElementById('f-fpago');
     const fm = Array.from(fpEl.options).find(o => o.value.toUpperCase() === d.fpago.toUpperCase());
     if (fm) fpEl.value = fm.value;
   }
-  calcDeuda();
+
+  // Lab
+  if (d.lab) {
+    const labEl = document.getElementById('f-lab');
+    const lLow = d.lab.toLowerCase();
+    const lm = Array.from(labEl.options).find(o =>
+      o.text.toLowerCase().includes(lLow) || lLow.includes(o.text.toLowerCase())
+    );
+    if (lm) labEl.value = lm.value;
+  }
+
+  // Promotor
+  if (d.prom) {
+    const promEl = document.getElementById('f-prom');
+    const pm = Array.from(promEl.options).find(o => o.value === d.prom);
+    if (pm) promEl.value = pm.value;
+  }
+
+  // Sync dependent UI state
   syncFiltro();
-  showToast('✓ Datos cargados en Nueva Orden', 'success');
+  calcDeuda();
+
+  // Reset escaner state and go to Nueva
+  document.getElementById('ext-processing-section').style.display = 'none';
+  document.getElementById('ext-upload-section').style.display = 'block';
+  extResetUpload();
+
+  showToast('✓ Receta cargada en Nueva Orden', 'success');
   switchTab('nueva', document.getElementById('tabbtn-nueva'));
 }
-
-// ── Save directly to Sheets ──
-async function extSaveToSheets() {
-  const d = extCollect();
-  if (!d.nombre) { showToast('Agrega el nombre del paciente', 'warn'); return; }
-  if (!SCRIPT_URL || SCRIPT_URL.includes('%%')) { showToast('SCRIPT_URL no configurada', 'error'); return; }
-
-  const btn = document.getElementById('ext-save-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="ld"></span> Guardando...';
-
-  const folio = autoFolio();
-  const fecha = d.fecha || new Date().toISOString().split('T')[0];
-  const deuda = (parseFloat(d.costo)||0) - (parseFloat(d.anticipo)||0);
-
-  try {
-    await fetch(SCRIPT_URL, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify(buildPayload(Object.assign({ folio, fecha, deuda }, d)))
-    });
-    allRows.push({ folio, nombre:d.nombre, fecha, municipio:d.municipio,
-      costo:d.costo, deuda, od_esf:d.od_esf, oi_esf:d.oi_esf });
-    setCached(allRows);
-    autoFolio();
-    setSyncing('ok','Sheets');
-    showToast('✓ Guardado en Google Sheets');
-    setTimeout(() => { extResetToUpload(); loadHistory(false); }, 2000);
-  } catch(e) {
-    const q = getQueue(); q.push(Object.assign({ folio, fecha, deuda }, d));
-    setQueue(q); setSyncing('err','Sin conexión');
-    showToast('Sin conexión — se enviará al reconectar','warn');
-    updateQueueBanner();
-  } finally {
-    btn.disabled = false; btn.innerHTML = '☁ Guardar en Sheets';
-  }
-}
-
-// ── Chip and radio interactivity ──
-(function extBindInteractions() {
-  document.addEventListener('click', e => {
-    const chip = e.target.closest('.ext-chip');
-    if (chip) {
-      const cb = chip.querySelector('input[type="checkbox"]');
-      if (cb) { cb.checked = !cb.checked; chip.classList.toggle('on', cb.checked); }
-    }
-    const radio = e.target.closest('.ext-radio-btn');
-    if (radio && radio.closest('#ef-radio-pago')) {
-      document.querySelectorAll('#ef-radio-pago .ext-radio-btn').forEach(b => b.classList.remove('on'));
-      radio.classList.add('on');
-      const inp = radio.querySelector('input');
-      if (inp) inp.checked = true;
-    }
-  });
-})();
-
-// Init on tab switch — show key config if needed
-function extOnTabEnter() { extInitPanel(); }
 
 // ─── CSV EXPORT ───────────────────────────────────────────────────
 function exportCSV(){
