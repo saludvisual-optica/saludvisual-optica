@@ -387,6 +387,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .ext-err-msg{font-size:12px;color:#7f1d1d;line-height:1.5;}
 .ext-err-msg a{color:var(--rd);}
 
+/* ── AI Mode toggle ── */
+.ai-mode-row{display:flex;gap:6px;margin-bottom:14px;}
+.ai-mode-btn{flex:1;padding:9px 4px;border:1.5px solid var(--bd);border-radius:8px;
+  background:var(--wh);color:var(--mu);font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;
+  letter-spacing:.4px;transition:all .15s;line-height:1.4;}
+.ai-mode-btn.active{border-color:var(--g1);background:var(--g3);color:var(--g1);}
+/* ── Ollama status dot ── */
+.ollama-dot{width:8px;height:8px;border-radius:50%;display:inline-block;
+  margin-right:5px;background:var(--bd);flex-shrink:0;vertical-align:middle;}
+.ollama-dot.ok{background:#4ade80;}
+.ollama-dot.err{background:#f87171;}
+.ollama-dot.busy{background:#fbbf24;animation:blink .7s infinite;}
+/* ── Extraction review panel ── */
+.ext-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px;}
+.ext-rv-field label{font-size:9px;font-weight:700;color:var(--mu);
+  text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+.ext-rv-field input{width:100%;border:1.5px solid var(--bd);border-radius:6px;
+  padding:6px 8px;font-size:13px;font-family:'DM Mono',monospace;color:var(--dk);background:var(--wh);}
+.ext-rv-field input.has-val{border-color:var(--g2);background:var(--g4);}
+.ext-rv-checks{display:flex;gap:14px;flex-wrap:wrap;padding:6px 0 10px;}
+.ext-rv-checks label{display:flex;align-items:center;gap:5px;font-size:12px;
+  font-weight:500;cursor:pointer;color:var(--md);}
+.ext-rv-checks input[type=checkbox]{width:15px;height:15px;accent-color:var(--g1);}
+@media(max-width:420px){.ext-review-grid{grid-template-columns:1fr;}}
+
 /* ══ PRINT STYLES ══ */
 @media print {
   :root{--nav-h:0;--tab-h:0;}
@@ -774,15 +800,62 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   <div class="screen-max">
     <div class="form-header">
       <div>
-        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Gemini Vision · IA</div>
+        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px" id="ext-mode-label">Ollama Vision · Local</div>
         <h1>ESCÁNER DE RECETAS</h1>
       </div>
-      <div style="font-size:26px;line-height:1">📷</div>
+      <div style="font-size:26px;line-height:1">🤖</div>
     </div>
     <div class="form-card">
 
-      <!-- CONFIG API KEY -->
-      <div id="ext-cfg-panel" style="display:none;background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
+      <!-- MODE TOGGLE -->
+      <div class="ai-mode-row">
+        <button class="ai-mode-btn" id="mode-btn-ollama" onclick="extSetMode('ollama')">
+          🦙 Ollama<br><span style="font-weight:400;font-size:9px;letter-spacing:0">Local · Sin API</span>
+        </button>
+        <button class="ai-mode-btn" id="mode-btn-gemini" onclick="extSetMode('gemini')">
+          ✨ Gemini<br><span style="font-weight:400;font-size:9px;letter-spacing:0">Cloud · API key</span>
+        </button>
+      </div>
+
+      <!-- OLLAMA CONFIG -->
+      <div id="ext-cfg-ollama" style="background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div class="sec" style="margin-top:0">🦙 Configuración Ollama</div>
+        <div class="grid g2" style="margin-bottom:10px;">
+          <div class="fld">
+            <label>Endpoint</label>
+            <input type="url" id="ext-ollama-endpoint" placeholder="http://localhost:11434"
+              style="font-family:'DM Mono',monospace;font-size:12px;">
+          </div>
+          <div class="fld">
+            <label>Modelo visión</label>
+            <select id="ext-ollama-model">
+              <option value="minicpm-v:latest">minicpm-v (recomendado OCR)</option>
+              <option value="llava-phi3:latest">llava-phi3 (rápido)</option>
+              <option value="llava:13b">llava:13b (preciso)</option>
+              <option value="llava:7b">llava:7b (básico)</option>
+              <option value="llava:34b">llava:34b (lento/mejor)</option>
+              <option value="moondream:latest">moondream (muy rápido)</option>
+              <option value="bakllava:latest">bakllava</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-sec" style="height:36px;font-size:12px;padding:0 12px;" onclick="extSaveOllamaConfig()">Guardar</button>
+          <button class="btn btn-sec" style="height:36px;font-size:12px;padding:0 12px;display:flex;align-items:center;" onclick="extTestOllama()">
+            <span class="ollama-dot" id="ollama-dot"></span>Probar conexión
+          </button>
+          <span style="font-size:11px;color:var(--mu);flex:1;" id="ollama-test-msg"></span>
+        </div>
+        <div style="font-size:11px;color:var(--mu);margin-top:10px;line-height:1.7;border-top:1px solid #c3e6d4;padding-top:8px;">
+          Instala <a href="https://ollama.com" target="_blank" style="color:var(--g1)">Ollama</a> y ejecuta el modelo:<br>
+          <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:10px;">ollama pull minicpm-v</code><br>
+          Para usar desde GitHub Pages agrega la variable de entorno:<br>
+          <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:10px;">OLLAMA_ORIGINS=* ollama serve</code>
+        </div>
+      </div>
+
+      <!-- GEMINI CONFIG -->
+      <div id="ext-cfg-gemini" style="display:none;background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
         <div class="sec" style="margin-top:0">🔑 API Key de Gemini</div>
         <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
           <div class="fld" style="flex:1;min-width:180px">
@@ -805,9 +878,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
              ondragover="event.preventDefault();this.classList.add('drag')"
              ondragleave="this.classList.remove('drag')"
              ondrop="extHandleDrop(event)">
-          <div class="ext-upload-icon">🔍</div>
-          <div class="ext-upload-title">Fotografía o sube la orden de pedido</div>
-          <div class="ext-upload-sub">Recetas impresas, manuscritas o mixtas · JPG, PNG, WEBP, HEIC</div>
+          <div class="ext-upload-icon">📋</div>
+          <div class="ext-upload-title">Fotografía la Orden de Pedido</div>
+          <div class="ext-upload-sub">Impreso con escritura a mano · JPG, PNG, WEBP, HEIC</div>
           <div class="ext-upload-btns">
             <label class="btn btn-primary" style="cursor:pointer">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -834,7 +907,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <div id="ext-analyze-wrap" style="display:none;margin-bottom:10px;">
           <button class="btn btn-primary" id="ext-btn" onclick="extAnalyze()"
             style="width:100%;font-size:15px;padding:14px;">
-            🔍 Analizar con Gemini IA
+            🔍 Analizar con IA
           </button>
         </div>
 
@@ -847,11 +920,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       </div>
 
       <!-- PROCESSING -->
-      <div id="ext-processing-section" style="display:none;text-align:center;padding:50px 16px;">
+      <div id="ext-processing-section" style="display:none;text-align:center;padding:40px 16px;">
         <div style="width:52px;height:52px;border:3px solid var(--g3);border-top-color:var(--g1);
           border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 20px;"></div>
-        <div style="font-size:17px;font-weight:700;margin-bottom:6px;" id="ext-proc-msg">Analizando receta...</div>
-        <div style="font-size:13px;color:var(--mu);">Gemini está leyendo los campos.<br>Tarda entre 3 y 10 segundos.</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:6px;" id="ext-proc-msg">Leyendo formulario...</div>
+        <div style="font-size:13px;color:var(--mu);line-height:1.6;" id="ext-proc-sub">Analizando campos escritos a mano.</div>
+      </div>
+
+      <!-- REVIEW PANEL -->
+      <div id="ext-review-section" style="display:none;">
+        <div style="font-weight:700;font-size:14px;margin-bottom:2px;color:var(--dk);">Datos extraídos — revisa y corrige</div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:12px;">Los campos en verde fueron detectados. Edita cualquier error antes de aplicar.</div>
+        <div id="ext-review-content"></div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-primary" style="flex:1;font-size:14px;" onclick="extApplyFromReview()">
+            ✓ Aplicar a Nueva Orden
+          </button>
+          <button class="btn btn-sec" onclick="extResetReview()">Cancelar</button>
+        </div>
       </div>
 
     </div><!-- /form-card -->
@@ -2465,47 +2551,131 @@ function switchTab(name, btn) {
   document.querySelector('.scroll-area').scrollTo(0,0);
 }
 
-// ─── EXTRACTOR IA (Gemini Vision) ────────────────────────────────
-const EXT_KEY_STORE = 'sv_gemini_key_v1';
-let extBase64 = null;
-let extMime   = 'image/jpeg';
+// ─── EXTRACTOR IA (Gemini + Ollama) ─────────────────────────────
+const EXT_KEY_STORE    = 'sv_gemini_key_v1';
+const EXT_OLLAMA_EP    = 'sv_ollama_ep_v1';
+const EXT_OLLAMA_MDL   = 'sv_ollama_mdl_v1';
+const EXT_MODE_STORE   = 'sv_ai_mode_v1';
 
+let extBase64     = null;
+let extMime       = 'image/jpeg';
+let extReviewData = null;
+
+// ── Mode ─────────────────────────────────────────────────────────
+function extGetMode() {
+  try { return localStorage.getItem(EXT_MODE_STORE) || 'ollama'; } catch { return 'ollama'; }
+}
+function extSetMode(mode) {
+  try { localStorage.setItem(EXT_MODE_STORE, mode); } catch {}
+  document.getElementById('mode-btn-gemini').classList.toggle('active', mode === 'gemini');
+  document.getElementById('mode-btn-ollama').classList.toggle('active', mode === 'ollama');
+  document.getElementById('ext-cfg-gemini').style.display = mode === 'gemini' ? 'block' : 'none';
+  document.getElementById('ext-cfg-ollama').style.display = mode === 'ollama' ? 'block' : 'none';
+  document.getElementById('ext-mode-label').textContent =
+    mode === 'gemini' ? 'Gemini Vision · Cloud' : 'Ollama Vision · Local';
+  const btnEl = document.getElementById('ext-btn');
+  if (btnEl) btnEl.textContent = mode === 'gemini' ? '🔍 Analizar con Gemini IA' : '🔍 Analizar con Ollama IA';
+}
+
+// ── Gemini key ───────────────────────────────────────────────────
 function extGetKey() {
   if (GEMINI_API_KEY && !GEMINI_API_KEY.includes('%%')) return GEMINI_API_KEY;
   try { return localStorage.getItem(EXT_KEY_STORE) || ''; } catch { return ''; }
 }
-
 function extSaveKey() {
   const v = document.getElementById('ext-apikey-input').value.trim();
   if (!v) { showToast('Ingresa una API key válida', 'warn'); return; }
   try { localStorage.setItem(EXT_KEY_STORE, v); } catch {}
-  document.getElementById('ext-cfg-panel').style.display = 'none';
   showToast('API key guardada', 'success');
 }
 
-function extInitPanel() {
-  const hasKey = !!extGetKey();
-  document.getElementById('ext-cfg-panel').style.display = hasKey ? 'none' : 'block';
-  if (!hasKey) return;
-  const stored = localStorage.getItem(EXT_KEY_STORE) || '';
-  if (stored) document.getElementById('ext-apikey-input').value = stored;
+// ── Ollama config ────────────────────────────────────────────────
+function extGetOllamaEndpoint() {
+  try { return localStorage.getItem(EXT_OLLAMA_EP) || 'http://localhost:11434'; } catch { return 'http://localhost:11434'; }
+}
+function extGetOllamaModel() {
+  try { return localStorage.getItem(EXT_OLLAMA_MDL) || 'minicpm-v:latest'; } catch { return 'minicpm-v:latest'; }
+}
+function extSaveOllamaConfig() {
+  const ep = (document.getElementById('ext-ollama-endpoint').value.trim() || 'http://localhost:11434').replace(/\/$/, '');
+  const m  = document.getElementById('ext-ollama-model').value;
+  try { localStorage.setItem(EXT_OLLAMA_EP, ep); localStorage.setItem(EXT_OLLAMA_MDL, m); } catch {}
+  showToast('Configuración Ollama guardada', 'success');
+}
+async function extTestOllama() {
+  const dot = document.getElementById('ollama-dot');
+  const msg = document.getElementById('ollama-test-msg');
+  dot.className = 'ollama-dot busy';
+  msg.textContent = 'Probando...';
+  const ep = (document.getElementById('ext-ollama-endpoint').value.trim() || extGetOllamaEndpoint()).replace(/\/$/, '');
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 6000);
+    const r = await fetch(`${ep}/api/tags`, { signal: ctrl.signal });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const vModels = (data.models || []).filter(m => /llava|minicpm|moondream|bakllava/i.test(m.name));
+    dot.className = 'ollama-dot ok';
+    msg.textContent = `Conectado · ${(data.models||[]).length} modelos`;
+    if (vModels.length) extPopulateModels(vModels.map(m => m.name));
+  } catch(e) {
+    dot.className = 'ollama-dot err';
+    const isBlocked = e.message.includes('fetch') || e.message.includes('NetworkError') || e.name === 'AbortError';
+    msg.textContent = isBlocked
+      ? 'Sin conexión — verifica que Ollama esté corriendo'
+      : 'Error: ' + e.message;
+  }
+}
+function extPopulateModels(names) {
+  const sel = document.getElementById('ext-ollama-model');
+  const cur = sel.value;
+  names.forEach(name => {
+    if (!Array.from(sel.options).some(o => o.value === name)) {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = `${name} ✓`;
+      sel.insertBefore(opt, sel.firstChild);
+    }
+  });
+  if (names.length && !names.includes(cur)) sel.value = names[0];
 }
 
+// ── Init panel ───────────────────────────────────────────────────
+function extInitPanel() {
+  const mode = extGetMode();
+  extSetMode(mode);
+  const stored = localStorage.getItem(EXT_KEY_STORE) || '';
+  if (stored) document.getElementById('ext-apikey-input').value = stored;
+  document.getElementById('ext-ollama-endpoint').value = extGetOllamaEndpoint();
+  const savedMdl = extGetOllamaModel();
+  const mdlSel = document.getElementById('ext-ollama-model');
+  if (Array.from(mdlSel.options).some(o => o.value === savedMdl)) mdlSel.value = savedMdl;
+  // Warn if HTTPS→HTTP (mixed content) when using Ollama
+  if (mode === 'ollama' && location.protocol === 'https:' && extGetOllamaEndpoint().startsWith('http:')) {
+    document.getElementById('ollama-test-msg').textContent =
+      '⚠ App en HTTPS — usa OLLAMA_ORIGINS=* y accede desde localhost o abre el archivo directamente.';
+  }
+}
 function extOnTabEnter() { extInitPanel(); }
 
-// Image compression
+// ── Image preprocessing (enhanced for handwritten forms) ─────────
 function extCompressImage(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        const scale = Math.min(1, 1400 / Math.max(img.width, img.height));
+        const MAX = 2000;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
         const c = document.createElement('canvas');
-        c.width  = Math.round(img.width  * scale);
-        c.height = Math.round(img.height * scale);
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-        const dataUrl = c.toDataURL('image/jpeg', 0.88);
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        // Enhance contrast for handwriting on printed forms
+        ctx.filter = 'contrast(1.3) brightness(1.06)';
+        ctx.drawImage(img, 0, 0, w, h);
+        ctx.filter = 'none';
+        const dataUrl = c.toDataURL('image/jpeg', 0.92);
         resolve({ base64: dataUrl.split(',')[1], dataUrl });
       };
       img.src = e.target.result;
@@ -2523,9 +2693,9 @@ function extHandleFile(file) {
     document.getElementById('ext-preview-wrap').classList.add('show');
     document.getElementById('ext-analyze-wrap').style.display = 'block';
     document.getElementById('ext-err').style.display = 'none';
+    document.getElementById('ext-review-section').style.display = 'none';
   });
 }
-
 function extHandleDrop(e) {
   e.preventDefault();
   document.getElementById('ext-drop-zone').classList.remove('drag');
@@ -2533,7 +2703,6 @@ function extHandleDrop(e) {
   if (file && file.type.startsWith('image/')) extHandleFile(file);
   else showToast('Solo se aceptan imágenes', 'warn');
 }
-
 function extResetUpload() {
   extBase64 = null;
   document.getElementById('ext-preview-wrap').classList.remove('show');
@@ -2544,12 +2713,282 @@ function extResetUpload() {
   document.getElementById('ext-err').style.display = 'none';
 }
 
+// ── Template-specific prompt (knows Orden de Pedido layout) ──────
+function extBuildPrompt() {
+  return `Eres un sistema especializado en digitalizar ÓRDENES DE PEDIDO ÓPTICAS mexicanas (formulario impreso con escritura a mano).
+
+FORMULARIO: "Orden de Pedido — Servicios de Salud / Salud Visual"
+Formato: campos impresos + valores escritos a mano (bolígrafo azul/negro). Extrae SOLO los valores escritos.
+
+MAPA DE CAMPOS (nombre impreso en el formulario → clave JSON):
+━ ENCABEZADO:
+  NOMBRE → nombre (nombre completo del paciente)
+  FECHA → fecha (formato dd/mm/aa)
+  DIRECCIÓN o CALLE Y NÚMERO → calle
+  MUNICIPIO → municipio
+  COLONIA → colonia
+  ENTRE CALLES → entre
+  TELÉFONO → tel
+  REFERENCIA → ref
+  EDAD → edad (solo número)
+  OPTOMETRISTA → optom
+
+━ TABLA DE GRADUACIÓN (filas OD=ojo derecho, OI=ojo izquierdo):
+  Columna ESP o ESF → od_esf / oi_esf  (número con signo: -2.75, +1.50, 0.00)
+  Columna CYL       → od_cyl / oi_cyl  (número con signo o vacío)
+  Columna EJE       → od_eje / oi_eje  (número 1-180; ignora "°" o "X" al final)
+  Columna ADD       → od_add / oi_add  (adición positiva p.ej. +2.50)
+
+━ MEDIDAS:
+  DISTANCIA o DIP → dip (distancia interpupilar, número ~55-75)
+  ALTURA → alt (altura de montaje en mm)
+
+━ ARMAZÓN:
+  ARMAZÓN o ARMAZON → armazon
+  COLOR ARMAZÓN → (ignorar — no hay campo)
+  TAMAÑO → medidas (ej: 52-18-140)
+
+━ TIPO DE VISIÓN:
+  TIPO DE VISION → tipo_vision  (escribe: "MONO" si dice Monofocal/Mono, "BIFOCAL", "PROGRESIVO")
+
+━ CHECKBOXES LADO DERECHO (marcados con ✓, X, O, paloma, o tachado):
+  BLANCO        → material="BLANCO"   (si marcado)
+  FOTOCROMATICO → foto=true           (si marcado)
+  ANTIRELEJANTE → ar="AR"             (si marcado; si dice "BE" también, ar="AR_BLUE")
+  INVISIBLE     → diseno="INVISIBLE"  (si marcado)
+  PROGRESIVO    → diseno="PROGRESIVO" (si marcado; si no hay, diseno="MONO")
+  HI INDEX      → material="HI"       (si marcado)
+  POLICARBONATO → material="POLI"     (si marcado)
+
+━ GRADUACIÓN ANTERIOR/ACTUAL:
+  ANTERIOR OD → ant_od, ANTERIOR OI → ant_oi
+  ACTUAL OD → act_od, ACTUAL OI → act_oi
+
+━ CONDICIONES (checkboxes pequeños):
+  DIABETES → diab=true/false
+  PRESION o PRESIÓN → pres=true/false
+
+━ PAGO:
+  CONTADO (checkbox) → fpago="CONTADO"
+  CRÉDITO/CREDITO (checkbox) → fpago="CREDITO"
+  ENGANCHE o ANTICIPO → anticipo (monto numérico)
+  PAGO SEMANAL → semanal (monto numérico)
+  DÍA DE ENTREGA → entrega
+  DÍA DE PAGO → diapago
+
+REGLAS CRÍTICAS:
+1. ESF y CYL: incluye el signo + o − exactamente. Si no hay signo y es negativo (la mayoría lo son), añade −.
+2. EJE: extrae solo el número (omite °, X, grados). Rango válido 1-180.
+3. Checkbox marcado = true/valor, vacío = false/"".
+4. Un valor ilegible → "" (vacío). NUNCA inventes.
+5. FOTOCROMATICO marcado con "O" = true (es una marca de círculo, no cero).
+6. Si CONTADO tiene una marca (R, ✓, X) → fpago="CONTADO".
+
+Responde ÚNICAMENTE con este JSON (sin markdown, sin texto adicional):
+{"nombre":"","tel":"","edad":"","calle":"","entre":"","colonia":"","municipio":"","optom":"","ref":"","fecha":"","od_esf":"","od_cyl":"","od_eje":"","od_add":"","oi_esf":"","oi_cyl":"","oi_eje":"","oi_add":"","dip":"","alt":"","ant_od":"","ant_oi":"","act_od":"","act_oi":"","armazon":"","medidas":"","tipo_vision":"","material":"","diseno":"","foto":false,"ar":"","diab":false,"pres":false,"costo":"","anticipo":"","fpago":"","semanal":"","entrega":"","diapago":"","lab":"","prom":""}`;
+}
+
+// ── Gemini backend ────────────────────────────────────────────────
+async function extAnalyzeGemini() {
+  const key = extGetKey();
+  if (!key) throw new Error('NO_KEY');
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { inline_data: { mime_type: extMime, data: extBase64 } },
+          { text: extBuildPrompt() }
+        ]}],
+        generationConfig: { temperature: 0.05, topP: 0.9 }
+      })
+    }
+  );
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${r.status}`);
+  }
+  const data = await r.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ── Ollama backend ────────────────────────────────────────────────
+async function extAnalyzeOllama() {
+  const ep    = extGetOllamaEndpoint().replace(/\/$/, '');
+  const model = extGetOllamaModel();
+  document.getElementById('ext-proc-sub').textContent =
+    `Modelo: ${model} · ${ep.replace(/https?:\/\//, '')}`;
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 180000); // 3 min
+  try {
+    const r = await fetch(`${ep}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        prompt: extBuildPrompt(),
+        images: [extBase64],
+        stream: false,
+        format: 'json',
+        options: { temperature: 0.05, top_p: 0.9, num_predict: 1024 }
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    if (!r.ok) {
+      const txt = await r.text().catch(() => '');
+      throw new Error(`Ollama HTTP ${r.status}: ${txt.slice(0, 200)}`);
+    }
+    const data = await r.json();
+    return data.response || '';
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+// ── Robust JSON parser with field-level fallback ──────────────────
+function extParseJSON(raw) {
+  if (!raw || !raw.trim()) throw new Error('Respuesta vacía del modelo');
+  // Direct
+  try { return JSON.parse(raw.trim()); } catch {}
+  // Strip fences
+  try { return JSON.parse(raw.replace(/```json|```/gi, '').trim()); } catch {}
+  // Find first {...}
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (m) { try { return JSON.parse(m[0]); } catch {} }
+  // Last resort: per-field regex extraction
+  const out = {};
+  const strFields = ['nombre','tel','edad','calle','entre','colonia','municipio','optom','ref',
+    'fecha','od_esf','od_cyl','od_eje','od_add','oi_esf','oi_cyl','oi_eje','oi_add',
+    'dip','alt','ant_od','ant_oi','act_od','act_oi','armazon','medidas','tipo_vision',
+    'material','diseno','ar','costo','anticipo','fpago','semanal','entrega','diapago','lab','prom'];
+  strFields.forEach(f => {
+    const rx = new RegExp(`"${f}"\\s*:\\s*"([^"]*)"`, 'i');
+    const mx = raw.match(rx); if (mx) out[f] = mx[1];
+  });
+  ['foto','diab','pres'].forEach(f => {
+    const rx = new RegExp(`"${f}"\\s*:\\s*(true|false)`, 'i');
+    const mx = raw.match(rx); if (mx) out[f] = mx[1] === 'true';
+  });
+  if (Object.keys(out).length >= 3) return out;
+  throw new Error('No se pudo parsear la respuesta. Prueba otro modelo de visión.');
+}
+
+// ── Field validation & normalization ─────────────────────────────
+function extValidateFields(d) {
+  const o = Object.assign({}, d);
+  // Rx: normalize sign, 2 decimal places
+  ['od_esf','od_cyl','oi_esf','oi_cyl'].forEach(k => {
+    const v = String(o[k] || '').trim().replace(/,/g, '.').replace(/[^\d.+\-/]/g, '');
+    if (!v || v === '/') return;
+    const n = parseFloat(v);
+    if (!isNaN(n)) o[k] = (n >= 0 ? '+' : '') + n.toFixed(2);
+  });
+  // EJE: digits only, 1-180
+  ['od_eje','oi_eje'].forEach(k => {
+    const mx = String(o[k] || '').match(/(\d{1,3})/);
+    if (mx) { const n = parseInt(mx[1]); if (n >= 1 && n <= 180) o[k] = String(n); }
+  });
+  // DIP: plausible range 50-85
+  if (o.dip) {
+    const n = parseFloat(String(o.dip).replace(/[^\d.]/g, ''));
+    if (!isNaN(n) && n >= 40 && n <= 90) o.dip = String(Math.round(n));
+  }
+  // Booleans
+  ['foto','diab','pres'].forEach(k => { o[k] = o[k] === true || o[k] === 'true'; });
+  // tipo_vision
+  if (o.tipo_vision) {
+    const tv = String(o.tipo_vision).toUpperCase();
+    o.tipo_vision = tv.includes('BIFOC') ? 'BIFOCAL' : tv.includes('PROG') ? 'PROGRESIVO' : 'MONO';
+  }
+  // material
+  if (o.material) {
+    const mv = String(o.material).toUpperCase();
+    o.material = mv.includes('HI') || mv.includes('ALTO') ? 'HI' : mv.includes('POLI') ? 'POLI' : 'BLANCO';
+  }
+  // fpago
+  if (o.fpago) {
+    const fv = String(o.fpago).toUpperCase();
+    o.fpago = fv.includes('CRED') ? 'CREDITO' : fv.includes('CONT') ? 'CONTADO' : o.fpago;
+  }
+  return o;
+}
+
+// ── Review panel ─────────────────────────────────────────────────
+function extShowReview(d) {
+  extReviewData = d;
+  const mkField = (lbl, key, mono) => {
+    const val = (d[key] !== undefined && d[key] !== false && d[key] !== null) ? String(d[key]) : '';
+    const cls = val.length > 0 ? ' has-val' : '';
+    return `<div class="ext-rv-field">
+      <label>${lbl}</label>
+      <input type="text" data-key="${key}" value="${val.replace(/"/g,'&quot;')}"
+        class="${mono?'':' '}${cls}" ${mono?'style="font-family:\'DM Mono\',monospace"':''}>
+    </div>`;
+  };
+  const html = `
+    <div class="sec" style="margin-top:0">Graduación óptica</div>
+    <div class="ext-review-grid">
+      ${mkField('OD ESF','od_esf',1)}${mkField('OD CYL','od_cyl',1)}
+      ${mkField('OD EJE','od_eje',1)}${mkField('OD ADD','od_add',1)}
+      ${mkField('OI ESF','oi_esf',1)}${mkField('OI CYL','oi_cyl',1)}
+      ${mkField('OI EJE','oi_eje',1)}${mkField('OI ADD','oi_add',1)}
+      ${mkField('DIP','dip',1)}${mkField('ALT','alt',1)}
+    </div>
+    <div class="sec">Datos del paciente</div>
+    <div class="ext-review-grid">
+      ${mkField('Nombre','nombre',0)}${mkField('Teléfono','tel',1)}
+      ${mkField('Edad','edad',1)}${mkField('Municipio','municipio',0)}
+      ${mkField('Colonia','colonia',0)}${mkField('Calle','calle',0)}
+      ${mkField('Fecha','fecha',1)}${mkField('Referencia','ref',0)}
+    </div>
+    <div class="sec">Armazón y lentes</div>
+    <div class="ext-review-grid">
+      ${mkField('Armazón','armazon',0)}${mkField('Medidas','medidas',1)}
+      ${mkField('Tipo visión','tipo_vision',0)}${mkField('Material','material',0)}
+    </div>
+    <div class="sec">Pago</div>
+    <div class="ext-review-grid">
+      ${mkField('Costo','costo',1)}${mkField('Anticipo/Enganche','anticipo',1)}
+      ${mkField('Pago semanal','semanal',1)}${mkField('F. pago','fpago',0)}
+    </div>
+    <div class="sec">Opciones</div>
+    <div class="ext-rv-checks">
+      <label><input type="checkbox" data-key="foto" ${d.foto?'checked':''}> Fotocromático</label>
+      <label><input type="checkbox" data-key="diab" ${d.diab?'checked':''}> Diabetes</label>
+      <label><input type="checkbox" data-key="pres" ${d.pres?'checked':''}> Presión</label>
+    </div>
+  `;
+  document.getElementById('ext-review-content').innerHTML = html;
+  document.getElementById('ext-processing-section').style.display = 'none';
+  document.getElementById('ext-review-section').style.display = 'block';
+  document.querySelector('.scroll-area').scrollTo(0, 0);
+}
+function extApplyFromReview() {
+  if (!extReviewData) return;
+  const d = Object.assign({}, extReviewData);
+  document.querySelectorAll('#ext-review-content input[data-key]').forEach(el => {
+    d[el.dataset.key] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  extFillNuevaForm(d);
+}
+function extResetReview() {
+  extReviewData = null;
+  document.getElementById('ext-review-section').style.display = 'none';
+  document.getElementById('ext-upload-section').style.display = 'block';
+  extResetUpload();
+}
+
+// ── Main dispatcher ───────────────────────────────────────────────
 async function extAnalyze() {
   if (!extBase64) { showToast('Sube una imagen primero', 'warn'); return; }
+  const mode = extGetMode();
 
-  const key = extGetKey();
-  if (!key) {
-    document.getElementById('ext-cfg-panel').style.display = 'block';
+  if (mode === 'gemini' && !extGetKey()) {
+    document.getElementById('ext-cfg-gemini').style.display = 'block';
     document.getElementById('ext-err-title').textContent = 'Configura tu API key de Gemini';
     document.getElementById('ext-err-msg').innerHTML =
       'Ingresa tu API key gratuita de <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a> arriba.';
@@ -2559,98 +2998,25 @@ async function extAnalyze() {
 
   document.getElementById('ext-upload-section').style.display = 'none';
   document.getElementById('ext-processing-section').style.display = 'block';
+  document.getElementById('ext-review-section').style.display = 'none';
+  document.getElementById('ext-err').style.display = 'none';
 
-  const msgs = ['Analizando receta...','Detectando graduación óptica...','Extrayendo datos del cliente...','Procesando checkboxes...'];
+  const ollamaMsgs = ['Leyendo formulario...','Detectando campos...','Extrayendo graduación...','Procesando checkboxes...','Finalizando...'];
+  const geminiMsgs = ['Analizando receta...','Detectando graduación óptica...','Extrayendo datos del cliente...','Procesando checkboxes...'];
+  const msgs = mode === 'ollama' ? ollamaMsgs : geminiMsgs;
   let mi = 0;
   const msgEl = document.getElementById('ext-proc-msg');
-  const ticker = setInterval(() => { msgEl.textContent = msgs[++mi % msgs.length]; }, 1800);
-
-  const prompt = `Eres un sistema de extracción de datos de órdenes de pedido ópticas de México.
-
-Analiza esta imagen (puede ser receta impresa, manuscrita, mixta con checkboxes y texto a mano).
-Extrae TODOS los campos visibles y responde ÚNICAMENTE con JSON válido, sin markdown ni texto adicional.
-
-Reglas:
-- ESF/CYL conserva el signo + o - (ej: -1.50, +2.00). CYL puede ser "/" si no aplica.
-- EJE es número 0-180.
-- ADD es adición para progresivo/bifocal.
-- Checkboxes marcados = true, vacíos = false.
-- tipo_vision: "MONO", "BIFOCAL" o "PROGRESIVO".
-- forma_pago: "CONTADO", "CREDITO" o "" si no se ve.
-- material: "BLANCO", "POLI" o "HI" según el checkbox marcado, o "" si no se ve.
-- diseno: "MONO", "INVISIBLE" o "PROGRESIVO" según checkbox de diseño, o "" si no se ve.
-
-{
-  "nombre": "",
-  "tel": "",
-  "edad": "",
-  "calle": "",
-  "entre": "",
-  "colonia": "",
-  "municipio": "",
-  "optom": "",
-  "ref": "",
-  "od_esf": "",
-  "od_cyl": "",
-  "od_eje": "",
-  "od_add": "",
-  "oi_esf": "",
-  "oi_cyl": "",
-  "oi_eje": "",
-  "oi_add": "",
-  "dip": "",
-  "alt": "",
-  "ant_od": "",
-  "ant_oi": "",
-  "act_od": "",
-  "act_oi": "",
-  "armazon": "",
-  "medidas": "",
-  "tipo_vision": "",
-  "material": "",
-  "diseno": "",
-  "foto": false,
-  "ar": "",
-  "diab": false,
-  "pres": false,
-  "costo": "",
-  "anticipo": "",
-  "fpago": "",
-  "semanal": "",
-  "entrega": "",
-  "diapago": "",
-  "lab": "",
-  "prom": ""
-}`;
+  const ticker = setInterval(() => { msgEl.textContent = msgs[++mi % msgs.length]; }, 2200);
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [
-            { inline_data: { mime_type: extMime, data: extBase64 } },
-            { text: prompt }
-          ]}],
-          generationConfig: { temperature: 0.05, topP: 0.9 }
-        })
-      }
-    );
+    let raw = '';
+    if (mode === 'ollama') raw = await extAnalyzeOllama();
+    else                   raw = await extAnalyzeGemini();
 
     clearInterval(ticker);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const json = JSON.parse(raw.replace(/```json|```/gi, '').trim());
-
-    extFillNuevaForm(json);
+    const parsed    = extParseJSON(raw);
+    const validated = extValidateFields(parsed);
+    extShowReview(validated);
 
   } catch(err) {
     clearInterval(ticker);
@@ -2659,10 +3025,29 @@ Reglas:
 
     const msg = err.message || '';
     let hint = '❌ ' + msg;
-    if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota'))
-      hint = '⚠️ <strong>Cuota agotada.</strong> Crea un nuevo key en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
-    else if (msg.includes('API_KEY') || msg.includes('not valid') || msg.includes('invalid'))
-      hint = '🔑 <strong>API Key inválida.</strong> Revísala en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
+
+    if (mode === 'ollama') {
+      if (msg === 'NO_KEY') {
+        hint = 'Error interno.';
+      } else if (/failed to fetch|networkerror|cors|load/i.test(msg)) {
+        hint = '🔌 <strong>No se puede conectar a Ollama.</strong><br>'
+          + 'Verifica que esté corriendo con:<br>'
+          + '<code style="background:#fecaca;padding:2px 6px;border-radius:4px;font-size:11px;">OLLAMA_ORIGINS=* ollama serve</code>'
+          + '<br>Si estás en GitHub Pages, debes abrir el archivo localmente o usar un proxy HTTPS.';
+      } else if (/model.*not found|no such model/i.test(msg)) {
+        hint = `📦 <strong>Modelo no instalado.</strong> Ejecuta en terminal:<br>`
+          + `<code style="background:#fecaca;padding:2px 6px;border-radius:4px;font-size:11px;">ollama pull ${extGetOllamaModel()}</code>`;
+      } else if (/abort|timeout|timed/i.test(msg)) {
+        hint = '⏱ <strong>Tiempo agotado.</strong> El modelo tardó demasiado. Prueba con un modelo más rápido (moondream, llava-phi3).';
+      }
+    } else {
+      if (msg === 'NO_KEY')
+        hint = '🔑 Configura tu API key de Gemini arriba.';
+      else if (/RESOURCE_EXHAUSTED|quota/i.test(msg))
+        hint = '⚠️ <strong>Cuota agotada.</strong> Crea un nuevo key en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
+      else if (/API_KEY|not valid|invalid/i.test(msg))
+        hint = '🔑 <strong>API Key inválida.</strong> Revísala en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--rd)">aistudio.google.com</a>.';
+    }
 
     document.getElementById('ext-err-title').textContent = 'Error al analizar';
     document.getElementById('ext-err-msg').innerHTML = hint;
@@ -2791,12 +3176,16 @@ function extFillNuevaForm(d) {
     if (pm) promEl.value = pm.value;
   }
 
+  // Fecha
+  if (d.fecha) sv('f-fecha', d.fecha);
+
   // Sync dependent UI state
   syncFiltro();
   calcDeuda();
 
   // Reset escaner state and go to Nueva
   document.getElementById('ext-processing-section').style.display = 'none';
+  document.getElementById('ext-review-section').style.display = 'none';
   document.getElementById('ext-upload-section').style.display = 'block';
   extResetUpload();
 
