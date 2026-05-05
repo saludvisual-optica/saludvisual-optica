@@ -2635,8 +2635,20 @@ function extInitPanel() {
   extSetMode(mode);
 
   // Gemini key
-  const storedGemini = localStorage.getItem(EXT_KEY_STORE) || '';
-  if (storedGemini) document.getElementById('ext-apikey-input').value = storedGemini;
+  const geminiKeyEl = document.getElementById('ext-apikey-input');
+  const geminiKeyInjected = typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && !GEMINI_API_KEY.includes('%%');
+  if (geminiKeyInjected) {
+    geminiKeyEl.value = '';
+    geminiKeyEl.placeholder = '✓ Configurada vía GitHub Secret';
+    geminiKeyEl.disabled = true;
+    geminiKeyEl.style.background = 'var(--g3)';
+    geminiKeyEl.style.color = 'var(--g1)';
+    geminiKeyEl.style.fontFamily = 'inherit';
+    geminiKeyEl.style.fontSize = '12px';
+  } else {
+    const storedGemini = localStorage.getItem(EXT_KEY_STORE) || '';
+    if (storedGemini) geminiKeyEl.value = storedGemini;
+  }
 
   // Groq key: if injected via secret, show masked placeholder instead of the key
   const groqKeyEl = document.getElementById('ext-groq-key');
@@ -2719,76 +2731,122 @@ function extResetUpload() {
 
 // ── Template-specific prompt (knows Orden de Pedido layout) ──────
 function extBuildPrompt() {
-  return `Eres un sistema especializado en digitalizar ÓRDENES DE PEDIDO ÓPTICAS mexicanas (formulario impreso con escritura a mano).
+  return `Eres un motor de extracción OCR para formularios ópticos mexicanos impresos a mano ("Orden de Pedido — Salud Visual"). El formulario tiene etiquetas impresas y valores escritos a mano con bolígrafo azul o negro. Tu única tarea es leer los valores manuscritos y devolverlos en la estructura JSON exacta al final. NO expliques, NO uses markdown.
 
-FORMULARIO: "Orden de Pedido — Servicios de Salud / Salud Visual"
-Formato: campos impresos + valores escritos a mano (bolígrafo azul/negro). Extrae SOLO los valores escritos.
+Recorre el formulario sección por sección en este orden:
 
-MAPA DE CAMPOS (nombre impreso en el formulario → clave JSON):
-━ ENCABEZADO:
-  NOMBRE → nombre (nombre completo del paciente)
-  FECHA → fecha (formato dd/mm/aa)
-  DIRECCIÓN o CALLE Y NÚMERO → calle
-  MUNICIPIO → municipio
-  COLONIA → colonia
-  ENTRE CALLES → entre
-  TELÉFONO → tel
-  REFERENCIA → ref
-  EDAD → edad (solo número)
-  OPTOMETRISTA → optom
+━━━ SECCIÓN 1: TABLA DE GRADUACIÓN (Rx) ━━━
+Localiza la tabla con columnas ESF (o ESP), CYL, EJE, ADD. Tiene exactamente dos filas:
+  • Fila superior etiquetada OD (ojo derecho)
+  • Fila inferior etiquetada OI (ojo izquierdo)
 
-━ TABLA DE GRADUACIÓN (filas OD=ojo derecho, OI=ojo izquierdo):
-  Columna ESP o ESF → od_esf / oi_esf  (número con signo: -2.75, +1.50, 0.00)
-  Columna CYL       → od_cyl / oi_cyl  (número con signo o vacío)
-  Columna EJE       → od_eje / oi_eje  (número 1-180; ignora "°" o "X" al final)
-  Columna ADD       → od_add / oi_add  (adición positiva p.ej. +2.50)
+Lee cada celda con cuidado. NO intercambies OD y OI.
 
-━ MEDIDAS:
-  DISTANCIA o DIP → dip (distancia interpupilar, número ~55-75)
-  ALTURA → alt (altura de montaje en mm)
+od_esf → celda fila OD, columna ESF. Formato: signo + dígitos + decimal. Ejemplos: -2.75  +1.50  -0.25  +0.00
+od_cyl → celda fila OD, columna CYL. Casi siempre negativo o vacío. Ejemplos: -0.50  -1.25  ""
+od_eje → celda fila OD, columna EJE. Entero 1–180, elimina cualquier ° o x. Ejemplos: 90  180  15
+od_add → celda fila OD, columna ADD. Siempre positivo. Ejemplos: +1.00  +2.50  ""
+oi_esf → celda fila OI, columna ESF. Mismo formato que od_esf.
+oi_cyl → celda fila OI, columna CYL. Mismo formato que od_cyl.
+oi_eje → celda fila OI, columna EJE. Mismo formato que od_eje.
+oi_add → celda fila OI, columna ADD. Mismo formato que od_add.
+dip    → valor en columna DIP o DIST. INTERP. Número ~55–75. Elimina "mm". Ejemplo: 63
+alt    → valor en columna ALT o ALTURA. Número ~14–22. Ejemplo: 18
 
-━ ARMAZÓN:
-  ARMAZÓN o ARMAZON → armazon
-  COLOR ARMAZÓN → (ignorar — no hay campo)
-  TAMAÑO → medidas (ej: 52-18-140)
+REGLAS para la tabla Rx:
+- Una diagonal "/" sola o guión solo en una celda = vacío → ""
+- "PL" o "PLANO" en columna ESF = "+0.00"
+- Si un número no tiene signo y parece una corrección (no es cero), probablemente es negativo → antepón "-"
+- CYL casi nunca es positivo — si lees CYL positivo, verifica dos veces antes de escribirlo
+- EJE debe ser un entero sin símbolos; si está en blanco → ""
+- Si la columna ADD está en blanco en ambas filas → od_add = "" y oi_add = ""
 
-━ TIPO DE VISIÓN:
-  TIPO DE VISION → tipo_vision  (escribe: "MONO" si dice Monofocal/Mono, "BIFOCAL", "PROGRESIVO")
+━━━ SECCIÓN 2: DATOS DEL PACIENTE ━━━
+Lee la etiqueta impresa y luego el valor manuscrito junto o debajo de ella.
 
-━ CHECKBOXES LADO DERECHO (marcados con ✓, X, O, paloma, o tachado):
-  BLANCO        → material="BLANCO"   (si marcado)
-  FOTOCROMATICO → foto=true           (si marcado)
-  ANTIRELEJANTE → ar="AR"             (si marcado; si dice "BE" también, ar="AR_BLUE")
-  INVISIBLE     → diseno="INVISIBLE"  (si marcado)
-  PROGRESIVO    → diseno="PROGRESIVO" (si marcado; si no hay, diseno="MONO")
-  HI INDEX      → material="HI"       (si marcado)
-  POLICARBONATO → material="POLI"     (si marcado)
+nombre    → campo "NOMBRE" o "NOMBRE DEL PACIENTE" — nombre completo tal como está escrito
+fecha     → campo "FECHA" — escribe exactamente como aparece (ej: 15/04/26 o 15-04-2026)
+tel       → campo "TELÉFONO" o "TEL" — número de 10 dígitos
+edad      → campo "EDAD" — solo dígitos
+calle     → campo "CALLE Y NÚMERO", "DIRECCIÓN" o "CALLE"
+entre     → campo "ENTRE CALLES"
+colonia   → campo "COLONIA"
+municipio → campo "MUNICIPIO" o "CIUDAD"
+optom     → campo "OPTOMETRISTA", "DR." u "OPTO"
+ref       → campo "REFERENCIA" o "REF"
+prom      → campo "PROMOTOR" o "PROM" (usualmente 2–3 iniciales como BH, AM, JR)
 
-━ GRADUACIÓN ANTERIOR/ACTUAL:
-  ANTERIOR OD → ant_od, ANTERIOR OI → ant_oi
-  ACTUAL OD → act_od, ACTUAL OI → act_oi
+━━━ SECCIÓN 3: CHECKBOXES DE LENTE ━━━
+Los checkboxes son cuadros pequeños □. Un checkbox MARCADO contiene alguno de: ✓ ✗ X R / una letra / una línea diagonal / cuadro relleno. Un checkbox NO MARCADO está completamente vacío.
 
-━ CONDICIONES (checkboxes pequeños):
-  DIABETES → diab=true/false
-  PRESION o PRESIÓN → pres=true/false
+Examina cada checkbox de forma independiente:
 
-━ PAGO:
-  CONTADO (checkbox) → fpago="CONTADO"
-  CRÉDITO/CREDITO (checkbox) → fpago="CREDITO"
-  ENGANCHE o ANTICIPO → anticipo (monto numérico)
-  PAGO SEMANAL → semanal (monto numérico)
-  DÍA DE ENTREGA → entrega
-  DÍA DE PAGO → diapago
+material — elige EXACTAMENTE UNO que esté marcado (o "" si ninguno):
+  □ BLANCO        → material = "BLANCO"
+  □ POLICARBONATO → material = "POLI"
+  □ HI INDEX      → material = "HI"
+  Si más de uno parece marcado, elige el más claramente marcado. Si ninguno → material = ""
 
-REGLAS CRÍTICAS:
-1. ESF y CYL: incluye el signo + o − exactamente. Si no hay signo y es negativo (la mayoría lo son), añade −.
-2. EJE: extrae solo el número (omite °, X, grados). Rango válido 1-180.
-3. Checkbox marcado = true/valor, vacío = false/"".
-4. Un valor ilegible → "" (vacío). NUNCA inventes.
-5. FOTOCROMATICO marcado con "O" = true (es una marca de círculo, no cero).
-6. Si CONTADO tiene una marca (R, ✓, X) → fpago="CONTADO".
+diseno — elige EXACTAMENTE UNO que esté marcado (o "MONO" por defecto):
+  □ INVISIBLE  → diseno = "INVISIBLE"
+  □ PROGRESIVO → diseno = "PROGRESIVO"
+  □ MONO o ninguno marcado → diseno = "MONO"
 
-Responde ÚNICAMENTE con este JSON (sin markdown, sin texto adicional):
+foto (booleano):
+  □ FOTOCROMÁTICO marcado (incluyendo un círculo "O" dentro) → foto = true
+  de lo contrario → foto = false
+
+ar — elige EXACTAMENTE UNO:
+  □ AR BLUE, □ BLUE o □ FILTRO BLUE marcado → ar = "AR_BLUE"
+  □ ANTIRREFLEJANTE o □ AR marcado (sin BLUE) → ar = "AR"
+  ninguno marcado → ar = ""
+
+━━━ SECCIÓN 4: GRADUACIÓN ANTERIOR / ACTUAL ━━━
+Busca las filas etiquetadas ANTERIOR y ACTUAL (a veces ANT / ACT):
+ant_od → Rx anterior ojo derecho, escrito tal cual (ej: "-2.50 -0.50 x 90")
+ant_oi → Rx anterior ojo izquierdo
+act_od → Rx actual ojo derecho
+act_oi → Rx actual ojo izquierdo
+Si estas filas no existen o están en blanco → ""
+
+━━━ SECCIÓN 5: ARMAZÓN ━━━
+armazon → campo "ARMAZÓN" o "MODELO" (nombre o código del armazón)
+medidas → campo "MEDIDAS", "TAMAÑO" o "COLOR ARMAZÓN" (ej: 52-18-140 o un color)
+
+━━━ SECCIÓN 6: TIPO DE VISIÓN ━━━
+tipo_vision → busca la etiqueta "TIPO DE VISIÓN" o "VISIÓN":
+  Monofocal / Mono / una sola distancia → "MONO"
+  Bifocal / Invisible → "BIFOCAL"
+  Progresivo / Multifocal → "PROGRESIVO"
+  No encontrado → ""
+
+━━━ SECCIÓN 7: CONDICIONES MÉDICAS ━━━
+diab → true si □ DIABETES está marcado, false si no
+pres → true si □ PRESIÓN o □ HIPERTENSIÓN está marcado, false si no
+
+━━━ SECCIÓN 8: PAGO ━━━
+fpago:
+  □ CONTADO marcado → "CONTADO"
+  □ CRÉDITO o □ CREDITO marcado → "CREDITO"
+  ambos sin marcar → ""
+costo    → campo "COSTO" o "PRECIO" — solo número, sin símbolo $
+anticipo → campo "ANTICIPO" o "ENGANCHE" — solo número
+semanal  → campo "PAGO SEMANAL" o "SEMANAL" — solo número
+entrega  → campo "DÍA DE ENTREGA" o "FECHA ENTREGA" — texto tal como está escrito
+diapago  → campo "DÍA DE PAGO" — texto tal como está escrito (ej: LUNES)
+
+━━━ SECCIÓN 9: LABORATORIO ━━━
+lab → campo "LAB" o "LABORATORIO" (nombre del laboratorio)
+
+━━━ REGLAS ABSOLUTAS ━━━
+1. Devuelve SOLO el objeto JSON. Sin markdown, sin explicación, sin texto adicional.
+2. Nunca inventes un valor. Ilegible o ausente → "" (cadena) o false (booleano).
+3. Coma usada como separador decimal → conviértela a punto: "2,75" → "2.75"
+4. Signos en Rx: incluye siempre + o - de forma explícita. Nunca dejes un campo de graduación sin su signo.
+5. No copies texto de relleno impreso (guiones, puntos, guiones bajos) como valores.
+6. Un campo que solo tiene "---" o "___" impreso = vacío → "".
+
+Devuelve este JSON con los valores extraídos:
 {"nombre":"","tel":"","edad":"","calle":"","entre":"","colonia":"","municipio":"","optom":"","ref":"","fecha":"","od_esf":"","od_cyl":"","od_eje":"","od_add":"","oi_esf":"","oi_cyl":"","oi_eje":"","oi_add":"","dip":"","alt":"","ant_od":"","ant_oi":"","act_od":"","act_oi":"","armazon":"","medidas":"","tipo_vision":"","material":"","diseno":"","foto":false,"ar":"","diab":false,"pres":false,"costo":"","anticipo":"","fpago":"","semanal":"","entrega":"","diapago":"","lab":"","prom":""}`;
 }
 
