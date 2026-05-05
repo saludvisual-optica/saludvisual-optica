@@ -1032,6 +1032,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 // ── Injected by GitHub Actions ─────────────────────────────────────
 const SCRIPT_URL = '%%SCRIPT_URL%%';
 const GEMINI_API_KEY = '%%GEMINI_API_KEY%%';
+const GROQ_API_KEY = '%%GROQ_API_KEY%%';
 
 // Fetch with 12-second timeout so the app never gets stuck syncing
 async function fetchTimeout(url, opts, ms) {
@@ -2585,12 +2586,17 @@ function extSaveKey() {
 }
 
 // ── Groq config ──────────────────────────────────────────────────
+const GROQ_MODEL_PRIORITY = [
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'meta-llama/llama-4-maverick-17b-128e-instruct',
+];
 function extGetGroqKey() {
+  if (typeof GROQ_API_KEY !== 'undefined' && GROQ_API_KEY && !GROQ_API_KEY.includes('%%')) return GROQ_API_KEY;
   try { return localStorage.getItem(EXT_GROQ_KEY) || ''; } catch { return ''; }
 }
 function extGetGroqModel() {
-  try { return localStorage.getItem(EXT_GROQ_MDL) || 'meta-llama/llama-4-scout-17b-16e-instruct'; } catch {
-    return 'meta-llama/llama-4-scout-17b-16e-instruct';
+  try { return localStorage.getItem(EXT_GROQ_MDL) || GROQ_MODEL_PRIORITY[0]; } catch {
+    return GROQ_MODEL_PRIORITY[0];
   }
 }
 function extSaveGroqConfig() {
@@ -2627,10 +2633,28 @@ async function extTestGroq() {
 function extInitPanel() {
   const mode = extGetMode();
   extSetMode(mode);
+
+  // Gemini key
   const storedGemini = localStorage.getItem(EXT_KEY_STORE) || '';
   if (storedGemini) document.getElementById('ext-apikey-input').value = storedGemini;
-  const storedGroqKey = extGetGroqKey();
-  if (storedGroqKey) document.getElementById('ext-groq-key').value = storedGroqKey;
+
+  // Groq key: if injected via secret, show masked placeholder instead of the key
+  const groqKeyEl = document.getElementById('ext-groq-key');
+  const groqKeyInjected = typeof GROQ_API_KEY !== 'undefined' && GROQ_API_KEY && !GROQ_API_KEY.includes('%%');
+  if (groqKeyInjected) {
+    groqKeyEl.value = '';
+    groqKeyEl.placeholder = '✓ Configurada vía GitHub Secret';
+    groqKeyEl.disabled = true;
+    groqKeyEl.style.background = 'var(--g3)';
+    groqKeyEl.style.color = 'var(--g1)';
+    groqKeyEl.style.fontFamily = 'inherit';
+    groqKeyEl.style.fontSize = '12px';
+  } else {
+    const storedGroqKey = extGetGroqKey();
+    if (storedGroqKey) groqKeyEl.value = storedGroqKey;
+  }
+
+  // Model select
   const savedMdl = extGetGroqModel();
   const mdlSel = document.getElementById('ext-groq-model');
   if (Array.from(mdlSel.options).some(o => o.value === savedMdl)) mdlSel.value = savedMdl;
@@ -2795,11 +2819,9 @@ async function extAnalyzeGemini() {
 }
 
 // ── Groq backend ─────────────────────────────────────────────────
-async function extAnalyzeGroq() {
-  const key   = extGetGroqKey();
-  if (!key) throw new Error('NO_KEY');
-  const model = extGetGroqModel();
-  document.getElementById('ext-proc-sub').textContent = `Modelo: ${model.split('/').pop()} · groq.com`;
+async function extCallGroq(key, model) {
+  const subEl = document.getElementById('ext-proc-sub');
+  if (subEl) subEl.textContent = `Modelo: ${model.split('/').pop()} · groq.com`;
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), 60000);
   try {
@@ -2808,13 +2830,10 @@ async function extAnalyzeGroq() {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image_url', image_url: { url: `data:${extMime};base64,${extBase64}` } },
-            { type: 'text', text: extBuildPrompt() }
-          ]
-        }],
+        messages: [{ role: 'user', content: [
+          { type: 'image_url', image_url: { url: `data:${extMime};base64,${extBase64}` } },
+          { type: 'text', text: extBuildPrompt() }
+        ]}],
         temperature: 0.05,
         max_tokens: 1024
       }),
@@ -2831,6 +2850,32 @@ async function extAnalyzeGroq() {
     clearTimeout(tid);
     throw e;
   }
+}
+
+async function extAnalyzeGroq() {
+  const key = extGetGroqKey();
+  if (!key) throw new Error('NO_KEY');
+  // Build deduped priority list: user's preference first, then remaining fallbacks
+  const preferred = extGetGroqModel();
+  const models = [preferred, ...GROQ_MODEL_PRIORITY.filter(m => m !== preferred)];
+  let lastErr;
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    try {
+      return await extCallGroq(key, model);
+    } catch(e) {
+      // Only fall through on model-specific errors; surface auth/rate errors immediately
+      if (/model.*not.*found|does not exist|not supported|inactive/i.test(e.message || '')) {
+        lastErr = e;
+        const subEl = document.getElementById('ext-proc-sub');
+        if (subEl && i + 1 < models.length)
+          subEl.textContent = `Modelo no disponible — probando alternativa...`;
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr || new Error('Todos los modelos fallaron');
 }
 
 // ── Robust JSON parser with field-level fallback ──────────────────
