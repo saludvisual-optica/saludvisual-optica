@@ -159,6 +159,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   padding:10px 14px;font-size:16px;font-family:'DM Sans',sans-serif;
   -webkit-appearance:none;}
 .search-row input:focus{outline:none;border-color:var(--g2);}
+.search-hint{font-size:11px;color:var(--g1);font-weight:600;min-height:18px;margin-bottom:6px;padding:0 2px;}
+.quick-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.qfil{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--bd);background:var(--wh);color:var(--md);transition:all .15s;
+  -webkit-tap-highlight-color:transparent;}
+.qfil.active,.qfil:hover{background:var(--g3);border-color:var(--g2);color:var(--g1);}
+.scanner-status{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;
+  background:var(--g4);border:1px solid #c3e6d4;margin-bottom:10px;font-size:12px;font-weight:600;color:var(--g1);}
 .order-cards{display:flex;flex-direction:column;gap:10px;}
 .order-card{background:var(--wh);border-radius:12px;
   box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--bd);}
@@ -800,7 +808,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   <div class="screen-max">
     <div class="form-header">
       <div>
-        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px" id="ext-mode-label">Groq Vision · Cloud</div>
+        <div style="font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px" id="ext-mode-label">IA · Escáner de Recetas</div>
         <h1>ESCÁNER DE RECETAS</h1>
       </div>
       <div style="font-size:26px;line-height:1">🤖</div>
@@ -819,15 +827,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 
       <!-- GROQ CONFIG -->
       <div id="ext-cfg-groq" style="background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div class="sec" style="margin-top:0">⚡ Configuración Groq</div>
         <div class="grid g2" style="margin-bottom:10px;">
           <div class="fld">
-            <label>API Key</label>
+            <label>Clave Groq</label>
             <input type="password" id="ext-groq-key" placeholder="gsk_..." autocomplete="off"
               style="font-family:'DM Mono',monospace;font-size:12px;">
           </div>
           <div class="fld">
-            <label>Modelo visión</label>
+            <label>Modelo</label>
             <select id="ext-groq-model">
               <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout (recomendado)</option>
               <option value="meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick (más preciso)</option>
@@ -837,31 +844,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn btn-sec" style="height:36px;font-size:12px;padding:0 12px;" onclick="extSaveGroqConfig()">Guardar</button>
           <button class="btn btn-sec" style="height:36px;font-size:12px;padding:0 12px;display:flex;align-items:center;" onclick="extTestGroq()">
-            <span class="ai-dot" id="groq-dot"></span>Probar conexión
+            <span class="ai-dot" id="groq-dot"></span>Probar
           </button>
           <span style="font-size:11px;color:var(--mu);flex:1;" id="groq-test-msg"></span>
         </div>
         <div style="font-size:11px;color:var(--mu);margin-top:10px;line-height:1.7;border-top:1px solid #c3e6d4;padding-top:8px;">
-          API key gratuita en <a href="https://console.groq.com/keys" target="_blank" style="color:var(--g1)">console.groq.com/keys</a>.<br>
-          Funciona desde cualquier dispositivo sin instalar nada. Se guarda en tu navegador.
+          Clave gratuita en <a href="https://console.groq.com/keys" target="_blank" style="color:var(--g1)">console.groq.com/keys</a> — se guarda en tu navegador.
         </div>
       </div>
 
       <!-- GEMINI CONFIG -->
       <div id="ext-cfg-gemini" style="display:none;background:var(--g4);border:1.5px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:14px;">
-        <div class="sec" style="margin-top:0">🔑 API Key de Gemini</div>
         <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
           <div class="fld" style="flex:1;min-width:180px">
-            <label>API Key</label>
+            <label>Clave Gemini</label>
             <input type="password" id="ext-apikey-input" placeholder="AIzaSy..." autocomplete="off"
               style="font-family:'DM Mono',monospace;font-size:13px;">
           </div>
           <button class="btn btn-sec" style="height:46px;white-space:nowrap" onclick="extSaveKey()">Guardar</button>
         </div>
         <div style="font-size:11px;color:var(--mu);margin-top:6px;line-height:1.5;">
-          API key gratuita (1,500/día) en
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--g1)">aistudio.google.com</a>.
-          Se guarda localmente en tu navegador.
+          Clave gratuita (1,500/día) en
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--g1)">aistudio.google.com</a> — se guarda en tu navegador.
         </div>
       </div>
 
@@ -917,7 +921,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
         <div style="width:52px;height:52px;border:3px solid var(--g3);border-top-color:var(--g1);
           border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 20px;"></div>
         <div style="font-size:17px;font-weight:700;margin-bottom:6px;" id="ext-proc-msg">Leyendo formulario...</div>
-        <div style="font-size:13px;color:var(--mu);line-height:1.6;" id="ext-proc-sub">Analizando campos escritos a mano.</div>
+        <div style="font-size:13px;color:var(--mu);line-height:1.6;" id="ext-proc-sub">Preparando análisis...</div>
       </div>
 
       <!-- REVIEW PANEL -->
@@ -948,9 +952,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
       <div class="stat"><div class="v" id="st-costo">—</div><div class="l">Costo total</div></div>
     </div>
     <div class="search-row">
-      <input type="search" id="search-input" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterCards()">
+      <input type="search" id="search-input" placeholder="Nombre, folio, mes, año, fecha..." oninput="filterCards()" autocomplete="off">
       <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
     </div>
+    <div class="search-hint" id="search-hint"></div>
+    <div class="quick-filters" id="quick-filters"></div>
     <div id="order-cards" class="order-cards">
       <div class="loading-row">Cargando historial...</div>
     </div>
@@ -961,7 +967,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-formulario" class="screen">
   <div class="screen-max">
     <div class="search-row no-print">
-      <input type="search" id="fp-search" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterFolioSearch('fp')">
+      <input type="search" id="fp-search" placeholder="Nombre, folio, mes-año, fecha..." oninput="filterFolioSearch('fp')" autocomplete="off">
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
     <div id="fp-results" class="order-cards no-print" style="display:none;margin-bottom:12px;"></div>
@@ -975,7 +981,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 <div id="screen-reporte" class="screen">
   <div class="screen-max">
     <div class="search-row no-print">
-      <input type="search" id="rp-search" placeholder="Buscar nombre, folio (MAR-1-26), mes, municipio..." oninput="filterFolioSearch('rp')">
+      <input type="search" id="rp-search" placeholder="Nombre, folio, mes-año, fecha..." oninput="filterFolioSearch('rp')" autocomplete="off">
       <button class="btn btn-print" onclick="window.print()">🖨 Imprimir</button>
     </div>
     <div id="rp-results" class="order-cards no-print" style="display:none;margin-bottom:12px;"></div>
@@ -1210,22 +1216,140 @@ function rebuildFolioSelects() {
   // No-op: search bars don't need population
 }
 
+// ─── SMART SEARCH ─────────────────────────────────────────────────
+const MESES_SEARCH = {ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,oct:9,nov:10,dic:11,
+  enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11};
+const MESES_NOMBRE = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_CORTO  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function parseSearchQuery(q) {
+  if (!q || !q.trim()) return { type: 'all' };
+  const ql = q.trim().toLowerCase();
+
+  // Folio exact: MAR-1-26 or MAR-1
+  if (/^[a-záéíóúñ]{2,4}-\d+(-\d{2,4})?$/i.test(ql)) return { type: 'folio', val: ql };
+
+  // Year 4-digit
+  if (/^\d{4}$/.test(ql)) return { type: 'year', val: parseInt(ql) };
+
+  // Short year 26 → 2026
+  if (/^\d{2}$/.test(ql)) {
+    const yr = 2000 + parseInt(ql);
+    if (yr >= 2020 && yr <= 2035) return { type: 'year', val: yr };
+  }
+
+  // Month+Year: MAR-26, MAR 26, MAR/26, MARZO 2026, mayo-2026
+  const mesAno = ql.match(/^([a-záéíóúñ]+)[\s\-\/](\d{2,4})$/);
+  if (mesAno) {
+    const mes = MESES_SEARCH[mesAno[1]];
+    if (mes !== undefined) {
+      let yr = parseInt(mesAno[2]);
+      if (yr < 100) yr += 2000;
+      return { type: 'month-year', month: mes, year: yr };
+    }
+  }
+
+  // Just month name: MAR, MARZO
+  if (MESES_SEARCH[ql] !== undefined) return { type: 'month', month: MESES_SEARCH[ql] };
+
+  // Numeric month-year: 03/26, 03-26, 3/2026, 3-2026
+  const numMes = ql.match(/^(\d{1,2})[\/-](\d{2,4})$/);
+  if (numMes) {
+    const mo = parseInt(numMes[1]) - 1;
+    let yr = parseInt(numMes[2]);
+    if (yr < 100) yr += 2000;
+    if (mo >= 0 && mo <= 11) return { type: 'month-year', month: mo, year: yr };
+  }
+
+  // Phone: 7+ digits
+  if (/^\d{7,10}$/.test(ql)) return { type: 'phone', val: ql };
+
+  // Text
+  return { type: 'text', val: ql };
+}
+
+function matchesQuery(o, parsed) {
+  const fecha = parseFecha(o.fecha);
+  switch(parsed.type) {
+    case 'all': return true;
+    case 'year': return fecha && fecha.getFullYear() === parsed.val;
+    case 'month': return fecha && fecha.getMonth() === parsed.month;
+    case 'month-year': return fecha && fecha.getMonth() === parsed.month && fecha.getFullYear() === parsed.year;
+    case 'folio': {
+      const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
+      return fol.includes(parsed.val);
+    }
+    case 'phone': return String(o.tel||'').replace(/\D/g,'').includes(parsed.val);
+    case 'text': {
+      const q = parsed.val;
+      const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
+      return (
+        String(o.nombre||'').toLowerCase().includes(q) ||
+        fol.includes(q) ||
+        String(o.municipio||'').toLowerCase().includes(q) ||
+        String(o.tel||'').includes(q) ||
+        String(o.colonia||'').toLowerCase().includes(q)
+      );
+    }
+    default: return true;
+  }
+}
+
+function getSearchHint(parsed) {
+  switch(parsed.type) {
+    case 'year':       return `Mostrando año ${parsed.val}`;
+    case 'month':      return `Mostrando mes de ${MESES_NOMBRE[parsed.month]}`;
+    case 'month-year': return `Mostrando ${MESES_CORTO[parsed.month]} ${parsed.year}`;
+    case 'folio':      return `Buscando folio ${parsed.val.toUpperCase()}`;
+    case 'phone':      return 'Buscando por teléfono';
+    case 'text':       return `Buscando "${parsed.val}"`;
+    default:           return '';
+  }
+}
+
+function buildQuickFilters() {
+  const container = document.getElementById('quick-filters');
+  if (!container || !allRows.length) return;
+  const seen = {};
+  allRows.forEach(o => {
+    const d = parseFecha(o.fecha);
+    if (!d || isNaN(d.getTime())) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;
+    seen[key] = { year: d.getFullYear(), month: d.getMonth() };
+  });
+  const chips = Object.values(seen)
+    .sort((a,b) => b.year*12+b.month - (a.year*12+a.month))
+    .slice(0, 8);
+  const curQ = (document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const curP = parseSearchQuery(curQ);
+  container.innerHTML = chips.map(c => {
+    const isActive = (curP.type==='month-year' && curP.month===c.month && curP.year===c.year);
+    return `<button class="qfil${isActive?' active':''}" onclick="applyQuickFilter(${c.year},${c.month})">${MESES_CORTO[c.month]} ${c.year}</button>`;
+  }).join('');
+}
+
+function applyQuickFilter(year, month) {
+  const label = `${MESES_CORTO[month].toUpperCase()}-${String(year).slice(-2)}`;
+  const inp = document.getElementById('search-input');
+  const curQ = inp ? inp.value.toLowerCase().trim() : '';
+  const curP = parseSearchQuery(curQ);
+  // Toggle off if already active
+  if (curP.type==='month-year' && curP.month===month && curP.year===year) {
+    if (inp) inp.value = '';
+    filterCards();
+    return;
+  }
+  if (inp) inp.value = label;
+  filterCards();
+}
+
 function filterFolioSearch(prefix) {
-  const q = (document.getElementById(prefix + '-search')?.value || '').trim().toLowerCase();
+  const q = (document.getElementById(prefix + '-search')?.value || '').trim();
   const resultsEl = document.getElementById(prefix + '-results');
   if (!q) { resultsEl.style.display = 'none'; resultsEl.innerHTML = ''; return; }
 
-  const MESES_BUSQ = {ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12'};
-  const mesNum = MESES_BUSQ[q.slice(0,3)];
-
-  const filt = allRows.filter(o => {
-    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'').toLowerCase();
-    const nom = String(o.nombre||'').toLowerCase();
-    const mun = String(o.municipio||'').toLowerCase();
-    const fch = String(o.fecha||'');
-    if (mesNum && fch.slice(5,7) === mesNum) return true;
-    return nom.includes(q) || fol.includes(q) || mun.includes(q);
-  }).slice(0, 8);
+  const parsed = parseSearchQuery(q);
+  const filt = allRows.filter(o => !looksLikeDate(o.folio) && matchesQuery(o, parsed)).slice(0, 10);
 
   if (!filt.length) {
     resultsEl.style.display = 'block';
@@ -1596,7 +1720,7 @@ function rptCheck(val, label, id, calc) {
   var bd = on ? (isCalc?'1.5px dashed #d97706':'1.5px solid #86efac') : '1.5px solid #e5e7eb';
   var acc = isCalc ? '#d97706' : '#1a7a4a';
   var badge = (isCalc && on)
-    ? '<span class="cbadge" style="font-size:8px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 4px;margin-left:4px;font-weight:700;">calc·validar</span>'
+    ? '<span class="cbadge" style="font-size:8px;background:#fef3c7;color:#92400e;border-radius:3px;padding:1px 4px;margin-left:4px;font-weight:700;">auto</span>'
     : '';
   return '<label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;'
     +'background:'+bg+';border:'+bd+';border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;">'
@@ -2030,9 +2154,8 @@ function renderReporte(o) {
   // GAUGES — 4 circles in a row
   +(hasRx?
     '<div style="background:#f8fafc;border-radius:10px;padding:12px;border:1px solid #e2e8f0;">'
-    +'<div class="no-print" style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
-      +'Grado de afectación calculado'
-      +'<span class="cbadge">calculado · validar con optometrista</span>'
+    +'<div class="no-print" style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">'
+      +'Grado de afectación visual'
     +'</div>'
     +'<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">'
       +'<div style="flex:1;min-width:200px;">'
@@ -2160,7 +2283,7 @@ function renderReporte(o) {
   // ════ FOOTER NOTE ════
   +'<div style="background:#f0fdf4;border-top:1px solid #bbf7d0;padding:6px 16px;font-size:9px;color:#166534;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">'
     +'<span>Folio #'+(o.folio||'—')+' · '+(fecha||new Date().toLocaleDateString('es-MX'))+'</span>'
-    +'<span class="cbadge" style="font-size:9px;">Los campos en amarillo son valores calculados del Rx — validar con el optometrista</span>'
+    +'<span style="font-size:9px;color:#166534;">Los valores sugeridos se calculan del Rx · confirmar con el optometrista</span>'
   +'</div>'
 
   +'</div>'; // end wrapper
@@ -2340,18 +2463,26 @@ function flushQueue(){if(getQueue().length)retryQueue();}
 
 // ─── HISTORY RENDER ─────────────────────────────────────────────
 function renderCards() {
-  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
-  const filt=allRows.filter(o=>{
-    const fol = looksLikeDate(o.folio) ? '' : String(o.folio||'');
-    return (String(o.nombre||'')).toLowerCase().includes(q)||
-    fol.toLowerCase().includes(q)||
-    (String(o.municipio||'')).toLowerCase().includes(q)||
-    (String(o.tel||'')).includes(q);
-  }).sort((a,b)=>(Number(b.folio)||0)-(Number(a.folio)||0));
+  const qRaw = document.getElementById('search-input')?.value || '';
+  const parsed = parseSearchQuery(qRaw);
+
+  const hintEl = document.getElementById('search-hint');
+  if (hintEl) hintEl.textContent = getSearchHint(parsed);
+
+  buildQuickFilters();
+
+  const filt = allRows
+    .filter(o => !looksLikeDate(o.folio) && matchesQuery(o, parsed))
+    .sort((a,b) => {
+      const da = parseFecha(a.fecha), db = parseFecha(b.fecha);
+      if (da && db) return db.getTime() - da.getTime();
+      return 0;
+    });
 
   const container=document.getElementById('order-cards');
   if(!filt.length){
-    container.innerHTML=`<div class="empty">${q?'Sin resultados para "'+q+'"':'No hay órdenes aún.'}</div>`;
+    container.innerHTML=`<div class="empty">${qRaw?'Sin resultados — intenta otro término.':'No hay órdenes aún.'}</div>`;
+    updateStats();
     return;
   }
   container.innerHTML=filt.map(o=>{
@@ -2568,9 +2699,9 @@ function extSetMode(mode) {
   document.getElementById('ext-cfg-gemini').style.display = mode === 'gemini' ? 'block' : 'none';
   document.getElementById('ext-cfg-groq').style.display   = mode === 'groq'   ? 'block' : 'none';
   document.getElementById('ext-mode-label').textContent =
-    mode === 'gemini' ? 'Gemini Vision · Cloud' : 'Groq Vision · Cloud';
+    mode === 'gemini' ? 'Gemini Flash · Google AI' : 'Groq · Llama 4';
   const btnEl = document.getElementById('ext-btn');
-  if (btnEl) btnEl.textContent = mode === 'gemini' ? '🔍 Analizar con Gemini IA' : '🔍 Analizar con Groq IA';
+  if (btnEl) btnEl.innerHTML = mode === 'gemini' ? '🔍 Analizar con Gemini' : '🔍 Analizar con Groq';
 }
 
 // ── Gemini key ───────────────────────────────────────────────────
@@ -2879,7 +3010,10 @@ async function extAnalyzeGemini() {
 // ── Groq backend ─────────────────────────────────────────────────
 async function extCallGroq(key, model) {
   const subEl = document.getElementById('ext-proc-sub');
-  if (subEl) subEl.textContent = `Modelo: ${model.split('/').pop()} · groq.com`;
+  if (subEl) {
+    const mn = model.includes('maverick') ? 'Llama 4 Maverick' : model.includes('scout') ? 'Llama 4 Scout' : model.split('/').pop();
+    subEl.textContent = `Groq · ${mn}`;
+  }
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), 60000);
   try {
@@ -3096,9 +3230,12 @@ async function extAnalyze() {
   document.getElementById('ext-review-section').style.display = 'none';
   document.getElementById('ext-err').style.display = 'none';
 
-  const groqMsgs   = ['Enviando imagen a Groq...','Analizando receta...','Extrayendo graduación...','Procesando checkboxes...','Finalizando...'];
+  const groqMsgs   = ['Analizando receta...','Extrayendo graduación...','Detectando checkboxes...','Procesando datos...','Finalizando...'];
   const geminiMsgs = ['Analizando receta...','Detectando graduación óptica...','Extrayendo datos del cliente...','Procesando checkboxes...'];
   const msgs = mode === 'gemini' ? geminiMsgs : groqMsgs;
+  // Show which service is active
+  const initSubEl = document.getElementById('ext-proc-sub');
+  if (initSubEl) initSubEl.textContent = mode === 'gemini' ? 'Gemini 2.5 Flash · Google AI' : 'Preparando...';
   let mi = 0;
   const msgEl = document.getElementById('ext-proc-msg');
   const ticker = setInterval(() => { msgEl.textContent = msgs[++mi % msgs.length]; }, 2200);
