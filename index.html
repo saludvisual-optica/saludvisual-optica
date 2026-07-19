@@ -57,7 +57,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
 .tab-btn.active{color:var(--g1);}
 .tab-btn svg{width:20px;height:20px;stroke-width:2;}
 .tab-indicator{position:absolute;top:0;height:2px;background:var(--g1);
-  border-radius:0 0 2px 2px;width:20%;transition:left .2s;}
+  border-radius:0 0 2px 2px;width:16.666%;transition:left .2s;}
 
 /* ── SCREENS ── */
 .screen{display:none;padding:16px;}
@@ -514,6 +514,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
     <div class="nav-dtabs">
       <button class="nav-dt active" id="ndt-nueva" onclick="switchTab('nueva',this)">+ Nueva</button>
       <button class="nav-dt" id="ndt-historial" onclick="switchTab('historial',this)">Historial</button>
+      <button class="nav-dt" id="ndt-pacientes" onclick="switchTab('pacientes',this)">Pacientes</button>
       <button class="nav-dt" id="ndt-escaner" onclick="switchTab('escaner',this)">📷 Escáner IA</button>
       <button class="nav-dt" id="ndt-formulario" onclick="switchTab('formulario',this)">Formulario</button>
       <button class="nav-dt" id="ndt-reporte" onclick="switchTab('reporte',this)">Reporte</button>
@@ -963,6 +964,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   </div>
 </div>
 
+<!-- ═══════════ PACIENTES ═══════════ -->
+<div id="screen-pacientes" class="screen">
+  <div class="screen-max">
+    <div class="stats">
+      <div class="stat"><div class="v" id="pac-total">—</div><div class="l">Total pacientes</div></div>
+      <div class="stat"><div class="v" id="pac-con-deuda">—</div><div class="l">Con deuda</div></div>
+      <div class="stat"><div class="v" id="pac-deuda-total">—</div><div class="l">Deuda total</div></div>
+    </div>
+    <div class="search-row">
+      <input type="search" id="pac-search" placeholder="Nombre o teléfono..." oninput="renderPatients()" autocomplete="off">
+      <button class="btn btn-sec" style="padding:10px 14px" onclick="loadHistory(true)">↻</button>
+    </div>
+    <div id="patient-cards" class="order-cards">
+      <div class="loading-row">Cargando pacientes...</div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════ FORMULARIO (Orden de Pedido visual) ═══════════ -->
 <div id="screen-formulario" class="screen">
   <div class="screen-max">
@@ -1003,6 +1022,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dk);
   <button class="tab-btn" id="tabbtn-historial" onclick="switchTab('historial',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg>
     Historial
+  </button>
+  <button class="tab-btn" id="tabbtn-pacientes" onclick="switchTab('pacientes',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    Pacientes
   </button>
   <button class="tab-btn" id="tabbtn-escaner" onclick="switchTab('escaner',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -1122,7 +1145,7 @@ async function fetchHistory() {
 async function loadHistory(forceRefresh) {
   // Show cached immediately
   const cached = getCached();
-  if (cached.length) { allRows = cached; renderCards(); updateStats(); rebuildFolioSelects(); autoFolio(); }
+  if (cached.length) { allRows = cached; renderCards(); renderPatients(); updateStats(); rebuildFolioSelects(); autoFolio(); }
 
   if (!SCRIPT_URL || SCRIPT_URL.includes('%%')) {
     setSyncing('err','URL no configurada');
@@ -1135,6 +1158,7 @@ async function loadHistory(forceRefresh) {
     allRows = rows;
     setCached(allRows);
     renderCards();
+    renderPatients();
     updateStats();
     rebuildFolioSelects();
     autoFolio();
@@ -2659,8 +2683,218 @@ function openModal(encoded) {
   document.getElementById('modal-ov').classList.add('open');
 }
 
+// ─── PACIENTES (client-side grouping — no backend/Sheets changes) ──
+// Groups orders by phone (primary key) or normalized name (fallback when no
+// phone). Known limitation: a patient who changes phone number, or has no
+// phone and a slightly different name spelling on a later visit, will show
+// up as two separate groups.
+let _modalPatient = null;
+
+function normPatientName(n) {
+  return String(n||'').trim().toUpperCase().replace(/\s+/g,' ');
+}
+
+function patientKey(o) {
+  const digits = String(o.tel||'').replace(/\D/g,'');
+  if (digits.length >= 7) return 'TEL:'+digits;
+  return 'NAME:'+normPatientName(o.nombre);
+}
+
+function groupPatients(rows) {
+  const map = new Map();
+  rows.forEach(o => {
+    if (looksLikeDate(o.folio)) return;
+    const key = patientKey(o);
+    if (!key || key === 'NAME:') return;
+    if (!map.has(key)) map.set(key, { key, orders: [] });
+    map.get(key).orders.push(o);
+  });
+  const groups = [];
+  map.forEach(g => {
+    g.orders.sort((a,b) => {
+      const da = parseFecha(a.fecha), db = parseFecha(b.fecha);
+      if (da && db) return db.getTime() - da.getTime();
+      return 0;
+    });
+    const latest = g.orders[0];
+    const oldest = g.orders[g.orders.length-1];
+    groups.push({
+      key: g.key,
+      nombre: latest.nombre || 'Sin nombre',
+      tel: latest.tel || '',
+      municipio: latest.municipio || '',
+      orders: g.orders,
+      totalOrders: g.orders.length,
+      totalDeuda: g.orders.reduce((s,o)=>s+(parseFloat(o.deuda)||0),0),
+      lastVisit: latest.fecha,
+      firstVisit: oldest.fecha
+    });
+  });
+  return groups;
+}
+
+function matchesPatientQuery(p, q) {
+  if (!q) return true;
+  const ql = q.trim().toLowerCase();
+  if (!ql) return true;
+  return p.nombre.toLowerCase().includes(ql) || String(p.tel||'').includes(ql);
+}
+
+function renderPatients() {
+  const qRaw = document.getElementById('pac-search')?.value || '';
+  const container = document.getElementById('patient-cards');
+  if (!container) return;
+
+  const groups = groupPatients(allRows)
+    .filter(p => matchesPatientQuery(p, qRaw))
+    .sort((a,b) => {
+      const da = parseFecha(a.lastVisit), db = parseFecha(b.lastVisit);
+      if (da && db) return db.getTime() - da.getTime();
+      return 0;
+    });
+
+  const totalPac = document.getElementById('pac-total');
+  const conDeuda = document.getElementById('pac-con-deuda');
+  const deudaTotal = document.getElementById('pac-deuda-total');
+  const allGroups = groupPatients(allRows);
+  if (totalPac) totalPac.textContent = allGroups.length;
+  if (conDeuda) conDeuda.textContent = allGroups.filter(p=>p.totalDeuda>0).length;
+  if (deudaTotal) deudaTotal.textContent = '$'+allGroups.reduce((s,p)=>s+p.totalDeuda,0).toLocaleString('es-MX');
+
+  if (!groups.length) {
+    container.innerHTML = `<div class="empty">${qRaw?'Sin resultados — intenta otro término.':'No hay pacientes aún.'}</div>`;
+    return;
+  }
+
+  container.innerHTML = groups.map(p => {
+    const latest = p.orders[0];
+    const deuda = p.totalDeuda;
+    const bc = deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
+    const fch = p.lastVisit ? fmtFecha(p.lastVisit) : '—';
+    return `<div class="order-card">
+      <div class="card-header">
+        <div><div class="card-folio">${p.totalOrders} visita${p.totalOrders>1?'s':''} · última ${fch}</div>
+        <div class="card-name">${p.nombre}</div></div>
+        <span class="badge ${bc}">$${deuda.toLocaleString('es-MX')}</span>
+      </div>
+      <div class="card-body" style="display:block;padding:10px 14px;">
+        <div style="overflow-x:auto;margin-bottom:8px;">
+          <table style="border-collapse:collapse;width:100%;min-width:260px;font-size:11px;">
+            <thead>
+              <tr style="background:#1e3a5f;color:#fff;">
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">OJO</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">ESF</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">CYL</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">EJE</th>
+                <th style="padding:3px 7px;font-size:9px;letter-spacing:.4px;text-align:center;">ADD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;font-size:10px;text-align:center;padding:4px 7px;border:1px solid #d1fae5;">OD</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.od_esf||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.od_cyl||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.od_eje||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.od_add||'—'}</td>
+              </tr>
+              <tr>
+                <td style="background:#e8f5ee;color:#1a7a4a;font-weight:700;font-size:10px;text-align:center;padding:4px 7px;border:1px solid #d1fae5;">OI</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.oi_esf||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.oi_cyl||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.oi_eje||'—'}</td>
+                <td style="text-align:center;padding:4px 7px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;font-weight:600;">${latest.oi_add||'—'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 16px;">
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Municipio</span><span class="card-val">${p.municipio||'—'}</span></div>
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Teléfono</span><span class="card-val">${p.tel||'—'}</span></div>
+          <div class="card-row" style="flex:1;min-width:100px;"><span class="card-lbl">Primera visita</span><span class="card-val">${p.firstVisit?fmtFecha(p.firstVisit):'—'}</span></div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span style="font-size:11px;color:var(--mu)">${p.tel||''}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sec" style="padding:5px 10px;min-height:auto;font-size:11px" onclick="openPatientModal('${encodeURIComponent(p.key)}')">Ver historial</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPatientModal(encodedKey) {
+  const key = decodeURIComponent(encodedKey);
+  const p = groupPatients(allRows).find(g => g.key === key);
+  if (!p) return;
+  _modalPatient = p;
+  document.getElementById('m-title').textContent = `${p.nombre} — ${p.totalOrders} visita${p.totalOrders>1?'s':''}`;
+
+  const rxRows = p.orders.slice().reverse(); // oldest → newest for trend reading
+
+  document.getElementById('m-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      ${[
+        ['Teléfono', p.tel||'—'],
+        ['Municipio', p.municipio||'—'],
+        ['Primera visita', p.firstVisit?fmtFechaLarga(p.firstVisit):'—'],
+        ['Última visita', p.lastVisit?fmtFechaLarga(p.lastVisit):'—'],
+        ['Total visitas', p.totalOrders],
+        ['Deuda total', '$'+p.totalDeuda.toLocaleString('es-MX')],
+      ].map(([k,v])=>`<div class="di"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
+    </div>
+
+    <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Tendencia de graduación</div>
+    <div style="overflow-x:auto;margin-bottom:14px;">
+      <table style="border-collapse:collapse;width:100%;font-size:11px;min-width:420px;">
+        <thead>
+          <tr style="background:#1e3a5f;color:#fff;">
+            <th style="padding:4px 8px;font-size:9px;text-align:left;">FECHA</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OD ESF</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OD CYL</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OD EJE</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OI ESF</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OI CYL</th>
+            <th style="padding:4px 8px;font-size:9px;text-align:center;">OI EJE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rxRows.map(o => `<tr>
+            <td style="padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.fecha?fmtFecha(o.fecha):'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.od_esf||'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.od_cyl||'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.od_eje||'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.oi_esf||'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.oi_cyl||'—'}</td>
+            <td style="text-align:center;padding:4px 8px;border:1px solid #e5e7eb;font-family:'DM Mono',monospace;">${o.oi_eje||'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Órdenes</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      ${p.orders.map(o => {
+        const deuda = parseFloat(o.deuda)||0;
+        const bc = deuda<=0?'b-green':deuda<500?'b-yellow':'b-red';
+        const safeO = encodeURIComponent(JSON.stringify(o));
+        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:8px;">
+          <div style="font-size:12px;">
+            <strong>${o.folio||'—'}</strong> · ${o.fecha?fmtFecha(o.fecha):'—'}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${bc}">$${deuda.toLocaleString('es-MX')}</span>
+            <button class="btn btn-sec" style="padding:4px 9px;min-height:auto;font-size:11px" onclick="openModal('${safeO}')">Ver</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('modal-ov').classList.add('open');
+}
+
 // ─── NAVIGATION ───────────────────────────────────────────────────
-const TAB_POSITIONS={'nueva':'0','historial':'20%','escaner':'40%','formulario':'60%','reporte':'80%'};
+const TAB_POSITIONS={'nueva':'0','historial':'16.666%','pacientes':'33.333%','escaner':'50%','formulario':'66.666%','reporte':'83.333%'};
 
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -2668,10 +2902,11 @@ function switchTab(name, btn) {
   document.getElementById('tabbtn-'+name)?.classList.add('active');
   document.getElementById('ndt-'+name)?.classList.add('active');
   document.getElementById('tab-indicator').style.left = TAB_POSITIONS[name]||'0';
-  ['nueva','historial','escaner','formulario','reporte'].forEach(n=>{
+  ['nueva','historial','pacientes','escaner','formulario','reporte'].forEach(n=>{
     document.getElementById('screen-'+n).classList.toggle('active',n===name);
   });
   if(name==='historial') loadHistory(false);
+  if(name==='pacientes') { loadHistory(false); renderPatients(); }
   if(name==='escaner') extOnTabEnter();
   document.querySelector('.scroll-area').scrollTo(0,0);
 }
