@@ -1431,7 +1431,7 @@ function viewCurrentAsForm() {
   selectedOrder = formDataToOrderObj(d);
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  switchTab('formulario', document.getElementById('tabbtn-formulario'));
+  switchTab('formulario', document.getElementById('tabbtn-formulario'), false);
 }
 
 function viewCurrentAsReport() {
@@ -1439,7 +1439,7 @@ function viewCurrentAsReport() {
   selectedOrder = formDataToOrderObj(d);
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
-  switchTab('reporte', document.getElementById('tabbtn-reporte'));
+  switchTab('reporte', document.getElementById('tabbtn-reporte'), false);
 }
 
 function viewDetailForm() {
@@ -1448,7 +1448,7 @@ function viewDetailForm() {
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
   document.getElementById('modal-ov').classList.remove('open');
-  switchTab('formulario', document.getElementById('tabbtn-formulario'));
+  switchTab('formulario', document.getElementById('tabbtn-formulario'), false);
 }
 
 function viewDetailReport() {
@@ -1457,7 +1457,7 @@ function viewDetailReport() {
   renderFormulario(selectedOrder);
   renderReporte(selectedOrder);
   document.getElementById('modal-ov').classList.remove('open');
-  switchTab('reporte', document.getElementById('tabbtn-reporte'));
+  switchTab('reporte', document.getElementById('tabbtn-reporte'), false);
 }
 
 function formDataToOrderObj(d) {
@@ -2580,12 +2580,12 @@ function filterCards(){renderCards();}
 function quickForm(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  switchTab('formulario',document.getElementById('tabbtn-formulario'));
+  switchTab('formulario',document.getElementById('tabbtn-formulario'), false);
 }
 function quickReport(encoded) {
   const o = JSON.parse(decodeURIComponent(encoded));
   selectedOrder=o; renderFormulario(o); renderReporte(o);
-  switchTab('reporte',document.getElementById('tabbtn-reporte'));
+  switchTab('reporte',document.getElementById('tabbtn-reporte'), false);
 }
 
 function updateStats(){
@@ -2896,7 +2896,7 @@ function openPatientModal(encodedKey) {
 // ─── NAVIGATION ───────────────────────────────────────────────────
 const TAB_POSITIONS={'nueva':'0','historial':'16.666%','pacientes':'33.333%','escaner':'50%','formulario':'66.666%','reporte':'83.333%'};
 
-function switchTab(name, btn) {
+function switchTab(name, btn, fresh) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.nav-dt').forEach(b=>b.classList.remove('active'));
   document.getElementById('tabbtn-'+name)?.classList.add('active');
@@ -2908,7 +2908,22 @@ function switchTab(name, btn) {
   if(name==='historial') loadHistory(false);
   if(name==='pacientes') { loadHistory(false); renderPatients(); }
   if(name==='escaner') extOnTabEnter();
+  // Direct nav clicks into Formulario/Reporte (fresh !== false) should start
+  // from the search view, not keep showing an order opened from another tab.
+  if(fresh!==false && (name==='formulario'||name==='reporte')) resetFolioSearchScreen(name==='formulario'?'fp':'rp');
   document.querySelector('.scroll-area').scrollTo(0,0);
+}
+
+function resetFolioSearchScreen(prefix) {
+  selectedOrder = null;
+  const searchEl = document.getElementById(prefix+'-search');
+  if (searchEl) searchEl.value = '';
+  const resultsEl = document.getElementById(prefix+'-results');
+  if (resultsEl) { resultsEl.style.display = 'none'; resultsEl.innerHTML = ''; }
+  const containerEl = document.getElementById(prefix==='fp' ? 'of-container' : 'rpt-container');
+  if (containerEl) containerEl.innerHTML = prefix==='fp'
+    ? '<div class="empty">Busca una orden para ver el formulario.</div>'
+    : '<div class="empty">Busca una orden para ver el reporte del cliente.</div>';
 }
 
 // ─── EXTRACTOR IA (Gemini + Groq) ────────────────────────────────
